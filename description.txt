@@ -1,0 +1,11 @@
+pysatModelUtils allows users to compare models with data obtained through pysat
+
+Main Features
+-------------
+- Comparison of models and measured data.
+- Matching of instruments to modelled data parameters.
+- Extraction of instrument-aligned data from a modelled data set.
+
+Documentation
+---------------------
+`Full Documentation <http://pysat.readthedocs.io/en/latest/>`_
