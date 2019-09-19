@@ -31,7 +31,7 @@ else:
 setup(name='pysatModelUtils',
       version=version,
       url='github.com/pysat/pysatModelUtils',
-      author='Angeline G. Burrell',
+      author='Angeline G. Burrell, Russell Stoneback',
       author_email='angeline.burrell@nrl.navy.mil',
       description='Seasonal analysis routines for pysat',
       long_description=long_description,
