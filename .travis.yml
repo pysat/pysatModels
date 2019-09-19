@@ -5,7 +5,10 @@ matrix:
     - python: 2.7
     - python: 3.7
 
-services: xvfb
+addons:
+  apt:
+    packages:
+    - gfortran
 
 before_install:
   - pip install pytest-cov
