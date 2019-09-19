@@ -15,7 +15,11 @@ before_install:
   - pip install coveralls
   - pip install future
   - pip install matplotlib
-
+  - pip install netCDF4
+  - pip install beautifulsoup4
+  - pip install lxml
+  - pip install pysatCDF >/dev/null
+  
 install:
   - python setup.py install
 
