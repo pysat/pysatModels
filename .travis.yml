@@ -1,0 +1,24 @@
+language: python
+dist: xenial
+matrix:
+  include:
+    - python: 2.7
+    - python: 3.5
+    - python: 3.6
+    - python: 3.7
+
+services: xvfb
+
+before_install:
+  - pip install pytest-cov
+  - pip install coveralls
+  - pip install future
+
+install:
+  - python setup.py install
+
+script:
+  - pytest -vs --cov=pysatModelUtils/
+
+after_success:
+  - coveralls
