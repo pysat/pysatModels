@@ -5,7 +5,7 @@ from nose.tools import assert_raises, raises
 import pandas as pds
 
 import pysat
-from pysat import model_utils as mu
+import pysatModelUtils as mu
 
 
 class TestBasics():
