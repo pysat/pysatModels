@@ -32,7 +32,7 @@ before_install:
   # install pysat
   - cd /home/travis/build/pysat/pysat
   - python setup.py install >/dev/null
-  - cd ~
+  - cd /home/travis/build/pysat/pysatModelUtils
 
 
 install:
