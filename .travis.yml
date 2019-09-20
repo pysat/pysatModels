@@ -17,8 +17,9 @@ before_install:
   - pip install future
   - pip install matplotlib
   - pip install netCDF4
+  - pip install pysat
   - pip install pysatCDF >/dev/null
-  
+
 install:
   - python setup.py install
 
