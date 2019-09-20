@@ -24,7 +24,7 @@ install:
   - python setup.py install
 
 script:
-  - pytest -vs --cov=pysatModelUtils/
+  - nosetests -vs --with-coverage --cover-package=pysatModelUtils
 
 after_success:
   - coveralls
