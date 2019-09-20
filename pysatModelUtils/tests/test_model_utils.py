@@ -7,8 +7,7 @@ import pysatModelUtils as mu
 class TestBasics():
     def setup(self):
         """Runs before every method to create a clean testing setup."""
-        self.testInst = pysat.Instrument(platform='pysat',
-                                         name='testing',
+        self.testInst = pysat.Instrument('pysat', 'testing',
                                          clean_level='clean')
         self.start = pysat.datetime(2009, 1, 1)
         self.stop = pysat.datetime(2009, 1, 1)
