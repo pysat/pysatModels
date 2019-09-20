@@ -2,6 +2,7 @@ language: python
 dist: xenial
 matrix:
   include:
+    - python: 2.7
     - python: 3.5
     - python: 3.6
     - python: 3.7
@@ -17,8 +18,21 @@ before_install:
   - pip install future
   - pip install matplotlib
   - pip install netCDF4
-  - pip install pysat
   - pip install pysatCDF >/dev/null
+  # Prepare modified pysat install
+  - cd ..
+  - echo 'cloning pysat'
+  - git clone https://github.com/pysat/pysat.git >/dev/null
+  - git checkout develop
+  - echo 'installing pysat'
+  - cd ./pysat
+  # set up data directory
+  - mkdir /home/travis/build/pysat/pysatData
+  # install pysat
+  - cd /home/travis/build/pysat/pysat
+  - python setup.py install >/dev/null
+  - cd ~
+
 
 install:
   - python setup.py install
