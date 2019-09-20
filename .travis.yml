@@ -26,7 +26,7 @@ before_install:
   - git clone https://github.com/pysat/pysat.git >/dev/null
   - echo 'installing pysat'
   - cd ./pysat
-  - git checkout develop
+  - git checkout no_sgp4
   # set up data directory
   - mkdir /home/travis/build/pysat/pysatData
   # install pysat
