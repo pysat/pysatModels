@@ -1,5 +1,5 @@
 """
-pysat.model_utils - interface for modeled observations
+pysatModelUtils - interface for modeled observations
 ======================================================
 
 Main Features

@@ -1,11 +1,7 @@
-import numpy as np
-import sys
-
-from nose.tools import assert_raises, raises
-import pandas as pds
+from nose.tools import raises
 
 import pysat
-from pysat import model_utils as mu
+import pysatModelUtils as mu
 
 
 class TestBasics():
@@ -24,15 +20,15 @@ class TestBasics():
     @raises(ValueError)
     def test_collect_inst_model_pairs_wo_date(self):
         """Try to run without start or stop dates"""
-        match = mu.collect_inst_model_pairs(inst=self.testInst)
+        mu.collect_inst_model_pairs(inst=self.testInst)
 
     @raises(ValueError)
     def test_collect_inst_model_pairs_wo_inst(self):
         """Try to run without an instrument"""
-        match = mu.collect_inst_model_pairs(start=self.start, stop=self.stop)
+        mu.collect_inst_model_pairs(start=self.start, stop=self.stop)
 
     @raises(ValueError)
     def test_collect_inst_model_pairs_wo_model(self):
         """Try to run without a model"""
-        match = mu.collect_inst_model_pairs(start=self.start, stop=self.stop,
-                                            inst=self.testInst)
+        mu.collect_inst_model_pairs(start=self.start, stop=self.stop,
+                                    inst=self.testInst)
