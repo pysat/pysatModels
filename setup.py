@@ -4,7 +4,6 @@
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
 
-import sys
 import os
 from codecs import open
 from setuptools import setup, find_packages
@@ -19,13 +18,7 @@ with open(os.path.join(here, version_filename)) as version_file:
 
 # change setup.py for readthedocs - commented for now
 # on_rtd = os.environ.get('READTHEDOCS') == 'True'
-if sys.version_info.major == 2:
-    install_requires = ['xarray<0.12', 'pandas>=0.23, <0.25',
-                        'numpy>=1.12, <1.17', 'scipy<1.3', 'pysat']
-else:
-    install_requires = ['xarray', 'pandas>=0.23, <0.25', 'numpy>=1.12',
-                        'pysat']
-
+install_requires = ['pysat']
 
 # Run setup
 
