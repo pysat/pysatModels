@@ -18,7 +18,7 @@ with codecs.open(os.path.join(here, version_filename)) as version_file:
 
 # change setup.py for readthedocs - commented for now
 # on_rtd = os.environ.get('READTHEDOCS') == 'True'
-install_requires = ['pysat']
+install_requires = ['pysat', 'scipy', 'pandas', 'xarray', 'numpy']
 
 # Run setup
 
