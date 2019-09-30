@@ -25,14 +25,14 @@ class TestUtilsMatch():
         with raises(ValueError) as verr:
             match.collect_inst_model_pairs(inst=self.testInst)
 
-        assert verr.vaue.args[0].find('Must provide start and end time') >= 0
+        assert verr.value.args[0].find('Must provide start and end time') >= 0
 
     def test_collect_inst_model_pairs_wo_inst(self):
         """Try to run without an instrument"""
         with raises(ValueError) as verr:
             match.collect_inst_model_pairs(start=self.start, stop=self.stop)
 
-        assert verr.vaue.args[0].find('Must provide a pysat instrument') >= 0
+        assert verr.value.args[0].find('Must provide a pysat instrument') >= 0
 
     def test_collect_inst_model_pairs_wo_model(self):
         """Try to run without a model"""
@@ -40,4 +40,4 @@ class TestUtilsMatch():
             match.collect_inst_model_pairs(start=self.start, stop=self.stop,
                                            inst=self.testInst)
 
-        assert verr.vaue.args[0].find('Must provide model files') >= 0
+        assert verr.value.args[0].find('Must provide model files') >= 0
