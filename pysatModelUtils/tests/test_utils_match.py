@@ -40,4 +40,5 @@ class TestUtilsMatch():
             match.collect_inst_model_pairs(start=self.start, stop=self.stop,
                                            inst=self.testInst)
 
-        assert verr.value.args[0].find('Must provide model files') >= 0
+        assert(verr.value.args[0].find('Must provide list of modelled data')
+               >= 0)
