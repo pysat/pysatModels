@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019, RS
-# Full license can be found in License.md
+# Copyright (C) 2019, Authors
+# Full license can be found in License.md and AUTHORS.md
 # -----------------------------------------------------------------------------
 
 import os
-from codecs import open
+import codecs
 from setuptools import setup, find_packages
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'description.txt'), encoding='utf-8') as f:
+with codecs.open(os.path.join(here, 'description.txt'), encoding='utf-8') as f:
     long_description = f.read()
 version_filename = os.path.join('pysatModelUtils', 'version.txt')
-with open(os.path.join(here, version_filename)) as version_file:
+with codecs.open(os.path.join(here, version_filename)) as version_file:
     version = version_file.read().strip()
 
 # change setup.py for readthedocs - commented for now
@@ -25,7 +25,7 @@ install_requires = ['pysat']
 setup(name='pysatModelUtils',
       version=version,
       url='github.com/pysat/pysatModelUtils',
-      author='Angeline G. Burrell, Russell Stoneback',
+      author='Angeline G. Burrell, Jeff Klenzing, Russell Stoneback',
       author_email='angeline.burrell@nrl.navy.mil',
       description='Model-data comparisons for the pysat ecosystem',
       long_description=long_description,
