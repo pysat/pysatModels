@@ -33,8 +33,6 @@ class TestUtilsMatchCollectInstModPairs():
                                 "mod_datetime_name": "Epoch",
                                 "mod_time_name": "uts",
                                 "mod_units": ["deg", "deg", "h"]}
-        self.start = 
-        self.stop = 
 
     def teardown(self):
         """Runs after every method to clean up previous testing."""
