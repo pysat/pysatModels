@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, unicode_literals
 
-from datetime 
+import datetime as dt
 import pytest
 
 import pysat
