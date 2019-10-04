@@ -15,23 +15,23 @@ class TestUtilsMatchCollectInstModPairs():
     """ Unit tests for utils.match.collect_inst_model_pairs """
     def setup(self):
         """Runs before every method to create a clean testing setup."""
-        self.input_args = {"start": dt.datetime(2009, 1, 1),
-                           "stop": dt.datetime(2009, 1, 1),
-                           "tinc": dt.timedelta(days=1),
-                           "inst": pysat.Instrument(platform=str('pysat'),
-                                                    name=str('testing'),
-                                                    clean_level='clean')}
+        self.input_args = [dt.datetime(2009, 1, 1), dt.datetime(2009, 1, 2),
+                           dt.timedelta(days=1),
+                           pysat.Instrument(platform=str('pysat'),
+                                            name=str('testing'),
+                                            clean_level='clean')]
         self.required_kwargs = {"model_load_kwargs":
                                 {"model_inst":
                                  pysat.Instrument(platform=str('pysat'),
                                                   name=str('testing'),
                                                   clean_level='clean')},
+                                "inst_clean_rout": lambda x: True,
                                 "inst_lon_name": "longitude",
                                 "mod_lon_name": "longitude",
                                 "inst_name": ["longitude", "latitude", "slt"],
                                 "mod_name": ["longitude", "latitude", "slt"],
                                 "mod_datetime_name": "Epoch",
-                                "mod_time_name": "uts",
+                                "mod_time_name": "Epoch",
                                 "mod_units": ["deg", "deg", "h"]}
 
     def teardown(self):
@@ -47,15 +47,48 @@ class TestUtilsMatchCollectInstModPairs():
                               ("mod_name", "Must provide the same number"),
                               ("mod_units", "Must provide units for each "),
                               ("mod_datetime_name", "Need datetime coordinate"),
-                              ("mod_time_name", "Need time coordinate")])
+                              ("mod_time_name", "Need time coordinate"),
+                              ("inst_clean_rout", "Need routine to clean")])
     def test_input_failure(self, del_key, err_msg):
         """ Test for expected failure when missing necessary input from kwargs
         """
         del self.required_kwargs[del_key]
 
         with pytest.raises(ValueError) as verr:
-            match.collect_inst_model_pairs(**self.input_args,
+            match.collect_inst_model_pairs(*self.input_args,
                                            **self.required_kwargs)
 
         assert verr.value.args[0].find(err_msg) >= 0
-    
+
+    @pytest.mark.parametrize("cng_key,bad_val,err_msg",
+                             [("mod_lon_name", "glon",
+                               "unknown name for model longitude"),
+                              ("mod_datetime_name", "dt",
+                               "unknown model name for datetime"),])
+    def test_bad_input(self, cng_key, bad_val, err_msg):
+        """ Test for expected failure with bad input """
+        self.required_kwargs[cng_key] = bad_val
+
+        with pytest.raises(ValueError) as verr:
+            match.collect_inst_model_pairs(*self.input_args,
+                                           **self.required_kwargs)
+
+        assert verr.value.args[0].find(err_msg) >= 0
+
+    def test_bad_time(self):
+        """ Test the match routine the times prevent any data from loading"""
+        self.input_args[1] = self.input_args[0]
+
+        assert match.collect_inst_model_pairs(*self.input_args,
+                                              **self.required_kwargs) is None
+
+    @pytest.mark.parametrize("tinc_val", [dt.timedelta(days=1),
+                                          dt.timedelta(days=2)])
+    def test_tinc_success(self, tinc_val):
+        """ Test the match success with different time increments"""
+        self.input_args[2] = tinc_val
+
+        matched_inst = match.collect_inst_model_pairs(*self.input_args,
+                                                      **self.required_kwargs)
+
+        assert isinstance(matched_inst.data, xr.Dataset)
