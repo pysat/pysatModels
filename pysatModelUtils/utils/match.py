@@ -191,13 +191,13 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
     while start < stop:
-        mdata = model_load_rout(mod_file, start)
-            lon_high = float(mdata.coords[mod_lon_name].max())
-            lon_low = float(mdata.coords[mod_lon_name].min())
-        else:
-            mdata = None
+        mdata = model_load_rout(start, **model_load_kwargs)
 
         if mdata is not None:
+            # Get the range for model longitude
+            lon_high = float(mdata.coords[mod_lon_name].max())
+            lon_low = float(mdata.coords[mod_lon_name].min())
+            
             # Load the instrument data, if needed
             if inst.empty or inst.index[-1] < istart:
                 inst.custom.add(pysat.utils.update_longitude, 'modify',
