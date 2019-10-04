@@ -166,8 +166,15 @@ def extract_modelled_observations(inst=None, model=None, inst_name=[],
             sel_name.pop(sel_name.index(mi))
 
     # Determine the model time resolution
-    tm_sec = (np.array(model.data_vars[mod_datetime_name][1:]) -
-              np.array(model.data_vars[mod_datetime_name][:-1])).min()
+    if mod_datetime_name in model.data_vars:
+        mod_datetime = model.data_vars[mod_datetime_name].values
+    elif mod_datetime_name in model.coords:
+        mod_datetime = model.coords[mod_datetime_name].values
+    else:
+        raise ValueError("".join(["unknown model name for datetime: ",
+                                  mod_datetime_name]))
+
+    tm_sec = (mod_datetime[1:] - mod_datetime[:-1]).min()
     tm_sec /= np.timedelta64(1, 's')
     ti_sec = (inst.index[1:] - inst.index[:-1]).min().total_seconds()
     min_del = tm_sec if tm_sec < ti_sec else ti_sec
@@ -176,7 +183,7 @@ def extract_modelled_observations(inst=None, model=None, inst_name=[],
     # resolution of a model run
     mind = list()
     iind = list()
-    for i, tt in enumerate(np.array(model.data_vars[mod_datetime_name])):
+    for i, tt in enumerate(mod_datetime):
         del_sec = abs(tt - inst.index).total_seconds()
         if del_sec.min() <= min_del:
             iind.append(del_sec.argmin())
