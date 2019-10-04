@@ -61,7 +61,7 @@ def load_model_xarray(ftime, model_inst=None, filename=None):
     # Extract the xarray Dataset, returning None if there is no data
     if model_inst.empty:
         model_xarray = None
-    elif model_inst.ispandas:
+    elif model_inst.pandas_format:
         model_xarray = model_inst.data.to_xarray()
     else:
        model_xarray = model_inst.data
@@ -72,11 +72,11 @@ def load_model_xarray(ftime, model_inst=None, filename=None):
 def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                              model_load_rout=load_model_xarray,
                              model_load_kwargs={"model_inst": None},
-                             inst_lon_name=None, mod_lon_name=None,
-                             inst_name=[], mod_name=[], mod_datetime_name=None,
-                             mod_time_name=None, mod_units=[], sel_name=None,
-                             method='linear', model_label='model',
-                             inst_clean_rout=None, comp_clean='clean'):
+                             inst_clean_rout=None, inst_lon_name=None,
+                             mod_lon_name=None, inst_name=[], mod_name=[],
+                             mod_datetime_name=None, mod_time_name=None,
+                             mod_units=[], sel_name=None, method='linear',
+                             model_label='model', comp_clean='clean'):
     """Pair instrument and model data
 
     Parameters
@@ -101,6 +101,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
         string format that will construct the desired model filename from a
         datetime object.  The default will fail unless a model Instrument object
         is provided.  (default={"model_inst": None})
+    inst_clean_rout : routine
+        Routine to clean the instrument data
     inst_lon_name : string
         variable name for instrument longitude
     mod_lon_name : string
@@ -128,8 +130,6 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     model_label : string
         name of model, used to identify interpolated data values in instrument
         (default="model")
-    inst_clean_rout : routine
-        Routine to clean the instrument data
     comp_clean : string
         Clean level for the comparison data ('clean', 'dusty', 'dirty', 'none')
         (default='clean')
@@ -186,7 +186,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     # Could use some improvement, for not re-downloading times that you already
     # have
     if (stop - start).days != len(inst.files[start:stop]):
-        inst.download(start=start, stop=stop, user=user, password=password)
+        inst.download(start=start, stop=stop, **inst_download_kwargs)
 
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
@@ -195,12 +195,19 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
 
         if mdata is not None:
             # Get the range for model longitude
-            lon_high = float(mdata.coords[mod_lon_name].max())
-            lon_low = float(mdata.coords[mod_lon_name].min())
+            if mod_lon_name in mdata.coords:
+                lon_high = float(mdata.coords[mod_lon_name].max())
+                lon_low = float(mdata.coords[mod_lon_name].min())
+            elif mod_lon_name in mdata.data_vars:
+                lon_high = float(np.nanmax(mdata.data_vars[mod_lon_name]))
+                lon_low = float(np.nanmin(mdata.data_vars[mod_lon_name]))
+            else:
+                raise ValueError("".join(["unknown name for model longitude: ",
+                                          mod_lon_name]))
             
             # Load the instrument data, if needed
             if inst.empty or inst.index[-1] < istart:
-                inst.custom.add(pysat.utils.update_longitude, 'modify',
+                inst.custom.add(pysat.utils.coords.update_longitude, 'modify',
                                 low=lon_low, lon_name=inst_lon_name,
                                 high=lon_high)
                 inst.load(date=istart)
