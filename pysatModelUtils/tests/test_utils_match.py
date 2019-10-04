@@ -118,7 +118,7 @@ class TestUtilsMatchCollectInstModPairs:
         assert match.collect_inst_model_pairs(*self.input_args,
                                               **self.required_kwargs) is None
 
-    @pysat.mark.skip(reason="test is failing, need to fix extract first")
+    @pytest.mark.skip(reason="test is failing, need to fix extract first")
     @pytest.mark.parametrize("tinc_val", [dt.timedelta(days=1),
                                           dt.timedelta(days=2)])
     def test_tinc_success(self, tinc_val):
