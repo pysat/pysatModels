@@ -134,6 +134,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     if sel_name is None:
         sel_name = np.asarray(list(model.data_vars.keys()))
+    else:
+        sel_name = np.asarray(sel_name)
 
     # Test input
     if len(inst_name) == 0:

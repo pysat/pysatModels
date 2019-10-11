@@ -8,6 +8,7 @@ import pysat
 
 import pysatModelUtils.utils.extract as extract
 
+@pytest.mark.skip("input requires a regular grid for the model")
 class TestUtilsExtractObsViewModel:
     """ Unit tests for utils.extract.sat_view_through_model"""
     def setup(self):
@@ -83,7 +84,7 @@ class TestUtilsExtractModObs:
                               ("model_label", 1, "Unknown formate code ")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
         """ Test for expected failure with bad kwarg input """
-        kwargs[bad_key] = bad_val
+        kwargs = {bad_key: bad_val}
 
         with pytest.raises(ValueError) as verr:
             extract.extract_modelled_observations(*self.input_args, **kwargs)
@@ -94,7 +95,8 @@ class TestUtilsExtractModObs:
     def test_good_sel_name(self, sel_val):
         """ Test for success with different good selection name inputs"""
         out_keys = extract.extract_modelled_observations(*self.input_args,
-                                                         sel_name=sel_val)
+                                                         **{"sel_name":
+                                                            sel_val})
         for label in sel_val:
             assert "model_{:s}".format(label) in out_keys
         assert len(out_keys) == len(np.asarray(sel_val))
@@ -104,7 +106,7 @@ class TestUtilsExtractModObs:
     # Add tests for model data already in instrument
     def test_success(self):
         """ Test the extraction success"""
-        out_keys = extract.extract_modelled_observation(*self.input_args)
+        out_keys = extract.extract_modelled_observations(*self.input_args)
 
         for label in sel_val:
             assert "model_{:s}".format(label) in out_keys
