@@ -25,7 +25,7 @@ import pysat.utils as pyutils
 
 import pysatModelUtils as pysat_mu
 
-# Needs a better name, Jeff are you using this anywhere?
+# Needs a better name, is this being used anywhere?
 def satellite_view_through_model(obs, mod, obs_coords, mod_dat_names):
     """Interpolate model values onto satellite orbital path.
 
