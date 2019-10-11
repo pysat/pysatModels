@@ -68,7 +68,7 @@ class TestUtilsExtractModObs:
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
         """ Test for expected failure with bad input arguments
         """
-        del self.input_args[bad_index] = bad_input
+        self.input_args[bad_index] = bad_input
 
         with pytest.raises(ValueError) as verr:
             extract.extract_modelled_observations(*self.input_args)
