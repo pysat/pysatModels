@@ -164,8 +164,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
     for i, iname in enumerate(inst_name):
         if iname not in inst.data.keys():
-            raise ValueError(''.join('Unknown instrument location index ',
-                                     '{:}'.format(iname)])
+            raise ValueError(''.join(['Unknown instrument location index ',
+                                      '{:}'.format(iname)]))
         inst_scale[i] = pyutils.scale_units(mod_units[i],
                                             inst.meta.data.units[iname])
 
