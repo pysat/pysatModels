@@ -18,7 +18,6 @@ from __future__ import unicode_literals
 
 import numpy as np
 import pandas as pds
-from sys import version_info
 import scipy.interpolate as interpolate
 
 import pysat.utils as pyutils
@@ -134,13 +133,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     mod_name = np.asarray(mod_name)
 
     if sel_name is None:
-        if version_info.major > 2:
-            sel_name = np.asarray([*model.data_vars.keys()])
-        else:
-            # Needed for python 2
-            sel_name = np.asarray(model.data_vars.keys())
-    else:
-        sel_name = np.asarray(sel_name)
+        sel_name = np.asarray(list(model.data_vars.keys()))
 
     # Test input
     if len(inst_name) == 0:

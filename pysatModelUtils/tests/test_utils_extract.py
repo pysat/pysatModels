@@ -76,7 +76,7 @@ class TestUtilsExtractModObs:
         assert verr.value.args[0].find(err_msg) >= 0
 
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
-                             [("sel_name", self.required_kwargs['mod_name'],
+                             [("sel_name", self.input_args[3],
                                "No model data keys to interpolate"),
                              ("method", "not_a_method",
                               "interpn only understand the methods"),
