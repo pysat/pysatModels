@@ -97,7 +97,7 @@ class TestUtilsExtractModObs:
                                                          sel_name=sel_val)
         for label in sel_val:
             assert "model_{:s}".format(label) in out_keys
-        assert len(out_keys) = len(np.asarray(sel_val))
+        assert len(out_keys) == len(np.asarray(sel_val))
 
 
     # Add test for out-of-bounds data
@@ -108,5 +108,5 @@ class TestUtilsExtractModObs:
 
         for label in sel_val:
             assert "model_{:s}".format(label) in out_keys
-        assert len(out_keys) = len(np.asarray(sel_val))
+        assert len(out_keys) == len(np.asarray(sel_val))
 
