@@ -91,7 +91,7 @@ class TestUtilsExtractModObs:
         assert verr.value.args[0].find(err_msg) >= 0
 
     @pytest.mark.parametrize("sel_val", [(["dummy1", "dummy2"]), ("dummy1")])
-    def test_good_sel_name(self):
+    def test_good_sel_name(self, sel_val):
         """ Test for success with different good selection name inputs"""
         out_keys = extract.extract_modelled_observations(*self.input_args,
                                                          sel_name=sel_val)
