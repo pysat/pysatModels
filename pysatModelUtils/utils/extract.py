@@ -114,8 +114,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     Returns
     -------
-    added_names : list
-        list of names of modelled data added to the instrument
+    interp_data.keys() : Keys
+        Keys of modelled data added to the instrument
 
     Raises
     ------
@@ -133,7 +133,11 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     mod_name = np.asarray(mod_name)
 
     if sel_name is None:
-        sel_name = np.asarray([*model.data_vars.keys()])
+        try:
+            sel_name = np.asarray([*model.data_vars.keys()])
+        except SyntaxError:
+            # Needed for python 2
+            sel_name = np.asarray(model.data_vars.keys())
     else:
         sel_name = np.asarray(sel_name)
 
@@ -332,6 +336,6 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                                                      interp_data[mdat]))
             inst.data.rename({"interp_key": mdat}, inplace=True)
 
-    return [*interp_data.keys()]
+    return interp_data.keys()
 
                   
