@@ -18,7 +18,7 @@ class TestUtilsExtractObsViewModel:
                      pysat.Instrument(platform=str('pysat'),
                                       name=str('testing'),
                                       sat_id='6', clean_level='clean'),
-                     ['latitude', 'longitude'], ['dummy1', 'dummy2'])
+                     ['latitude', 'longitude'], ['dummy1', 'dummy2']]
 
     def teardown(self):
         del self.args
