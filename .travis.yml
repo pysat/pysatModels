@@ -18,6 +18,8 @@ before_install:
   - pip install future
   - pip install matplotlib
   - pip install netCDF4
+  - pip install 'pandas<0.25'
+  - pip install xarray
   - pip install pysatCDF >/dev/null
   # Prepare modified pysat install
   - pip install numpy
@@ -26,7 +28,7 @@ before_install:
   - git clone https://github.com/pysat/pysat.git >/dev/null
   - echo 'installing pysat'
   - cd ./pysat
-  - git checkout no_sgp4
+  - git checkout develop
   # set up data directory
   - mkdir /home/travis/build/pysat/pysatData
   # install pysat
