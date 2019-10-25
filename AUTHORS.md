@@ -2,7 +2,7 @@ Authors
 =======
 
 * Angeline G. Burrell
-* Jeffery H. Klenzing
+* Jeffrey H. Klenzing
 
 Thanks
 ======

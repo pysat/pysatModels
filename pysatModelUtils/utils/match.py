@@ -191,7 +191,18 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
     while start < stop:
-        mdata = model_load_rout(start, **model_load_kwargs)
+        mod_file = start.strftime(model_files)
+
+        if path.isfile(mod_file):
+            try:
+                mdata = model_load_rout(mod_file, start)
+                lon_high = float(mdata.coords[mod_lon_name].max())
+                lon_low = float(mdata.coords[mod_lon_name].min())
+            except Exception as err:
+                logger.warning("unable to load {:s}: {:}".format(mod_file, err))
+                mdata = None
+        else:
+            mdata = None
 
         if mdata is not None:
             # Get the range for model longitude
