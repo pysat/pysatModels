@@ -23,14 +23,60 @@ import pysat
 
 from . import extract
 
-def collect_inst_model_pairs(start=None, stop=None, tinc=None, inst=None,
-                             user=None, password=None, model_files=None,
-                             model_load_rout=None, inst_lon_name=None,
+def load_model_xarray(ftime, model_inst=None, filename=None):
+    """ Load and extract data from a model Instrument at the specified time
+
+    Parameters
+    ----------
+    ftime : dt.datetime
+        Desired time for model Instrument input
+    model_inst : pysat.Instrument
+        Model instrument object
+    filename : str or NoneType
+        Model filename, if the file is not include in the Instrument filelist.
+        or a filename that requires time specification from ftime (default=None)
+
+    Returns
+    -------
+    model_xarray : xarray.Dataset or NoneType
+        Dataset from pysat Instrument object or None if there is no data
+
+    """
+    # Test the input
+    if not hasattr(model_inst, 'load'):
+        raise ValueError('must provide a pysat.Instrument object')
+
+    # Format the filename, if needed
+    if hasattr(ftime, 'strftime') and filename is not None:
+        fname = ftime.strftime(filename)
+    else:
+        fname = filename
+
+    # Load the model data, using the file if it exists
+    if fname is not None and path.isfile(fname):
+        model_inst.load(fname=fname)
+    else:
+        model_inst.load(date=ftime)
+
+    # Extract the xarray Dataset, returning None if there is no data
+    if model_inst.empty:
+        model_xarray = None
+    elif model_inst.pandas_format:
+        model_xarray = model_inst.data.to_xarray()
+    else:
+       model_xarray = model_inst.data
+
+    return model_xarray
+
+    
+def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
+                             model_load_rout=load_model_xarray,
+                             model_load_kwargs={"model_inst": None},
+                             inst_clean_rout=None, inst_lon_name=None,
                              mod_lon_name=None, inst_name=[], mod_name=[],
                              mod_datetime_name=None, mod_time_name=None,
                              mod_units=[], sel_name=None, method='linear',
-                             model_label='model', inst_clean_rout=None,
-                             comp_clean='clean'):
+                             model_label='model', comp_clean='clean'):
     """Pair instrument and model data
 
     Parameters
@@ -43,16 +89,20 @@ def collect_inst_model_pairs(start=None, stop=None, tinc=None, inst=None,
         Time incriment for model files
     inst : pysat.Instrument instance
         instrument object for which modelled data will be extracted
-    user : string
-        User name (needed for some data downloads)
-    password : string
-        Password (needed for some data downloads)
-    model_files : string
-        string format that will construct the desired model filename from a
-        datetime object
+    inst_download_kwargs : dict
+        optional keyword arguments for downloading instrument data (default={})
     model_load_rout : routine
-        Routine to load model data into an xarray using filename and datetime
-        as input
+        Routine to load model data into an xarray using datetime as arguement
+        input input and other necessary data as keyword arguments.  If the
+        routine requires a filename, ensure that the routine uses the datetime
+        input to construct the correct filename, such as 'model_%Y%j.nc'
+        (default=load_model_xarray)
+    model_load_kwargs : dict
+        string format that will construct the desired model filename from a
+        datetime object.  The default will fail unless a model Instrument object
+        is provided.  (default={"model_inst": None})
+    inst_clean_rout : routine
+        Routine to clean the instrument data
     inst_lon_name : string
         variable name for instrument longitude
     mod_lon_name : string
@@ -80,8 +130,6 @@ def collect_inst_model_pairs(start=None, stop=None, tinc=None, inst=None,
     model_label : string
         name of model, used to identify interpolated data values in instrument
         (default="model")
-    inst_clean_rout : routine
-        Routine to clean the instrument data
     comp_clean : string
         Clean level for the comparison data ('clean', 'dusty', 'dirty', 'none')
         (default='clean')
@@ -90,6 +138,11 @@ def collect_inst_model_pairs(start=None, stop=None, tinc=None, inst=None,
     -------
     matched_inst : pysat.Instrument instance
         instrument object and paired modelled data
+
+    Raises
+    ------
+    ValueError
+        If input is incorrect
 
     Notes
     -----
@@ -102,36 +155,29 @@ def collect_inst_model_pairs(start=None, stop=None, tinc=None, inst=None,
     matched_inst = None
 
     # Test the input
-    if start is None or stop is None:
-        raise ValueError('Must provide start and end time for comparison')
+    if inst_lon_name is None:
+        raise ValueError('Need longitude name for instrument data')
 
-    if inst is None:
-        raise ValueError('Must provide a pysat instrument object')
-
-    if model_files is None:
-        raise ValueError('Must provide list of modelled data')
-
-    if model_load_rout is None:
-        raise ValueError('Need routine to load modelled data')
+    if mod_lon_name is None:
+        raise ValueError('Need longitude name for model data')
 
     if mod_datetime_name is None:
-        raise ValueError('Need time coordinate name for model datasets')
+        raise ValueError('Need datetime coordinate name for model data')
 
     if mod_time_name is None:
-        raise ValueError('Need time coordinate name for model datasets')
+        raise ValueError('Need time coordinate name for model data')
 
     if len(inst_name) == 0:
         estr = 'Must provide instrument location attribute names as a list'
         raise ValueError(estr)
 
     if len(inst_name) != len(mod_name):
-        estr = 'Must provide the same number of instrument and model '
-        estr += 'location attribute names as a list'
+        estr = ''.join(['Must provide the same number of instrument and model ',
+                       'location attribute names as a list'])
         raise ValueError(estr)
 
     if len(mod_name) != len(mod_units):
-        raise ValueError('Must provide units for each model location ' +
-                         'attribute')
+        raise ValueError('Must provide units for each model location attribute')
 
     if inst_clean_rout is None:
         raise ValueError('Need routine to clean the instrument data')
@@ -140,7 +186,7 @@ def collect_inst_model_pairs(start=None, stop=None, tinc=None, inst=None,
     # Could use some improvement, for not re-downloading times that you already
     # have
     if (stop - start).days != len(inst.files[start:stop]):
-        inst.download(start=start, stop=stop, user=user, password=password)
+        inst.download(start=start, stop=stop, **inst_download_kwargs)
 
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
@@ -159,9 +205,20 @@ def collect_inst_model_pairs(start=None, stop=None, tinc=None, inst=None,
             mdata = None
 
         if mdata is not None:
+            # Get the range for model longitude
+            if mod_lon_name in mdata.coords:
+                lon_high = float(mdata.coords[mod_lon_name].max())
+                lon_low = float(mdata.coords[mod_lon_name].min())
+            elif mod_lon_name in mdata.data_vars:
+                lon_high = float(np.nanmax(mdata.data_vars[mod_lon_name]))
+                lon_low = float(np.nanmin(mdata.data_vars[mod_lon_name]))
+            else:
+                raise ValueError("".join(["unknown name for model longitude: ",
+                                          mod_lon_name]))
+            
             # Load the instrument data, if needed
             if inst.empty or inst.index[-1] < istart:
-                inst.custom.add(pysat.utils.update_longitude, 'modify',
+                inst.custom.add(pysat.utils.coords.update_longitude, 'modify',
                                 low=lon_low, lon_name=inst_lon_name,
                                 high=lon_high)
                 inst.load(date=istart)

@@ -24,7 +24,7 @@ import pysat.utils as pyutils
 
 import pysatModelUtils as pysat_mu
 
-# Needs a better name, Jeff are you using this anywhere?
+# Needs a better name, is this being used anywhere?
 def satellite_view_through_model(obs, mod, obs_coords, mod_dat_names):
     """Interpolate model values onto satellite orbital path.
 
@@ -56,6 +56,8 @@ def satellite_view_through_model(obs, mod, obs_coords, mod_dat_names):
     coords.insert(0, obs.index.values.astype(int))
     obs_pts = [inp for inp in zip(*coords)] # what is this doing?
 
+    # Add optional scaling?
+
     # Interpolate each model data value onto the observations time and location
     for label in mod_dat_names:
         points = [mod.data.coords[dim].values if dim != 'time' else
@@ -74,9 +76,8 @@ def satellite_view_through_model(obs, mod, obs_coords, mod_dat_names):
 
 
 
-def extract_modelled_observations(inst=None, model=None, inst_name=[],
-                                  mod_name=[], mod_datetime_name=None,
-                                  mod_time_name=None, mod_units=[],
+def extract_modelled_observations(inst, model, inst_name, mod_name,
+                                  mod_datetime_name, mod_time_name, mod_units,
                                   sel_name=None, method='linear',
                                   model_label='model'):
     """Extracts instrument-aligned data from a modelled data set
@@ -87,10 +88,10 @@ def extract_modelled_observations(inst=None, model=None, inst_name=[],
         instrument object for which modelled data will be extracted
     model : xarray Dataset
         modelled data set
-    inst_name : list of strings
+    inst_name : array-like
         list of names of the data series to use for determing instrument
         location
-    mod_name : list of strings
+    mod_name : array-like
         list of names of the data series to use for determing model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : string
@@ -100,7 +101,7 @@ def extract_modelled_observations(inst=None, model=None, inst_name=[],
     mod_units : list of strings
         units for each of the mod_name location attributes.  Currently
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
-    sel_name : list of strings or NoneType
+    sel_name : array-like or NoneType
         list of names of modelled data indices to append to instrument object,
         or None to append all modelled data (default=None)
     method : string
@@ -113,8 +114,13 @@ def extract_modelled_observations(inst=None, model=None, inst_name=[],
 
     Returns
     -------
-    added_names : list of strings
-        list of names of modelled data added to the instrument
+    interp_data.keys() : Keys
+        Keys of modelled data added to the instrument
+
+    Raises
+    ------
+    ValueError
+        For incorrect input arguments
 
     Notes
     --------
@@ -122,19 +128,16 @@ def extract_modelled_observations(inst=None, model=None, inst_name=[],
 
     """
 
+    # Ensure the array-like inputs are arrays
+    inst_name = np.asarray(inst_name)
+    mod_name = np.asarray(mod_name)
+
+    if sel_name is None:
+        sel_name = np.asarray(list(model.data_vars.keys()))
+    else:
+        sel_name = np.asarray(sel_name)
+
     # Test input
-    if inst is None:
-        raise ValueError('Must provide a pysat instrument object')
-
-    if model is None:
-        raise ValueError('Must provide modelled data')
-
-    if mod_datetime_name is None:
-        raise ValueError('Need datetime key for model datasets')
-
-    if mod_time_name is None:
-        raise ValueError('Need time coordinate name for model datasets')
-
     if len(inst_name) == 0:
         estr = 'Must provide instrument location attribute names as a list'
         raise ValueError(estr)
@@ -148,26 +151,34 @@ def extract_modelled_observations(inst=None, model=None, inst_name=[],
         raise ValueError('Must provide units for each model location ' +
                          'attribute')
 
+    if mod_time_name not in model.coords:
+        raise ValueError("Unknown model time coordinate key name")
+
+    # Remove any model coordinates from the modelled data to interpolate
+    sel_name = sel_name[[mdat not in mod_name for mdat in sel_name]]
+
+    if len(sel_name) == 0:
+        raise ValueError('No model data keys to interpolate')
+
+    # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
-    for i, ii in enumerate(inst_name):
-        if ii not in list(inst.data.keys()):
-            raise ValueError('Unknown instrument location index ' +
-                             '{:}'.format(ii))
+    for i, iname in enumerate(inst_name):
+        if iname not in inst.data.keys():
+            raise ValueError(''.join(['Unknown instrument location index ',
+                                      '{:}'.format(iname)]))
         inst_scale[i] = pyutils.scale_units(mod_units[i],
-                                            inst.meta.data.units[ii])
-
-    # Determine which data to interpolate and initialize the interpolated
-    # output
-    if sel_name is None:
-        sel_name = list(model.data_vars.keys())
-
-    for mi in mod_name:
-        if mi in sel_name:
-            sel_name.pop(sel_name.index(mi))
+                                            inst.meta.data.units[iname])
 
     # Determine the model time resolution
-    tm_sec = (np.array(model.data_vars[mod_datetime_name][1:]) -
-              np.array(model.data_vars[mod_datetime_name][:-1])).min()
+    if mod_datetime_name in model.data_vars:
+        mod_datetime = model.data_vars[mod_datetime_name].values
+    elif mod_datetime_name in model.coords:
+        mod_datetime = model.coords[mod_datetime_name].values
+    else:
+        raise ValueError("".join(["unknown model name for datetime: ",
+                                  mod_datetime_name]))
+
+    tm_sec = (mod_datetime[1:] - mod_datetime[:-1]).min()
     tm_sec /= np.timedelta64(1, 's')
     ti_sec = (inst.index[1:] - inst.index[:-1]).min().total_seconds()
     min_del = tm_sec if tm_sec < ti_sec else ti_sec
@@ -176,22 +187,40 @@ def extract_modelled_observations(inst=None, model=None, inst_name=[],
     # resolution of a model run
     mind = list()
     iind = list()
-    for i, tt in enumerate(np.array(model.data_vars[mod_datetime_name])):
+    for i, tt in enumerate(mod_datetime):
         del_sec = abs(tt - inst.index).total_seconds()
         if del_sec.min() <= min_del:
             iind.append(del_sec.argmin())
             mind.append(i)
 
     # Determine the model coordinates closest to the satellite track
-    interp_data = dict()
     interp_shape = inst.index.shape if inst.pandas_format else \
         inst.data.data_vars.items()[0][1].shape
     inst_coord = {kk: getattr(inst.data, inst_name[i]).values * inst_scale[i]
                   for i, kk in enumerate(mod_name)}
+
+    # Initalize the interpolated data dictionary and test to ensure that the
+    # instrument data doesn't already have the interpolated data
+    interp_data = {"{:s}_{:s}".format(model_label, mdat):
+                   np.full(shape=interp_shape, fill_value=np.nan)
+                   for mdat in sel_name}
+
+    for mdat in interp_data.keys():
+        if mdat in inst.data.keys():
+            pysat_mu.logger.warning("".join(["model data already interpolated:",
+                                             " {:}".format(mdat)]))
+            del interp_data[mdat]
+                    
+    if len(interp_data.keys()) == 0:
+        raise ValueError("instrument object already contains all model data")
+    
     for i, ii in enumerate(iind):
         # Cycle through each model data type, since it may not depend on
         # all the dimensions
         for mdat in sel_name:
+            # Define the output key
+            attr_name = "{:s}_{:s}".format(model_label, mdat)
+
             # Determine the dimension values
             dims = list(model.data_vars[mdat].dims)
             ndim = model.data_vars[mdat].data.shape
@@ -289,16 +318,7 @@ def extract_modelled_observations(inst=None, model=None, inst_name=[],
                         raise ValueError(verr)
 
                 # Save the output
-                attr_name = "{:s}_{:s}".format(model_label, mdat)
-                if attr_name not in interp_data.keys():
-                    interp_data[attr_name] = np.full(shape=interp_shape,
-                                                     fill_value=np.nan)
                 interp_data[attr_name][xout] = yi[0]
-
-    # Test and ensure the instrument data doesn't already have the interpolated
-    # data.  This should not happen
-    if np.any([mdat in inst.data.keys() for mdat in interp_data.keys()]):
-        raise ValueError("instrument object already contains model data")
 
     # Update the instrument object and attach units to the metadata
     for mdat in interp_data.keys():
