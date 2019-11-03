@@ -24,6 +24,185 @@ import pysat.utils as pyutils
 
 import pysatModelUtils as pysat_mu
 
+def satellite_view_through_tiegcm_with_altitude(sat, tie, scoords, tlabels,
+                                                alt, talt, tcoord):
+    """Interpolates model values onto satellite orbital path.
+
+    Uses a recursive regular grid interpolation. Designed to handle
+    the fact that TIEGCM models via pressure levels, but for satellite
+    comparisons we definitely need vslues at altitude.
+
+    Parameters
+    ----------
+    sat : pysat.Instrument object
+        Satellite object that will recieve interpolated data based upon position
+    model : pysat.Instrument object
+        Model object that will be interpolated onto satellite path
+    scoords : list
+        list of variable string identifiers in sat that line up with
+        coordinate dimensions for the model object. Must be in the same order
+        as the model dimensions.
+    tlabels : list
+        list of variable string identifiers for information in the model
+        that will be interpolated onto the satellite path.
+    alt : string
+        String identifier used in sat for the altitude variable
+    talt : string
+        Variable identifier for altitude data in the model
+        e.g. 'ZG' in standard TIEGCM files.
+    tcoord : string
+        Coordinate dimension identifier for the closest equivalent in TIEGCM
+        to altitude e.g. 'ilev', 'lev'
+
+    """
+
+
+    # tiegcm is in pressure levels, need in altitude, but on regular
+    # grid
+    import scipy.interpolate as interpolate
+
+    # create initial fake regular grid index
+    sat[tcoord] = 0
+
+    # we need to create altitude index from model
+    # tiegcm locations for interpolation
+    points = [tie.data.coords[dim].values if dim != 'time' else
+            tie.data.coords[dim].values.astype(int)
+            for dim in tie[talt].dims]
+
+    # create interpolator
+    interp = interpolate.RegularGridInterpolator(points,
+                                                 tie[talt].values,
+                                                 bounds_error=False,
+                                                 fill_value=None)
+    # use this interpolator to figure out what altitudes we are at
+    # for a given talt value
+    # move the index value until there is reasonable correspondence
+    # between altitudes of each system
+    for i in np.arange(10):
+        # create input array using satellite time/position
+        # replace the altitude coord with the fake tiegcm one
+        coords = []
+        for coord in scoords:
+            if coord == alt:
+                coords.append(sat[tcoord])
+            else:
+                coords.append(sat[coord])
+
+        coords.insert(0, sat.index.values.astype(int))
+        sat_pts = [inp for inp in zip(*coords)]
+
+        # altitude pulled out from model
+        orbit_alt = interp(sat_pts)
+        # shift index in sat for tiegcm pressure level up/down as needed
+        sat[tcoord] -= (orbit_alt - sat[alt])/100.
+
+    # create new sat input based upon fitted ilev values
+    coords = []
+    for coord in scoords:
+        if coord == alt:
+            coords.append(sat[tcoord])
+        else:
+            coords.append(sat[coord])
+
+    coords.insert(0, sat.index.values.astype(int))
+    sat_pts = [inp for inp in zip(*coords)]
+
+    interp = {}
+    for label in tlabels:
+        points = []
+        for dim in tie[label].dims:
+            if dim == 'time':
+                points.append(tie.data.coords[dim].values.astype(int) )
+            elif dim == 'lev':
+                points.append(tie.data.coords[dim].values - 0.125)
+            else:
+                points.append(tie.data.coords[dim].values)
+
+        interp[label] = interpolate.RegularGridInterpolator(points,
+                                                            tie[label].values,
+                                                            bounds_error=False,
+                                                            fill_value=None)
+        sat[''.join(('model_', label))] = interp[label](sat_pts)
+
+def sattelite_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars):
+    """Interpolate model from irregular to regular sampling.
+
+    Parameters
+    ----------
+    sat : pysat.Instrument object
+        Satellite object that will recieve interpolated data based upon position
+    model : pysat.Instrument object
+        Model object that will be interpolated onto satellite path
+    dim1 : string identifier
+        Existing regular dimension to be replaced
+    dim2 : string identifier
+        Existing irregular variable used to define regular grid
+
+    """
+
+    import scipy.interpolate
+
+    # create inputs for interpolation
+    dvar = model[dim_var]
+
+    # make a mesh of data location values using intrinsic
+    # regular grid
+    num_pts = 1
+    coords = []
+    update_dim = -1000
+    for i, dim in enumerate(dvar.dims):
+        num_pts *= len(dvar.coords[dim])
+        if dim == 'time':
+            coords.append(model.data.coords[dim].values.astype(int))
+        else:
+            coords.append(model.data.coords[dim].values)
+        if dim == dim1:
+            update_dim = i
+
+    # locations of measurements
+    points = np.zeros((num_pts, 4))
+
+    pts = np.meshgrid(*coords, indexing='ij')
+    for i, pt in enumerate(pts):
+        points[:,i] = np.ravel(pt)
+
+    # replace existing regular dimension with irregular data
+    points[:, update_dim] = np.ravel(dvar)
+
+    # downselect points to those in altitude range of satellite
+    # print(points[:, update_dim])
+    # print(sat['altitude'].min(), sat['altitude'].max())
+
+    min_val = sat['altitude'].min() - 20. if sat['altitude'].min() < np.nanmax(points[:, update_dim]) else np.nanmax(points[:, update_dim] - 20.)
+    max_val = sat['altitude'].max() + 20. if sat['altitude'].max() < np.nanmax(points[:, update_dim]) else np.nanmax(points[:, update_dim])
+
+    idx, = np.where((points[:, update_dim] >= min_val) &
+                    (points[:, update_dim] <= max_val))
+    points = points[idx, :]
+    print ('Remaining points after downselection', len(idx))
+    print (points[:, update_dim], np.nanmin(points[:, update_dim]), np.nanmax(points[:, update_dim]))
+    # create input array using satellite time/position
+    coords = [sat[coord] for coord in scoords]
+    coords.insert(0, sat.index.values.astype(int))
+    sat_pts = [inp for inp in zip(*coords)]
+
+    interp = {}
+    for var in new_vars:
+        print('Creating interpolation object for', var, '.')
+        # interp[var] = scipy.interpolate.LinearNDInterpolator(points,
+        #                                                      np.ravel(model[var].values),
+        #                                                      rescale=True)
+        sat[''.join(('model_', var))] = scipy.interpolate.griddata(points,
+                                                 np.ravel(model[var].values)[idx],
+                                                 sat_pts,
+                                                 rescale=True)
+        print('Interpolating', var, 'onto satellite.')
+        # sat[''.join(('model_', var))] = interp[var](sat_pts)
+    print('Complete.')
+
+
+
 # Needs a better name, is this being used anywhere?
 def satellite_view_through_model(obs, mod, obs_coords, mod_dat_names):
     """Interpolate model values onto satellite orbital path.
@@ -210,10 +389,10 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             pysat_mu.logger.warning("".join(["model data already interpolated:",
                                              " {:}".format(mdat)]))
             del interp_data[mdat]
-                    
+
     if len(interp_data.keys()) == 0:
         raise ValueError("instrument object already contains all model data")
-    
+
     for i, ii in enumerate(iind):
         # Cycle through each model data type, since it may not depend on
         # all the dimensions
@@ -333,5 +512,3 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             inst.data.rename({"interp_key": mdat}, inplace=True)
 
     return interp_data.keys()
-
-                  
