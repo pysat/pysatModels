@@ -24,7 +24,7 @@ import pysat.utils as pyutils
 
 import pysatModelUtils as pysat_mu
 
-def satellite_view_through_tiegcm_with_altitude(sat, tie, scoords, tlabels,
+def instrument_view_through_tiegcm_with_altitude(sat, tie, scoords, tlabels,
                                                 alt, talt, tcoord):
     """Interpolates model values onto satellite orbital path.
 
@@ -125,7 +125,7 @@ def satellite_view_through_tiegcm_with_altitude(sat, tie, scoords, tlabels,
                                                             fill_value=None)
         sat[''.join(('model_', label))] = interp[label](sat_pts)
 
-def sattelite_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars):
+def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars):
     """Interpolate model from irregular to regular sampling.
 
     Parameters
@@ -204,7 +204,7 @@ def sattelite_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars)
 
 
 # Needs a better name, is this being used anywhere?
-def satellite_view_through_model(obs, mod, obs_coords, mod_dat_names):
+def instrument_view_through_model(obs, mod, obs_coords, mod_dat_names):
     """Interpolate model values onto satellite orbital path.
 
     Parameters
