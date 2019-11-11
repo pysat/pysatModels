@@ -24,6 +24,105 @@ import pysat.utils as pyutils
 
 import pysatModelUtils as pysat_mu
 
+
+def instrument_altitude_to_model_pressure(inst, model, icoords,
+                                                ialt, malt, mcoord,
+                                                scale=100.,
+                                                inst_out='model_altitude',
+                                                tol=1.):
+    """Interpolates altitude values onto model pressure levels.
+
+    Uses a recursive regular grid interpolation to find the
+    appropriate pressure level for the given input locations.
+
+    Parameters
+    ----------
+    inst : pysat.Instrument object
+        Instrument object that will recieve interpolated data based upon position
+    model : pysat.Instrument object
+        Model object that will be interpolated onto Instrument path
+    icoords : list
+        list of variable string identifiers in inst that line up with
+        coordinate dimensions for the model object. Must be in the same order
+        as the model dimensions.
+    ialt : string
+        String identifier used in inst for the altitude variable
+    malt : string
+        Variable identifier for altitude data in the model
+        e.g. 'ZG' in standard TIEGCM files.
+    mcoord : string
+        Coordinate dimension identifier for the closest pressure
+        level in model, equivalent in a sense to altitude
+        e.g. 'ilev', 'lev' for TIEGCM
+    scale : float
+        Scalar used to roughly translate a change in altitude with a
+        change in pressure level, the scale height.
+    inst_out : string
+        Label used to add interpolated altitudes into Instrument
+        object.
+    tol : float
+        Allowed difference between Instrument and model altitudes.
+
+    """
+
+    # create initial fake regular grid index in inst
+    inst[mcoord] = 0
+
+    # we need to create altitude index from model
+    # collect relevant inputs
+    # First, model locations for interpolation
+    # we use the dimensions associated with model altitude
+    # in the order provided
+    points = [model.data.coords[dim].values if dim != 'time' else
+              model.data.coords[dim].values.astype(int)
+              for dim in model[malt].dims]
+
+    # create interpolator
+    interp = interpolate.RegularGridInterpolator(points,
+                                                 np.log(model[malt].values),
+                                                 bounds_error=False,
+                                                 fill_value=None)
+    # use this interpolator to figure out what altitudes we are at
+    # each loop, use the current estimated path through model expressed in pressure
+    # and interp above to get the equivalent altitude of this path
+    # compare this altitude to the actual instrument altitude
+    # shift the equivalent pressure for the instrument up/down
+    # until difference ibetween altitudes is small
+    # currently fixed to 10 iterations
+
+    # log of instrumeent altitude
+    log_ialt = np.log(inst[ialt])
+    diff = log_ialt*0 + 1000.
+    while np.any(np.abs(diff) > tol):
+        # create input array using satellite time/position
+        # replace the altitude coord with the fake tiegcm one
+        coords = []
+        for coord in icoords:
+            if coord == ialt:
+                coords.append(inst[mcoord])
+            else:
+                coords.append(inst[coord])
+
+        coords.insert(0, inst.index.values.astype(int))
+        # to peform the interpolation we need points
+        # like (x1, y1, z1), (x2, y2, z2)
+        # but we currently have a list like
+        # [(x1, x2, x3), (y1, y2, y3), ...]
+        # convert to the form we need
+        # the * below breaks each main list out, and zip
+        # repeatedly outputs a tuple (xn, yn, zn)
+        sat_pts = [inp for inp in zip(*coords)]
+
+        # altitude pulled out from model
+        orbit_alt = interp(sat_pts)
+        # difference in altitude
+        diff = np.e**orbit_alt - np.e**log_ialt
+        # shift index in inst for model pressure level
+        # in the opposite direction to diff
+        inst[mcoord] -= diff/scale
+    inst[inst_out] = np.e**orbit_alt
+
+
 def instrument_view_through_tiegcm_with_altitude(sat, tie, scoords, tlabels,
                                                 alt, talt, tcoord):
     """Interpolates model values onto satellite orbital path.
