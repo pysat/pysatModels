@@ -83,11 +83,12 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
     points = [mod.data.coords[dim].values if dim != 'time' else
               mod.data.coords[dim].values.astype(int)
               for dim in mod[mod_alt].dims]
+    # grab units from meta
     mod_units = [mod.meta[dim]['units'] for dim in mod[mod_alt].dims]
     # drop time units
     mod_units = mod_units[1:]
 
-    # Determine the scaling between model and instrument data
+    # Determine the unit scaling between model and instrument data
     inst_scale = np.ones(shape=len(obs_coords), dtype=float)
     if autoscale:
         for i, iname in enumerate(obs_coords):
@@ -103,7 +104,7 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
                 alt_scale = inst_scale[i]
             else:
                 inst_scale[i] = pyutils.scale_units(obs.meta[iname]['units'],
-                                        mod_units[i])
+                                                    mod_units[i])
     else:
         alt_scale = 1
 
@@ -117,12 +118,12 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
     # and interp above to get the equivalent altitude of this path
     # compare this altitude to the actual instrument altitude
     # shift the equivalent pressure for the instrument up/down
-    # until difference ibetween altitudes is small
-    # currently fixed to 10 iterations
+    # until difference between altitudes is small
 
-    # log of instrumeent altitude
+    # log of instrument altitude
     log_ialt = np.log(obs[obs_alt])
-    diff = log_ialt*0 + 1000.
+    # initial difference signal
+    diff = log_ialt*0 + 100000.
     while np.any(np.abs(diff) > tol):
         # create input array using satellite time/position
         # replace the altitude coord with the fake tiegcm one
@@ -151,18 +152,23 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
         diff = np.e**orbit_alt - np.e**log_ialt
         # shift index in inst for model pressure level
         # in the opposite direction to diff
+        # reduced value by scale, the 'scale height'
         obs[mod_coord] -= diff/scale
+    # achieved model altitude
     obs[obs_out] = np.e**orbit_alt
 
 
-def instrument_view_through_model(obs, mod, obs_coords, mod_data_names):
+def instrument_view_through_model(obs, mod, obs_coords, mod_data_names,
+                                  autoscale=False, method='linear'):
     """Interpolates model values onto instrument locations.
 
-    A RegularGrid interpolation is used for quick performance. This
+    A RegularGrid linear interpolation is used for quick performance. This
     method may require the use of a pre-processor on coordinate
     dimensions to ensure that a regular interpolation may actually be
-    performed. Exponential interpolation along the height direction
-    is optionally supported.
+    performed. Variables that vary exponentially in height
+    may be approximated by taking a log before interpolating, though
+    this does also yield an exponential variation along the horizontal
+    directions as well.
 
     Parameters
     ----------
@@ -177,6 +183,12 @@ def instrument_view_through_model(obs, mod, obs_coords, mod_data_names):
     mod_data_names : array-like
         List of model data output variable names to interpolate. All
         variables require the same dimensions.
+    autoscale : bool
+        If true, use the 'units' to meta to atuomatically scale
+        between obs and mod coordinate values.
+    method : string ['linear', 'nearest']
+        'linear' interpolation or 'nearest' neighbor options for
+        RegularGrid
 
     Notes
     -----
@@ -205,23 +217,40 @@ def instrument_view_through_model(obs, mod, obs_coords, mod_data_names):
     # required for regulargrid interpolator
     obs_pts = [inp for inp in zip(*coords)]
 
-    # collect model grid points together
-    points = []
-    for dim in mod[mod_data_names[0]].dims:
-        if dim == 'time':
-            points.append(mod.data.coords[dim].values.astype(int) )
-        else:
-            points.append(mod.data.coords[dim].values)
-
     # perform the interpolation
     interp = {}
     for label in mod_data_names:
+
+        # sort out units of this variable
+        # grab units from meta
+        mod_units = [mod.meta[dim]['units'] for dim in mod[label].dims]
+        # drop time units
+        mod_units = mod_units[1:]
+
+        # Determine the unit scaling between model and instrument data
+        inst_scale = np.ones(shape=len(obs_coords), dtype=float)
+        if autoscale:
+            for i, iname in enumerate(obs_coords):
+                if iname not in obs.variables:
+                    raise ValueError(''.join(['Unknown instrument location index ',
+                                            '{:}'.format(iname)]))
+                inst_scale[i] = pyutils.scale_units(obs.meta[iname]['units'],
+                                                    mod_units[i])
+        # collect model grid points together
+        points = []
+        # time dim first
+        points.append(mod.data.coords[mod[label].dims[0]].values.astype(int) )
+        # now spatial
+        for iscale, dim in zip(inst_scale, mod[label].dims[1:]):
+            points.append(mod.data.coords[dim].values*iscale)
+
         # create the interpolator
         interp[label] = interpolate.RegularGridInterpolator(points,
                                                             mod[label].values,
                                                             bounds_error=False,
-                                                            fill_value=None)
-        # apply it at oberved locations
+                                                            fill_value=None,
+                                                            method=method)
+        # apply it at observed locations
         obs[''.join(('model_', label))] = interp[label](obs_pts)
         # get meta data as well
         obs.meta[''.join(('model_', label))] = mod.meta[label]
