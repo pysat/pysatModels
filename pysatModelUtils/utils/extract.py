@@ -106,7 +106,7 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
                 inst_scale[i] = pyutils.scale_units(obs.meta[iname]['units'],
                                                     mod_units[i])
     else:
-        alt_scale = 1
+        alt_scale = 1.
 
     # create interpolator
     interp = interpolate.RegularGridInterpolator(points,
@@ -123,7 +123,7 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
     # log of instrument altitude
     log_ialt = np.log(obs[obs_alt])
     # initial difference signal
-    diff = log_ialt*0 + 100000.
+    diff = log_ialt*0 + 2.*tol
     while np.any(np.abs(diff) > tol):
         # create input array using satellite time/position
         # replace the altitude coord with the fake tiegcm one
@@ -154,6 +154,7 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
         # in the opposite direction to diff
         # reduced value by scale, the 'scale height'
         obs[mod_coord] -= diff/scale
+
     # achieved model altitude
     obs[obs_out] = np.e**orbit_alt
 
@@ -334,55 +335,55 @@ def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars
 
 
 
-# Needs a better name, is this being used anywhere?
-def instrument_view_through_model(obs, mod, obs_coords, mod_dat_names):
-    """Interpolate model values onto satellite orbital path.
-
-    Parameters
-    ----------
-    obs : pysat.Instrument object
-        Instrument object with observational data
-    mod : pysat.Instrument object
-        Instrument object with modelled data
-    obs_coords : array-like
-        List of variable names containing the observational data coordinates
-        at which the model data will be interpolated
-    mod_dat_names : array-like
-        List of model data output variable names  to interpolate
-
-    Notes
-    -----
-    Updates the obs Instrument with interpolated data from the mod Instrument
-
-    """
-    # Ensure the coordinate and data variable names are array-like
-    obs_coords = np.asarray(obs_coords)
-    mod_dat_names = np.asarray(mod_dat_names)
-
-    # Create input array using observational data's time/position
-    # This needs to be changed, pretty sure it doesn't work for xarray data
-    pysat_mu.logger.debug("the coordinate data section needs to be fixed")
-    coords = [obs.data[cc] for cc in obs_coords]
-    coords.insert(0, obs.index.values.astype(int))
-    obs_pts = [inp for inp in zip(*coords)] # what is this doing?
-
-    # Add optional scaling?
-
-    # Interpolate each model data value onto the observations time and location
-    for label in mod_dat_names:
-        points = [mod.data.coords[dim].values if dim != 'time' else
-                  mod.data.coords[dim].values.astype(int)
-                  for dim in mod[label].dims]
-        interp_val = interpolate.RegularGridInterpolator(points,
-                                                         mod[label].values,
-                                                         bounds_error=False,
-                                                         fill_value=None)
-        obs[''.join(('model_', label))] = interp_val(obs_pts)
-
-    # Update the observation's meta data
-    pysat_mu.logger.debug("Missing meta data update")
-
-    return
+# # Needs a better name, is this being used anywhere?
+# def instrument_view_through_model(obs, mod, obs_coords, mod_dat_names):
+#     """Interpolate model values onto satellite orbital path.
+#
+#     Parameters
+#     ----------
+#     obs : pysat.Instrument object
+#         Instrument object with observational data
+#     mod : pysat.Instrument object
+#         Instrument object with modelled data
+#     obs_coords : array-like
+#         List of variable names containing the observational data coordinates
+#         at which the model data will be interpolated
+#     mod_dat_names : array-like
+#         List of model data output variable names  to interpolate
+#
+#     Notes
+#     -----
+#     Updates the obs Instrument with interpolated data from the mod Instrument
+#
+#     """
+#     # Ensure the coordinate and data variable names are array-like
+#     obs_coords = np.asarray(obs_coords)
+#     mod_dat_names = np.asarray(mod_dat_names)
+#
+#     # Create input array using observational data's time/position
+#     # This needs to be changed, pretty sure it doesn't work for xarray data
+#     pysat_mu.logger.debug("the coordinate data section needs to be fixed")
+#     coords = [obs.data[cc] for cc in obs_coords]
+#     coords.insert(0, obs.index.values.astype(int))
+#     obs_pts = [inp for inp in zip(*coords)] # what is this doing?
+#
+#     # Add optional scaling?
+#
+#     # Interpolate each model data value onto the observations time and location
+#     for label in mod_dat_names:
+#         points = [mod.data.coords[dim].values if dim != 'time' else
+#                   mod.data.coords[dim].values.astype(int)
+#                   for dim in mod[label].dims]
+#         interp_val = interpolate.RegularGridInterpolator(points,
+#                                                          mod[label].values,
+#                                                          bounds_error=False,
+#                                                          fill_value=None)
+#         obs[''.join(('model_', label))] = interp_val(obs_pts)
+#
+#     # Update the observation's meta data
+#     pysat_mu.logger.debug("Missing meta data update")
+#
+#     return
 
 
 
