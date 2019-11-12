@@ -79,10 +79,25 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
     points = [mod.data.coords[dim].values if dim != 'time' else
               mod.data.coords[dim].values.astype(int)
               for dim in mod[mod_alt].dims]
+    mod_units = [mod.meta[dim]['units'] for dim in mod[mod_alt].dims]
+    # drop time units
+    mod_units = mod_units[1:]
+
+    # Determine the scaling between model and instrument data
+    inst_scale = np.ones(shape=len(obs_coords), dtype=float)
+    for i, iname in enumerate(obs_coords):
+        if iname not in obs.variables:
+            raise ValueError(''.join(['Unknown instrument location index ',
+                                      '{:}'.format(iname)]))
+        inst_scale[i] = pyutils.scale_units(obs.meta[iname]['units'],
+                                            mod_units[i])
+        if iname == obs_alt:
+            # pull out altitude unit scalar
+            alt_scale = inst_scale[i]
 
     # create interpolator
     interp = interpolate.RegularGridInterpolator(points,
-                                                 np.log(mod[mod_alt].values),
+                                                 np.log(mod[mod_alt].values*alt_scale),
                                                  bounds_error=False,
                                                  fill_value=None)
     # use this interpolator to figure out what altitudes we are at
@@ -100,11 +115,13 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
         # create input array using satellite time/position
         # replace the altitude coord with the fake tiegcm one
         coords = []
-        for coord in obs_coords:
+        for iscale, coord in zip(inst_scale, obs_coords):
             if coord == obs_alt:
+                # don't scale altitude-like model coordinate
                 coords.append(obs[mod_coord])
             else:
-                coords.append(obs[coord])
+                # scale other dimensions to the model
+                coords.append(obs[coord]/iscale)
 
         coords.insert(0, obs.index.values.astype(int))
         # to peform the interpolation we need points
@@ -197,22 +214,6 @@ def instrument_view_through_model(obs, mod, obs_coords, mod_data_names):
         # get meta data as well
         obs.meta[''.join(('model_', label))] = mod.meta[label]
 
-# my plan may not work
-def _evaluate_linear(self, indices, norm_distances, out_of_bounds):
-    import itertools
-    # slice for broadcasting over trailing dimensions in self.values
-    vslice = (slice(None),) + (None,)*(self.values.ndim - len(indices))
-
-    # find relevant values
-    # each i and i+1 represents a edge
-    edges = itertools.product(*[[i, i + 1] for i in indices])
-    values = 0.
-    for edge_indices in edges:
-        weight = 1.
-        for ei, i, yi in zip(edge_indices, indices, norm_distances):
-            weight *= np.where(ei == i, 1 - yi, yi)
-        values += np.asarray(self.values[edge_indices]) * weight[vslice]
-    return values
 
 def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars):
     """Interpolate model from irregular to regular sampling.
