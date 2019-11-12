@@ -29,7 +29,8 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
                                           obs_alt, mod_alt, mod_coord,
                                           scale=100.,
                                           obs_out='model_altitude',
-                                          tol=1.):
+                                          tol=1.,
+                                          autoscale=False):
     """Interpolates altitude values onto model pressure levels.
 
     Uses a recursive regular grid interpolation to find the
@@ -62,6 +63,9 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
         object.
     tol : float
         Allowed difference between observed and modeled altitudes.
+    autoscale : bool
+        if True, use 'units' in meta to determine relative scaling
+        between obs and mod
 
     """
 
@@ -85,15 +89,23 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
 
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(obs_coords), dtype=float)
-    for i, iname in enumerate(obs_coords):
-        if iname not in obs.variables:
-            raise ValueError(''.join(['Unknown instrument location index ',
-                                      '{:}'.format(iname)]))
-        inst_scale[i] = pyutils.scale_units(obs.meta[iname]['units'],
-                                            mod_units[i])
-        if iname == obs_alt:
-            # pull out altitude unit scalar
-            alt_scale = inst_scale[i]
+    if autoscale:
+        for i, iname in enumerate(obs_coords):
+            if iname not in obs.variables:
+                raise ValueError(''.join(['Unknown instrument location index ',
+                                        '{:}'.format(iname)]))
+            if iname == obs_alt:
+                # pull out altitude units
+                inst_scale[i] = pyutils.scale_units(obs.meta[iname]['units'],
+                                                    mod.meta[mod_alt]['units'])
+
+                # pull out altitude unit scalar
+                alt_scale = inst_scale[i]
+            else:
+                inst_scale[i] = pyutils.scale_units(obs.meta[iname]['units'],
+                                        mod_units[i])
+    else:
+        alt_scale = 1
 
     # create interpolator
     interp = interpolate.RegularGridInterpolator(points,
