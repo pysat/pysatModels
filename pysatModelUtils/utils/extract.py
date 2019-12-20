@@ -79,7 +79,8 @@ def satellite_view_through_model(obs, mod, obs_coords, mod_dat_names):
 def extract_modelled_observations(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name, mod_units,
                                   sel_name=None, method='linear',
-                                  model_label='model'):
+                                  model_label='model',
+                                  model_units_attr='units'):
     """Extracts instrument-aligned data from a modelled data set
 
     Parameters
@@ -111,6 +112,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     model_label : string
         name of model, used to identify interpolated data values in instrument
         (default="model")
+    model_units_attr : string
+        Attribute for model xarray values that contains units (default='units')
 
     Returns
     -------
@@ -311,8 +314,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if str(verr).find("requested xi is out of bounds") > 0:
                         # This is acceptable, pad the interpolated data with
                         # NaN
-                        print("Warning: {:} for ".format(verr) +
-                              "{:s} data at {:}".format(mdat, xi))
+                        pysat_mu.logger.Warning(
+                            "{:} for {:s} data at {:}".format(verr, mdat, xi))
                         yi = [np.nan]
                     else:
                         raise ValueError(verr)
@@ -322,8 +325,12 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     # Update the instrument object and attach units to the metadata
     for mdat in interp_data.keys():
+        # Assign the units, if keyword is present in xarray data
         attr_name = mdat.split("{:s}_".format(model_label))[-1]
-        inst.meta[mdat] = {inst.units_label: model.data_vars[attr_name].units}
+        mod_units = "missing"
+        if hasattr(model.data_vars[attr_name], model_units_attr):
+            mod_units = getattr(model.data_vars[attr_name], model_units_attr)
+        inst.meta[mdat] = {inst.units_label: mod_units}
 
         if inst.pandas_format:
             inst[mdat] = pds.Series(interp_data[mdat], index=inst.index)
