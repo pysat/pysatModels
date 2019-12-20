@@ -48,15 +48,16 @@ class TestUtilsExtractModObs:
                                      name=str('testing'),
                                      clean_level='clean')
         self.inst.load(yr=2009, doy=1)
+        self.model = self.inst.data.to_xarray()
         self.input_args = [self.inst,
-                           self.inst.data.to_xarray(),
+                           self.model.resample(Epoch='900S').nearest(),
                            ["longitude", "latitude", "slt"],
                            ["longitude", "latitude", "slt"],
                            "Epoch", "Epoch", ["deg", "deg", "h"]]
 
     def teardown(self):
         """Runs after every method to clean up previous testing."""
-        del self.inst, self.input_args
+        del self.inst, self.model, self.input_args
 
     @pytest.mark.parametrize("bad_index,bad_input,err_msg",
                              [(2, [], "Must provide instrument location"),
@@ -86,10 +87,10 @@ class TestUtilsExtractModObs:
         """ Test for expected failure with bad kwarg input """
         kwargs = {bad_key: bad_val}
 
-        with pytest.raises(ValueError) as verr:
+        with pytest.raises(Exception) as err:
             extract.extract_modelled_observations(*self.input_args, **kwargs)
 
-        assert verr.value.args[0].find(err_msg) >= 0
+        assert err.value.args[0].find(err_msg) >= 0
 
     @pytest.mark.parametrize("sel_val", [(["dummy1", "dummy2"]), ("dummy1")])
     def test_good_sel_name(self, sel_val):
