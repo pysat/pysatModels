@@ -57,7 +57,7 @@ class TestUtilsMatchCollectInstModPairs:
         self.input_args = [dt.datetime(2009, 1, 1), dt.datetime(2009, 1, 2),
                            dt.timedelta(days=1), self.inst]
         self.model = pysat.Instrument(platform=str('pysat'),
-                                      name=str('testing2d_xarray'), tag='96',
+                                      name=str('testing2d_xarray'), sat_id='10',
                                       clean_level='clean')
         self.required_kwargs = {"model_load_kwargs":
                                 {"model_inst": self.model},
@@ -118,7 +118,6 @@ class TestUtilsMatchCollectInstModPairs:
         assert match.collect_inst_model_pairs(*self.input_args,
                                               **self.required_kwargs) is None
 
-    #@pytest.mark.skip(reason="test is failing, need to fix extract first")
     @pytest.mark.parametrize("tinc_val", [dt.timedelta(days=1),
                                           dt.timedelta(days=2)])
     def test_tinc_success(self, tinc_val):
