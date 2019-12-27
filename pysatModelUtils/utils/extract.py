@@ -130,7 +130,6 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     For best results, select clean instrument data after alignment with model
 
     """
-
     # Ensure the array-like inputs are arrays
     inst_name = np.asarray(inst_name)
     mod_name = np.asarray(mod_name)
@@ -190,11 +189,21 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     # resolution of a model run
     mind = list()
     iind = list()
-    for i, tt in enumerate(mod_datetime):
-        del_sec = abs(tt - inst.index).total_seconds()
-        if del_sec.min() <= min_del:
-            iind.append(del_sec.argmin())
-            mind.append(i)
+    del_sec = abs(mod_datetime-inst.index[:,np.newaxis]).astype(float) * 1.0e-9
+    for inst_ind, mod_ind in enumerate(del_sec.argmin(axis=1)):
+        if del_sec[inst_ind,mod_ind] <= min_del:
+            if mod_ind in mind:
+                # Test to see if this model observation has multiple pairings
+                old_ind = mind.index(mod_ind)
+                if(del_sec[inst_ind,mod_ind] <
+                   del_sec[iind[old_ind],mind[old_ind]]):
+                    # If this one is closer, keep it
+                    iind[old_ind] = inst_ind
+                    mind[old_ind] = mod_ind
+            else:
+                # If this is a new point, keep it
+                iind.append(inst_ind)
+                mind.append(mod_ind)
 
     # Determine the model coordinates closest to the satellite track
     interp_shape = inst.index.shape if inst.pandas_format else \
