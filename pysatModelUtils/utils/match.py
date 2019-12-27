@@ -71,12 +71,12 @@ def load_model_xarray(ftime, model_inst=None, filename=None):
     
 def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                              model_load_rout=load_model_xarray,
-                             model_load_kwargs={"model_inst": None},
-                             inst_clean_rout=None, inst_lon_name=None,
-                             mod_lon_name=None, inst_name=[], mod_name=[],
-                             mod_datetime_name=None, mod_time_name=None,
-                             mod_units=[], sel_name=None, method='linear',
-                             model_label='model', comp_clean='clean'):
+                             model_load_kwargs={}, inst_clean_rout=None,
+                             inst_lon_name=None, mod_lon_name=None,
+                             inst_name=[], mod_name=[], mod_datetime_name=None,
+                             mod_time_name=None, mod_units=[], sel_name=None,
+                             method='linear', model_label='model',
+                             comp_clean='clean'):
     """Pair instrument and model data
 
     Parameters
@@ -92,15 +92,13 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     inst_download_kwargs : dict
         optional keyword arguments for downloading instrument data (default={})
     model_load_rout : routine
-        Routine to load model data into an xarray using datetime as arguement
+        Routine to load model data into an xarray using datetime as argument
         input input and other necessary data as keyword arguments.  If the
-        routine requires a filename, ensure that the routine uses the datetime
-        input to construct the correct filename, such as 'model_%Y%j.nc'
-        (default=load_model_xarray)
+        routine requires a time-dependent filename, ensure that the load routine
+        uses the datetime input to construct the correct filename, as done in
+        load_model_xarray. (default=load_model_xarray)
     model_load_kwargs : dict
-        string format that will construct the desired model filename from a
-        datetime object.  The default will fail unless a model Instrument object
-        is provided.  (default={"model_inst": None})
+        Keyword arguments for the model loading routine. (default={})
     inst_clean_rout : routine
         Routine to clean the instrument data
     inst_lon_name : string
@@ -191,18 +189,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
     while start < stop:
-        mod_file = start.strftime(model_files)
-
-        if path.isfile(mod_file):
-            try:
-                mdata = model_load_rout(mod_file, start)
-                lon_high = float(mdata.coords[mod_lon_name].max())
-                lon_low = float(mdata.coords[mod_lon_name].min())
-            except Exception as err:
-                logger.warning("unable to load {:s}: {:}".format(mod_file, err))
-                mdata = None
-        else:
-            mdata = None
+        # Load the model data for each time
+        mdata = model_load_rout(start, **model_load_kwargs)
 
         if mdata is not None:
             # Get the range for model longitude
