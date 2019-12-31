@@ -167,7 +167,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     for i, iname in enumerate(inst_name):
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
-                                      '{:}'.format(iname)]))
+                                      '{:} '.format(iname),
+                                      '(should not be epoch time)']))
         inst_scale[i] = pyutils.scale_units(mod_units[i],
                                             inst.meta.data.units[iname])
 
@@ -238,7 +239,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             ndim = model.data_vars[mdat].data.shape
             indices = {mod_time_name: mind[i]}
 
-            # Construct the data needed for interpolation
+            # Construct the data needed for interpolation, ensuring that
+            # the types are appropriate
             values = model[indices][mdat].data
             points = [model.coords[kk].data for kk in dims if kk in mod_name]
             get_coords = True if len(points) > 0 else False
