@@ -17,7 +17,7 @@ class TestUtilsMatchLoadModelXarray:
         """ Runs before every method to create a clean testing setup."""
         self.ftime = dt.datetime(2009, 1, 1)
         self.model_inst = pysat.Instrument(platform=str('pysat'),
-                                           name=str('testing2d_xarray'),
+                                           name=str('testing_xarray'),
                                            sat_id='12', clean_level='clean')
         self.xout = None
 
@@ -57,7 +57,7 @@ class TestUtilsMatchCollectInstModPairs:
         self.input_args = [dt.datetime(2009, 1, 1), dt.datetime(2009, 1, 2),
                            dt.timedelta(days=1), self.inst]
         self.model = pysat.Instrument(platform=str('pysat'),
-                                      name=str('testing2d_xarray'), sat_id='10',
+                                      name=str('testing_xarray'), sat_id='10',
                                       clean_level='clean')
         self.required_kwargs = {"model_load_kwargs":
                                 {"model_inst": self.model},
