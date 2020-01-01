@@ -21,20 +21,11 @@ before_install:
   - pip install 'pandas<0.25'
   - pip install xarray
   - pip install pysatCDF >/dev/null
-  # Prepare modified pysat install
-  - pip install numpy
-  - cd ..
-  - echo 'cloning pysat'
-  - git clone https://github.com/pysat/pysat.git >/dev/null
-  - echo 'installing pysat'
-  - cd ./pysat
-  - git checkout develop
-  # set up data directory
-  - mkdir /home/travis/build/pysatData
-  # install pysat
-  - python setup.py install >/dev/null
-  - cd ../pysatModelUtils
 
+  - pip install numpy
+  - pip install 'pysat>=2.1.0'
+# set up data directory
+  - mkdir /home/travis/build/pysatData
 
 install:
   - python setup.py install
