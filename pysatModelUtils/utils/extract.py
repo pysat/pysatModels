@@ -158,6 +158,7 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
     # achieved model altitude
     obs[obs_out] = np.e**orbit_alt
 
+    return
 
 def instrument_view_through_model(obs, mod, obs_coords, mod_data_names,
                                   autoscale=False, method='linear'):
@@ -256,6 +257,7 @@ def instrument_view_through_model(obs, mod, obs_coords, mod_data_names,
         # get meta data as well
         obs.meta[''.join(('model_', label))] = mod.meta[label]
 
+    return
 
 def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars):
     """Interpolate model from irregular to regular sampling.
@@ -333,7 +335,7 @@ def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars
         # sat[''.join(('model_', var))] = interp[var](sat_pts)
     print('Complete.')
 
-
+    return
 
 # # Needs a better name, is this being used anywhere?
 # def instrument_view_through_model(obs, mod, obs_coords, mod_dat_names):
