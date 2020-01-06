@@ -277,7 +277,6 @@ def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars
 
     """
 
-    import scipy.interpolate
 
     # create inputs for interpolation
     dvar = model[dim_var]
@@ -329,7 +328,7 @@ def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars
         # interp[var] = scipy.interpolate.LinearNDInterpolator(points,
         #                                                      np.ravel(model[var].values),
         #                                                      rescale=True)
-        sat[''.join(('model_', var))] = scipy.interpolate.griddata(points,
+        sat[''.join(('model_', var))] = interpolate.griddata(points,
                                                  np.ravel(model[var].values)[idx],
                                                  sat_pts,
                                                  rescale=True)
