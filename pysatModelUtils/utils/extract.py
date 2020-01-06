@@ -164,14 +164,6 @@ def instrument_view_through_model(obs, mod, obs_coords, mod_data_names,
                                   autoscale=False, method='linear'):
     """Interpolates model values onto instrument locations.
 
-    A RegularGrid linear interpolation is used for quick performance. This
-    method may require the use of a pre-processor on coordinate
-    dimensions to ensure that a regular interpolation may actually be
-    performed. Variables that vary exponentially in height
-    may be approximated by taking a log before interpolating, though
-    this does also yield an exponential variation along the horizontal
-    directions as well.
-
     Parameters
     ----------
     obs : pysat.Instrument object
@@ -195,13 +187,23 @@ def instrument_view_through_model(obs, mod, obs_coords, mod_data_names,
     Notes
     -----
     Updates the obs Instrument with interpolated data from the mod Instrument.
-    The interpolation is performed via the RegularGridInterpolator.
+    The interpolation is performed via the RegularGridInterpolator for
+    quick performance.
+
+    This method may require the use of a pre-processor on coordinate
+    dimensions to ensure that a regular interpolation may actually be
+    performed.
 
     Models, such as TIEGCM, have a regular grid in pressure, not in altitude.
     To use this routine for TIEGCM please use
         instrument_altitude_to_model_pressure
     first to transform instrument altitudes to pressure levels suitable for
-    use in this method.
+    this method.
+
+    Variables that vary exponentially in height
+    may be approximated by taking a log before interpolating, though
+    this does also yield an exponential variation along the horizontal
+    directions as well.
 
     """
 
