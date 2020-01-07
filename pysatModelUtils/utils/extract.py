@@ -263,28 +263,49 @@ def instrument_view_through_model(obs, mod, obs_coords, mod_data_names,
 
     return
 
-def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars):
-    """Interpolate model from irregular to regular sampling.
+def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
+                                    inst_coords, interp_vars,
+                                    inst_var_label='altitude',
+                                    inst_var_delta=20.):
+    """Interpolate irregularly gridded model onto Insrument locations.
 
     Parameters
     ----------
-    sat : pysat.Instrument object
-        Satellite object that will recieve interpolated data based upon position
-    model : pysat.Instrument object
-        Model object that will be interpolated onto satellite path
-    dim1 : string identifier
-        Existing regular dimension to be replaced
-    dim2 : string identifier
-        Existing irregular variable used to define regular grid
-
+    inst : pysat.Instrument object
+        pysat object that will receive interpolated data based upon position
+    model : pysat.Instrument object (xarray based)
+        Model object that will be interpolated onto Instrument locations
+    model_reg_dim : str
+        Existing regular dimension name used to organize data that will
+        be replaced with values from model_irreg_var to perform interpolation.
+    model_irreg_var : str
+        Variable name in model for irregular grid values used to define
+        locations along model_reg_dim.
+    inst_coords : array-like
+        List of variable names containing the instrument data coordinates
+        at which the model data will be interpolated. Do not include 'time',
+        only spatial coordinates. Same ordering as used by model_irreg_var.
+    interp_vars : list-like of strings
+        List of strings denoting model variable names that will be
+        interpolated onto inst. The coordinate dimensions for these variables
+        must correspond to those in model_irreg_var.
+    inst_var_label : str ('altitude')
+        String label used within inst for the same kind of values identified
+        by model_irreg_var in model
+    inst_var_delta : float (20.)
+        Range of values kept within method when performing interpolation
+        values - delta < val < values + delta
     """
 
+    # Ensure the inputs are array-like
+    # doesn't work for inst_coords = 'hello' in python 2.7
+    inst_coords = np.asarray(inst_coords)
+    interp_vars = np.asarray(interp_vars)
 
     # create inputs for interpolation
-    dvar = model[dim_var]
-
-    # make a mesh of data location values using intrinsic
-    # regular grid
+    # pull out locations for variables that will be interpolated
+    dvar = model[model_irreg_var]
+    # make a mesh of data location values
     num_pts = 1
     coords = []
     update_dim = -1000
@@ -294,7 +315,7 @@ def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars
             coords.append(model.data.coords[dim].values.astype(int))
         else:
             coords.append(model.data.coords[dim].values)
-        if dim == dim1:
+        if dim == model_reg_dim:
             update_dim = i
 
     # locations of measurements
@@ -307,37 +328,40 @@ def instrument_view_irregular_model(sat, model, dim1, dim_var, scoords, new_vars
     # replace existing regular dimension with irregular data
     points[:, update_dim] = np.ravel(dvar)
 
-    # downselect points to those in altitude range of satellite
-    # print(points[:, update_dim])
-    # print(sat['altitude'].min(), sat['altitude'].max())
-
-    min_val = sat['altitude'].min() - 20. if sat['altitude'].min() < np.nanmax(points[:, update_dim]) else np.nanmax(points[:, update_dim] - 20.)
-    max_val = sat['altitude'].max() + 20. if sat['altitude'].max() < np.nanmax(points[:, update_dim]) else np.nanmax(points[:, update_dim])
-
-    idx, = np.where((points[:, update_dim] >= min_val) &
-                    (points[:, update_dim] <= max_val))
+    # downselect points to those in (altitude) range of instrument
+    # determine selection criteria, store limits
+    min_inst_alt = inst[inst_var_label].min()
+    max_inst_alt = inst[inst_var_label].max()
+    max_pts_alt = np.nanmax(points[:, update_dim])
+    # get downselection values
+    # min val
+    if min_inst_alt < max_pts_alt:
+        min_sel_val = inst[inst_var_label].min() - inst_var_delta
+    else:
+        min_sel_val = max_pts_alt - inst_var_delta
+    # max val
+    if max_inst_alt < max_pts_alt:
+        inst[inst_var_label].max() + inst_var_delta
+    else:
+        max_sel_val = max_pts_alt
+    # perform downselection
+    idx, = np.where((points[:, update_dim] >= min_sel_val) &
+                    (points[:, update_dim] <= max_sel_val))
     points = points[idx, :]
-    print ('Remaining points after downselection', len(idx))
-    print (points[:, update_dim], np.nanmin(points[:, update_dim]), np.nanmax(points[:, update_dim]))
-    # create input array using satellite time/position
-    coords = [sat[coord] for coord in scoords]
-    coords.insert(0, sat.index.values.astype(int))
-    sat_pts = [inp for inp in zip(*coords)]
+    pysat_mu.logger.debug('Remaining points after downselection ' + str(len(idx)))
 
-    interp = {}
-    for var in new_vars:
-        print('Creating interpolation object for', var, '.')
-        # interp[var] = scipy.interpolate.LinearNDInterpolator(points,
-        #                                                      np.ravel(model[var].values),
-        #                                                      rescale=True)
-        sat[''.join(('model_', var))] = interpolate.griddata(points,
+    # create input array using satellite time/position
+    coords = [inst[coord] for coord in inst_coords]
+    coords.insert(0, inst.index.values.astype(int))
+    sat_pts = [inp for inp in zip(*coords)]
+    # perform interpolation of user desired variables
+    for var in interp_vars:
+        pysat_mu.logger.debug('Creating interpolation object for ' + var)
+        inst[''.join(('model_', var))] = interpolate.griddata(points,
                                                  np.ravel(model[var].values)[idx],
                                                  sat_pts,
                                                  rescale=True)
-        print('Interpolating', var, 'onto satellite.')
-        # sat[''.join(('model_', var))] = interp[var](sat_pts)
-    print('Complete.')
-
+        pysat_mu.logger.debug('Complete.')
     return
 
 # # Needs a better name, is this being used anywhere?
