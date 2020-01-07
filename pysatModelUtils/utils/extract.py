@@ -275,7 +275,7 @@ def instrument_view_through_model(inst, model, inst_coords, model_data_names,
     return
 
 def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
-                                    inst_coords, interp_vars,
+                                    inst_coords, model_data_names,
                                     inst_var_label='altitude',
                                     inst_var_delta=20.):
     """Interpolate irregularly gridded model onto Insrument locations.
@@ -296,7 +296,7 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
         List of variable names containing the instrument data coordinates
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates. Same ordering as used by model_irreg_var.
-    interp_vars : list-like of strings
+    model_data_names : list-like of strings
         List of strings denoting model variable names that will be
         interpolated onto inst. The coordinate dimensions for these variables
         must correspond to those in model_irreg_var.
@@ -310,16 +310,16 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
 
     # Ensure the inputs are array-like
     inst_coords = np.asarray(inst_coords)
-    interp_vars = np.asarray(interp_vars)
+    model_data_names = np.asarray(model_data_names)
     # Test input
     if len(inst_coords) == 0:
         estr = 'Must provide inst_coords as a list of strings.'
         raise ValueError(estr)
-    if len(interp_vars) == 0:
-        estr = 'Must provide interp_vars as a list of strings.'
+    if len(model_data_names) == 0:
+        estr = 'Must provide model_data_names as a list of strings.'
         raise ValueError(estr)
     # ensure coordinate dimensions match
-    for var in interp_vars:
+    for var in model_data_names:
         if var.dims != model[model_irreg_var].dims:
             estr = ' '.join(('Coordinate dimensions must match for "model_irreg_var"',
                              'and', var.name))
@@ -377,7 +377,7 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
     coords.insert(0, inst.index.values.astype(int))
     sat_pts = [inp for inp in zip(*coords)]
     # perform interpolation of user desired variables
-    for var in interp_vars:
+    for var in model_data_names:
         pysat_mu.logger.debug('Creating interpolation object for ' + var)
         inst[''.join(('model_', var))] = interpolate.griddata(points,
                                                  np.ravel(model[var].values)[idx],
