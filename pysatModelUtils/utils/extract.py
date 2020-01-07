@@ -375,58 +375,6 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
         pysat_mu.logger.debug('Complete.')
     return
 
-# # Needs a better name, is this being used anywhere?
-# def instrument_view_through_model(obs, mod, obs_coords, mod_dat_names):
-#     """Interpolate model values onto satellite orbital path.
-#
-#     Parameters
-#     ----------
-#     obs : pysat.Instrument object
-#         Instrument object with observational data
-#     mod : pysat.Instrument object
-#         Instrument object with modelled data
-#     obs_coords : array-like
-#         List of variable names containing the observational data coordinates
-#         at which the model data will be interpolated
-#     mod_dat_names : array-like
-#         List of model data output variable names  to interpolate
-#
-#     Notes
-#     -----
-#     Updates the obs Instrument with interpolated data from the mod Instrument
-#
-#     """
-#     # Ensure the coordinate and data variable names are array-like
-#     obs_coords = np.asarray(obs_coords)
-#     mod_dat_names = np.asarray(mod_dat_names)
-#
-#     # Create input array using observational data's time/position
-#     # This needs to be changed, pretty sure it doesn't work for xarray data
-#     pysat_mu.logger.debug("the coordinate data section needs to be fixed")
-#     coords = [obs.data[cc] for cc in obs_coords]
-#     coords.insert(0, obs.index.values.astype(int))
-#     obs_pts = [inp for inp in zip(*coords)] # what is this doing?
-#
-#     # Add optional scaling?
-#
-#     # Interpolate each model data value onto the observations time and location
-#     for label in mod_dat_names:
-#         points = [mod.data.coords[dim].values if dim != 'time' else
-#                   mod.data.coords[dim].values.astype(int)
-#                   for dim in mod[label].dims]
-#         interp_val = interpolate.RegularGridInterpolator(points,
-#                                                          mod[label].values,
-#                                                          bounds_error=False,
-#                                                          fill_value=None)
-#         obs[''.join(('model_', label))] = interp_val(obs_pts)
-#
-#     # Update the observation's meta data
-#     pysat_mu.logger.debug("Missing meta data update")
-#
-#     return
-
-
-
 def extract_modelled_observations(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name, mod_units,
                                   sel_name=None, method='linear',
