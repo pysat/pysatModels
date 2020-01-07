@@ -229,7 +229,7 @@ def instrument_view_through_model(obs, mod, obs_coords, mod_data_names,
 
         # sort out units of this variable
         # grab units from meta
-        mod_units = [mod.meta[dim]['units'] for dim in mod[label].dims]
+        mod_units = [mod.meta[dim, mod.units_label] for dim in mod[label].dims]
         # drop time units
         mod_units = mod_units[1:]
 
