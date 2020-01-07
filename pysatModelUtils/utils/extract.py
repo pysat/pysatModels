@@ -100,7 +100,7 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
             if iname == obs_alt:
                 # pull out altitude units
                 inst_scale[i] = pyutils.scale_units(obs.meta[iname, obs.units_label],
-                                                    mod.meta[mod_alt, obs.units_label])
+                                                    mod.meta[mod_alt, mod.units_label])
 
                 # pull out altitude unit scalar
                 alt_scale = inst_scale[i]
@@ -240,7 +240,7 @@ def instrument_view_through_model(obs, mod, obs_coords, mod_data_names,
                 if iname not in obs.variables:
                     raise ValueError(''.join(['Unknown instrument location index ',
                                             '{:}'.format(iname)]))
-                inst_scale[i] = pyutils.scale_units(obs.meta[iname]['units'],
+                inst_scale[i] = pyutils.scale_units(obs.meta[iname, obs.units_label],
                                                     mod_units[i])
         # collect model grid points together
         points = []
