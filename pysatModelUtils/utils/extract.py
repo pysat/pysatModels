@@ -33,9 +33,6 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
                                           autoscale=False):
     """Interpolates altitude values onto model pressure levels.
 
-    Uses a recursive regular grid interpolation to find the
-    appropriate pressure level for the given input locations.
-
     Parameters
     ----------
     obs : pysat.Instrument object
@@ -66,6 +63,11 @@ def instrument_altitude_to_model_pressure(obs, mod, obs_coords,
     autoscale : bool
         if True, use 'units' in meta to determine relative scaling
         between obs and mod
+
+    Notes
+    -----
+    Uses an iterative regular grid interpolation to find the
+    appropriate pressure level for the given input locations.
 
     """
 
