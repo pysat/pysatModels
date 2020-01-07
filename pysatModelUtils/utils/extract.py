@@ -298,12 +298,23 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
     """
 
     # Ensure the inputs are array-like
-    # doesn't work for inst_coords = 'hello' in python 2.7
     inst_coords = np.asarray(inst_coords)
     interp_vars = np.asarray(interp_vars)
+    # Test input
+    if len(inst_coords) == 0:
+        estr = 'Must provide inst_coords as a list of strings.'
+        raise ValueError(estr)
+    if len(interp_vars) == 0:
+        estr = 'Must provide interp_vars as a list of strings.'
+        raise ValueError(estr)
+    # ensure coordinate dimensions match
+    for var in interp_vars:
+        if var.dims != model[model_irreg_var].dims:
+            estr = ' '.join(('Coordinate dimensions must match for "model_irreg_var"',
+                             'and', var.name))
+            raise ValueError(estr)
 
-    # create inputs for interpolation
-    # pull out locations for variables that will be interpolated
+    # pull out irregular grid locations for variables that will be interpolated
     dvar = model[model_irreg_var]
     # make a mesh of data location values
     num_pts = 1
@@ -318,9 +329,9 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
         if dim == model_reg_dim:
             update_dim = i
 
-    # locations of measurements
+    # array for locations of measurements
     points = np.zeros((num_pts, 4))
-
+    # create mesh corresponding to coordinate values and store
     pts = np.meshgrid(*coords, indexing='ij')
     for i, pt in enumerate(pts):
         points[:,i] = np.ravel(pt)
@@ -350,7 +361,7 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
     points = points[idx, :]
     pysat_mu.logger.debug('Remaining points after downselection ' + str(len(idx)))
 
-    # create input array using satellite time/position
+    # create input array using inst time/position
     coords = [inst[coord] for coord in inst_coords]
     coords.insert(0, inst.index.values.astype(int))
     sat_pts = [inp for inp in zip(*coords)]
