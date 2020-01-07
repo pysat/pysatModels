@@ -73,6 +73,10 @@ def instrument_altitude_to_model_pressure(inst, model, inst_coords,
 
     # Ensure the coordinate and data variable names are array-like
     inst_coords = np.asarray(inst_coords)
+    # Test input
+    if len(inst_coords) == 0:
+        estr = 'Must provide inst_coords as a list of strings.'
+        raise ValueError(estr)
 
     # create initial fake regular grid index in inst
     inst[model_coord] = 0
@@ -212,6 +216,13 @@ def instrument_view_through_model(inst, model, inst_coords, model_data_names,
     # Ensure the coordinate and data variable names are array-like
     inst_coords = np.asarray(inst_coords)
     model_data_names = np.asarray(model_data_names)
+    # Test input
+    if len(inst_coords) == 0:
+        estr = 'Must provide inst_coords as a list of strings.'
+        raise ValueError(estr)
+    if len(model_data_names) == 0:
+        estr = 'Must provide model_data_names as a list of strings.'
+        raise ValueError(estr)
 
     # create inst input based upon provided dimension names
     coords = [inst[coord_name] for coord_name in inst_coords]
