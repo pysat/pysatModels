@@ -65,7 +65,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         Scalar used to roughly translate a change in altitude with a
         change in pressure level, the scale height. Same units as used by inst.
     tol : float
-        Allowed difference between observed and modeled altitudes.
+        Allowed difference between observed and modelled altitudes.
 
     Notes
     -----
