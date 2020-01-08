@@ -25,44 +25,47 @@ import pysat.utils as pyutils
 import pysatModelUtils as pysat_mu
 
 
-def instrument_altitude_to_model_pressure(inst, model, inst_coords,
-                                          inst_alt, model_alt, model_coord,
-                                          scale=100.,
+def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
+                                          mod_datetime_name, mod_time_name,
+                                          mod_units, inst_alt, mod_alt,
+                                          mod_alt_units, scale=100.,
                                           inst_out='model_altitude',
-                                          tol=1.,
-                                          autoscale=False):
+                                          tol=1.):
     """Interpolates altitude values onto model pressure levels.
 
     Parameters
     ----------
     inst : pysat.Instrument object
         Instrument object with observational data
-    model : pysat.Instrument object
-        Instrument object with modelled data
-    inst_coords : array-like
+    model : xarray
+        Model data in xarray format
+    inst_name : array-like
         List of variable names containing the observational data coordinates
         at which the model data will be interpolated. Must be in the same order
-        as the model dimensions.
+        as mod_name.
+    mod_name : array-like
+        list of names of the data series to use for determing model locations
+        in the same order as inst_name.  These must make up a regular grid.
+    mod_datetime_name : string
+        Name of the data series in the model Dataset containing datetime info
+    mod_time_name : string
+        Name of the time coordinate in the model Dataset
+    mod_units : list of strings
+        units for each of the mod_name location attributes.  Currently
+        supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
     inst_alt : string
         String identifier used in inst for the altitude variable
-    model_alt : string
+    mod_alt : string
         Variable identifier for altitude data in the model
         e.g. 'ZG' in standard TIEGCM files.
-    model_coord : string
-        Coordinate dimension identifier for the closest pressure
-        level in model, equivalent in a sense to altitude
-        e.g. 'ilev', 'lev' for TIEGCM
+    mod_alt_units : string
+        units for the altitude variable. Currently
+        supports: m, km, and cm
     scale : float
         Scalar used to roughly translate a change in altitude with a
-        change in pressure level, the scale height.
-    inst_out : string
-        Label used to add interpolated altitudes into pbs Instrument
-        object.
+        change in pressure level, the scale height. Same units as used by inst.
     tol : float
         Allowed difference between observed and modeled altitudes.
-    autoscale : bool
-        if True, use 'units' in meta to determine relative scaling
-        between inst and model
 
     Notes
     -----
@@ -72,51 +75,42 @@ def instrument_altitude_to_model_pressure(inst, model, inst_coords,
     """
 
     # Ensure the coordinate and data variable names are array-like
-    inst_coords = np.asarray(inst_coords)
+    inst_name = np.asarray(inst_name)
     # Test input
-    if len(inst_coords) == 0:
-        estr = 'Must provide inst_coords as a list of strings.'
+    if len(inst_name) == 0:
+        estr = 'Must provide inst_name as a list of strings.'
         raise ValueError(estr)
 
+    # Determine the scaling between model and instrument data
+    inst_scale = np.ones(shape=len(inst_name), dtype=float)
+    for i, iname in enumerate(inst_name):
+        if iname not in inst.data.keys():
+            raise ValueError(''.join(['Unknown instrument location index ',
+                                      '{:}'.format(iname)]))
+        # altitude variable check
+        if iname == inst_alt:
+            alt_scale = pyutils.scale_units(mod_alt_units,
+                                            inst.meta[iname, inst.units_label])
+            inst_scale[i] = 1.
+        else:
+            inst_scale[i] = pyutils.scale_units(mod_units[i],
+                                                inst.meta[iname, inst.units_label])
+
     # create initial fake regular grid index in inst
-    inst[model_coord] = 0
+    inst_model_coord = inst[inst_name[0]]*0
 
     # we need to create altitude index from model
     # collect relevant inputs
     # First, model locations for interpolation
     # we use the dimensions associated with model altitude
     # in the order provided
-    points = [model.data.coords[dim].values if dim != 'time' else
-              model.data.coords[dim].values.astype(int)
-              for dim in model[model_alt].dims]
-    # grab units from meta
-    model_units = [model.meta[dim]['units'] for dim in model[model_alt].dims]
-    # drop time units
-    model_units = model_units[1:]
-
-    # Determine the unit scaling between model and instrument data
-    inst_scale = np.ones(shape=len(inst_coords), dtype=float)
-    if autoscale:
-        for i, iname in enumerate(inst_coords):
-            if iname not in inst.variables:
-                raise ValueError(''.join(['Unknown instrument location index ',
-                                        '{:}'.format(iname)]))
-            if iname == inst_alt:
-                # pull out altitude units
-                inst_scale[i] = pyutils.scale_units(inst.meta[iname, inst.units_label],
-                                                    model.meta[model_alt, model.units_label])
-
-                # pull out altitude unit scalar
-                alt_scale = inst_scale[i]
-            else:
-                inst_scale[i] = pyutils.scale_units(inst.meta[iname, inst.units_label],
-                                                    model_units[i])
-    else:
-        alt_scale = 1.
+    points = [model[dim].values/temp_scale for dim, temp_scale in zip(mod_name, inst_scale)]
+    # time first
+    points.insert(0, model[mod_datetime_name].values.astype(int))
 
     # create interpolator
     interp = interpolate.RegularGridInterpolator(points,
-                                                 np.log(model[model_alt].values*alt_scale),
+                                                 np.log(model[mod_alt].values/alt_scale),
                                                  bounds_error=False,
                                                  fill_value=None)
     # use this interpolator to figure out what altitudes we are at
@@ -134,13 +128,13 @@ def instrument_altitude_to_model_pressure(inst, model, inst_coords,
         # create input array using satellite time/position
         # replace the altitude coord with the fake tiegcm one
         coords = []
-        for iscale, coord in zip(inst_scale, inst_coords):
+        for iscale, coord in zip(inst_scale, inst_name):
             if coord == inst_alt:
                 # don't scale altitude-like model coordinate
-                coords.append(inst[model_coord])
+                coords.append(inst_model_coord)
             else:
                 # scale other dimensions to the model
-                coords.append(inst[coord]/iscale)
+                coords.append(inst[coord]*iscale)
 
         coords.insert(0, inst.index.values.astype(int))
         # to peform the interpolation we need points
@@ -159,36 +153,49 @@ def instrument_altitude_to_model_pressure(inst, model, inst_coords,
         # shift index in inst for model pressure level
         # in the opposite direction to diff
         # reduced value by scale, the 'scale height'
-        inst[model_coord] -= diff/scale
+        inst_model_coord -= diff/scale
+
 
     # achieved model altitude
     inst[inst_out] = np.e**orbit_alt
 
     return
 
-def instrument_view_through_model(inst, model, inst_coords, model_data_names,
-                                  autoscale=False, method='linear'):
+def instrument_view_through_model(inst, model, inst_name, mod_name,
+                                  mod_datetime_name, mod_time_name,
+                                  mod_units, sel_name=None,
+                                  method='linear', model_label='model'):
     """Interpolates model values onto instrument locations.
 
     Parameters
     ----------
     inst : pysat.Instrument object
         Instrument object with observational data
-    model : pysat.Instrument object
-        Instrument object with modelled data
-    inst_coords : array-like
+    model : xarray
+        Modelled data
+    inst_name : array-like
         List of variable names containing the observational data coordinates
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates.
-    model_data_names : array-like
-        List of model data output variable names to interpolate. All
-        variables require the same dimensions.
-    autoscale : bool
-        If true, use the 'units' to meta to atuomatically scale
-        between inst and model coordinate values.
+    mod_name : array-like
+        list of names of the data series to use for determing model locations
+        in the same order as inst_name.  These must make up a regular grid.
+    mod_datetime_name : string
+        Name of the data series in the model Dataset containing datetime info
+    mod_time_name : string
+        Name of the time coordinate in the model Dataset
+    mod_units : list of strings
+        units for each of the mod_name location attributes.  Currently
+        supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
+    sel_name : array-like or NoneType
+        list of names of modelled data indices to append to instrument object,
+        or None to append all modelled data (default=None)
     method : string ['linear', 'nearest']
         'linear' interpolation or 'nearest' neighbor options for
         RegularGrid
+    model_label : string
+        name of model, used to identify interpolated data values in instrument
+        (default="model")
 
     Notes
     -----
@@ -214,18 +221,34 @@ def instrument_view_through_model(inst, model, inst_coords, model_data_names,
     """
 
     # Ensure the coordinate and data variable names are array-like
-    inst_coords = np.asarray(inst_coords)
-    model_data_names = np.asarray(model_data_names)
+    inst_name = np.asarray(inst_name)
+    mod_name = np.asarray(mod_name)
+
+    if sel_name is None:
+        sel_name = np.asarray(list(model.data_vars.keys()))
+    else:
+        sel_name = np.asarray(sel_name)
+
     # Test input
-    if len(inst_coords) == 0:
-        estr = 'Must provide inst_coords as a list of strings.'
+    if len(inst_name) == 0:
+        estr = 'Must provide inst_name as a list of strings.'
         raise ValueError(estr)
-    if len(model_data_names) == 0:
-        estr = 'Must provide model_data_names as a list of strings.'
+    if len(mod_name) == 0:
+        estr = 'Must provide mod_name as a list of strings.'
         raise ValueError(estr)
 
+    # Determine the scaling between model and instrument data
+    inst_scale = np.ones(shape=len(inst_name), dtype=float)
+    for i, iname in enumerate(inst_name):
+        if iname not in inst.data.keys():
+            raise ValueError(''.join(['Unknown instrument location index ',
+                                      '{:}'.format(iname)]))
+        inst_scale[i] = pyutils.scale_units(mod_units[i],
+                                            inst.meta[iname, inst.units_label])
+
+
     # create inst input based upon provided dimension names
-    coords = [inst[coord_name] for coord_name in inst_coords]
+    coords = [inst[coord_name] for coord_name in inst_name]
     # time goes first
     coords.insert(0, inst.index.values.astype(int))
     # move from a list of lists [ [x1, x2, ...], [y1, y2, ...]]
@@ -236,30 +259,16 @@ def instrument_view_through_model(inst, model, inst_coords, model_data_names,
 
     # perform the interpolation
     interp = {}
-    for label in model_data_names:
-
-        # sort out units of this variable
-        # grab units from meta
-        model_units = [model.meta[dim, model.units_label] for dim in model[label].dims]
-        # drop time units
-        model_units = model_units[1:]
-
+    for label in sel_name:
         # Determine the unit scaling between model and instrument data
-        inst_scale = np.ones(shape=len(inst_coords), dtype=float)
-        if autoscale:
-            for i, iname in enumerate(inst_coords):
-                if iname not in inst.variables:
-                    raise ValueError(''.join(['Unknown instrument location index ',
-                                            '{:}'.format(iname)]))
-                inst_scale[i] = pyutils.scale_units(inst.meta[iname, inst.units_label],
-                                                    model_units[i])
+        inst_scale = np.ones(shape=len(inst_name), dtype=float)
         # collect model grid points together
         points = []
         # time dim first
-        points.append(model.data.coords[model[label].dims[0]].values.astype(int) )
+        points.append(model[mod_datetime_name].values.astype(int) )
         # now spatial
-        for iscale, dim in zip(inst_scale, model[label].dims[1:]):
-            points.append(model.data.coords[dim].values*iscale)
+        for iscale, var in zip(inst_scale, mod_name):
+            points.append(model[var].values/iscale)
 
         # create the interpolator
         interp[label] = interpolate.RegularGridInterpolator(points,
@@ -267,17 +276,16 @@ def instrument_view_through_model(inst, model, inst_coords, model_data_names,
                                                             bounds_error=False,
                                                             fill_value=None,
                                                             method=method)
-        # apply it at observed locations
-        inst[''.join(('model_', label))] = interp[label](inst_pts)
-        # get meta data as well
-        inst.meta[''.join(('model_', label))] = model.meta[label]
+        # apply it at observed locations and store result
+        inst[''.join((model_label, label))] = interp[label](inst_pts)
 
     return
 
 def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
-                                    inst_coords, model_data_names,
+                                    inst_name, model_data_names,
                                     inst_var_label='altitude',
-                                    inst_var_delta=20.):
+                                    inst_var_delta=20.,
+                                    autoscale=False):
     """Interpolate irregularly gridded model onto Insrument locations.
 
     Parameters
@@ -292,7 +300,7 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
     model_irreg_var : str
         Variable name in model for irregular grid values used to define
         locations along model_reg_dim.
-    inst_coords : array-like
+    inst_name : array-like
         List of variable names containing the instrument data coordinates
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates. Same ordering as used by model_irreg_var.
@@ -309,11 +317,11 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
     """
 
     # Ensure the inputs are array-like
-    inst_coords = np.asarray(inst_coords)
+    inst_name = np.asarray(inst_name)
     model_data_names = np.asarray(model_data_names)
     # Test input
-    if len(inst_coords) == 0:
-        estr = 'Must provide inst_coords as a list of strings.'
+    if len(inst_name) == 0:
+        estr = 'Must provide inst_name as a list of strings.'
         raise ValueError(estr)
     if len(model_data_names) == 0:
         estr = 'Must provide model_data_names as a list of strings.'
@@ -327,7 +335,7 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
 
     # pull out irregular grid locations for variables that will be interpolated
     dvar = model[model_irreg_var]
-    # make a mesh of data location values
+    # make a mesh of data coordinate location values
     num_pts = 1
     coords = []
     update_dim = -1000
@@ -373,9 +381,12 @@ def instrument_view_irregular_model(inst, model, model_reg_dim, model_irreg_var,
     pysat_mu.logger.debug('Remaining points after downselection ' + str(len(idx)))
 
     # create input array using inst time/position
-    coords = [inst[coord] for coord in inst_coords]
+    coords = [inst[coord] for coord in inst_name]
     coords.insert(0, inst.index.values.astype(int))
     sat_pts = [inp for inp in zip(*coords)]
+    # check on units of these coordinate values
+
+
     # perform interpolation of user desired variables
     for var in model_data_names:
         pysat_mu.logger.debug('Creating interpolation object for ' + var)
