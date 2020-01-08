@@ -159,7 +159,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     # achieved model altitude
     inst[inst_out] = np.e**orbit_alt
 
-    return
+    return inst_out
 
 def instrument_view_through_model(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name,
@@ -196,6 +196,11 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     model_label : string
         name of model, used to identify interpolated data values in instrument
         (default="model")
+
+    Returns
+    -------
+    interp_data.keys() : Keys
+        Keys of modelled data added to the instrument
 
     Notes
     -----
@@ -259,6 +264,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
 
     # perform the interpolation
     interp = {}
+    output_names = []
     for label in sel_name:
         # Determine the unit scaling between model and instrument data
         inst_scale = np.ones(shape=len(inst_name), dtype=float)
@@ -277,16 +283,18 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
                                                             fill_value=None,
                                                             method=method)
         # apply it at observed locations and store result
-        inst[''.join((model_label, label))] = interp[label](inst_pts)
+        output_names.append('_'.join((model_label, label)))
+        inst[output_names[-1]] = interp[label](inst_pts)
 
-    return
+    return output_names
 
 def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                     mod_datetime_name,
-                                    mod_units, mod_reg_dim, model_irreg_var,
+                                    mod_units, mod_reg_dim, mod_irreg_var,
                                     sel_name=None,
                                     inst_var_label='altitude',
-                                    inst_var_delta=20.):
+                                    inst_var_delta=20.,
+                                    model_label='model'):
     """Interpolate irregularly gridded model onto Insrument locations.
 
     Parameters
@@ -309,20 +317,29 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
     mod_reg_dim : str
         Existing regular dimension name used to organize model data that will
-        be replaced with values from model_irreg_var to perform interpolation.
-    model_irreg_var : str
+        be replaced with values from mod_irreg_var to perform interpolation.
+    mod_irreg_var : str
         Variable name in model for irregular grid values used to define
         locations along mod_reg_dim. Must have same coordinates as mod_name.
     sel_name : list-like of strings
         List of strings denoting model variable names that will be
         interpolated onto inst. The coordinate dimensions for these variables
-        must correspond to those in model_irreg_var.
+        must correspond to those in mod_irreg_var.
     inst_var_label : str ('altitude')
         String label used within inst for the same kind of values identified
-        by model_irreg_var in model
+        by mod_irreg_var in model
     inst_var_delta : float (20.)
         Range of values kept within method when performing interpolation
         values - delta < val < values + delta
+    model_label : string
+        name of model, used to identify interpolated data values in instrument
+        (default="model")
+
+    Returns
+    -------
+    interp_data.keys() : Keys
+        Keys of modelled data added to the instrument
+
     """
 
     # Ensure the inputs are array-like
@@ -356,18 +373,18 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     # ensure coordinate dimensions match
     for var in sel_name:
-        if var.dims != model[model_irreg_var].dims:
-            estr = ' '.join(('Coordinate dimensions must match for "model_irreg_var"',
+        if var.dims != model[mod_irreg_var].dims:
+            estr = ' '.join(('Coordinate dimensions must match for "mod_irreg_var"',
                              'and', var.name))
             raise ValueError(estr)
     # ensure mod_reg_dim in mod_irreg_var
-    if mod_reg_dim not in model[model_irreg_var].dims:
-        estr = 'mod_reg_dim must be a coordinate dimension for model_irreg_var.'
+    if mod_reg_dim not in model[mod_irreg_var].dims:
+        estr = 'mod_reg_dim must be a coordinate dimension for mod_irreg_var.'
         raise ValueError(estr)
 
     for mname in mod_name:
-        if mname not in model[model_irreg_var].dims:
-            estr = 'mod_name must contain coordinate dimension labels for model_irreg_var.'
+        if mname not in model[mod_irreg_var].dims:
+            estr = 'mod_name must contain coordinate dimension labels for mod_irreg_var.'
             raise ValueError(estr)
 
     # Determine the scaling between model and instrument data
@@ -387,7 +404,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     # translate regular locations to equivalent irregular ones
     # pull out irregular grid locations for variables that will be interpolated
-    dvar = model[model_irreg_var]
+    dvar = model[mod_irreg_var]
     # make a mesh of data coordinate location values
     # get total number of elements and find which dimension will be updated
     num_pts = 1
@@ -433,14 +450,16 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     sat_pts = [inp for inp in zip(*coords)]
 
     # perform interpolation of user desired variables
+    output_names = []
     for var in sel_name:
         pysat_mu.logger.debug('Creating interpolation object for ' + var)
-        inst[''.join(('model_', var))] = interpolate.griddata(points,
+        output_names.append('_'.join((model_label, var)))
+        inst[output_names[-1]] = interpolate.griddata(points,
                                                  np.ravel(model[var].values)[idx],
                                                  sat_pts,
                                                  rescale=True)
         pysat_mu.logger.debug('Complete.')
-    return
+    return output_names
 
 def extract_modelled_observations(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name, mod_units,
