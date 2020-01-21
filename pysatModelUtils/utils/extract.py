@@ -8,7 +8,9 @@ Routines to extract observational-style data from model output
 
 Routines
 --------
-satellite_view_through_model
+instrument_altitude_to_model_pressure
+instrument_view_through_model
+instrument_view_irregular_model
 extract_modelled_observations
 
 """
@@ -67,6 +69,12 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     tol : float
         Allowed difference between observed and modelled altitudes.
 
+    Returns
+    -------
+    interp_data.keys() : Keys
+        Keys of modelled data added to the instrument (inst_out)
+
+
     Notes
     -----
     Uses an iterative regular grid interpolation to find the
@@ -76,10 +84,29 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
 
     # Ensure the coordinate and data variable names are array-like
     inst_name = np.asarray(inst_name)
+    mod_name = np.asarray(mod_name)
+
     # Test input
     if len(inst_name) == 0:
         estr = 'Must provide inst_name as a list of strings.'
         raise ValueError(estr)
+
+    if len(mod_name) == 0:
+        estr = 'Must provide mod_name as a list of strings.'
+        raise ValueError(estr)
+
+    if len(inst_name) != len(mod_name):
+        estr = 'Must provide the same number of instrument and model '
+        estr += 'location attribute names as a list'
+        raise ValueError(estr)
+
+    if len(mod_name) != len(mod_units):
+        raise ValueError('Must provide units for each model location ' +
+                         'attribute')
+
+    if mod_time_name not in model.coords:
+        raise ValueError("Unknown model time coordinate key name")
+
 
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
@@ -229,6 +256,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     inst_name = np.asarray(inst_name)
     mod_name = np.asarray(mod_name)
 
+    # interp over all vars if None provided
     if sel_name is None:
         sel_name = np.asarray(list(model.data_vars.keys()))
     else:
@@ -238,9 +266,27 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     if len(inst_name) == 0:
         estr = 'Must provide inst_name as a list of strings.'
         raise ValueError(estr)
+
     if len(mod_name) == 0:
         estr = 'Must provide mod_name as a list of strings.'
         raise ValueError(estr)
+
+    if len(sel_name) == 0:
+        estr = 'Must provide sel_name as a list of strings.'
+        raise ValueError(estr)
+
+    if len(inst_name) != len(mod_name):
+        estr = 'Must provide the same number of instrument and model '
+        estr += 'location attribute names as a list'
+        raise ValueError(estr)
+
+    if len(mod_name) != len(mod_units):
+        raise ValueError('Must provide units for each model location ' +
+                         'attribute')
+
+    if mod_time_name not in model.coords:
+        raise ValueError("Unknown model time coordinate key name")
+
 
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
@@ -344,8 +390,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     # Ensure the inputs are array-like
     inst_name = np.asarray(inst_name)
-    sel_name = np.asarray(sel_name)
-
+    # interp over all vars if None provided
     if sel_name is None:
         sel_name = np.asarray(list(model.data_vars.keys()))
     else:
@@ -367,9 +412,6 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     if len(mod_name) != len(mod_units):
         raise ValueError('Must provide units for each model location ' +
                          'attribute')
-
-    if len(sel_name) == 0:
-        raise ValueError('No model data keys to interpolate')
 
     # ensure coordinate dimensions match
     for var in sel_name:
