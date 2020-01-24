@@ -1,31 +1,38 @@
+os: linux
 language: python
 dist: xenial
-matrix:
+jobs:
   include:
     - python: 2.7
-    - python: 3.5
     - python: 3.6
     - python: 3.7
+    - python: 3.8
 
+services: xvfb
 addons:
   apt:
     packages:
     - gfortran
-
+    
 before_install:
   - pip install pytest-cov
   - pip install coveralls
   - pip install future
-  - pip install matplotlib
-  - pip install netCDF4
+  - pip install numpy
   - pip install 'pandas<0.25'
   - pip install xarray
+  - pip install matplotlib
+  # Install pysatCDF and dump output
   - pip install pysatCDF >/dev/null
-
-  - pip install numpy
-  - pip install 'pysat>=2.1.0'
-# set up data directory
+  # Prepare pysat install from git
+  - cd ..
+  - git clone https://github.com/pysat/pysat.git >/dev/null
+  - cd ./pysat
+  # set up data directory
   - mkdir /home/travis/build/pysatData
+  # install pysat
+  - python setup.py install >/dev/null
+  - cd ../pysatModelUtils
 
 install:
   - python setup.py install
