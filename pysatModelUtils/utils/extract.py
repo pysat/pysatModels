@@ -31,7 +31,8 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
                                           mod_datetime_name, mod_time_name,
                                           mod_units, inst_alt, mod_alt,
                                           mod_alt_units, scale=100.,
-                                          inst_out='model_altitude',
+                                          inst_out_alt='model_altitude',
+                                          inst_out_pres='model_pressure',
                                           tol=1.):
     """Interpolates altitude values onto model pressure levels.
 
@@ -66,6 +67,10 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     scale : float
         Scalar used to roughly translate a change in altitude with a
         change in pressure level, the scale height. Same units as used by inst.
+    inst_out_alt : string
+        Label assigned to the model altitude data when attached to inst
+    inst_out_alt : string
+        Label assigned to the model pressure level when attached to inst
     tol : float
         Allowed difference between observed and modelled altitudes.
 
@@ -182,11 +187,13 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         # reduced value by scale, the 'scale height'
         inst_model_coord -= diff/scale
 
-
     # achieved model altitude
-    inst[inst_out] = np.e**orbit_alt
+    inst[inst_out_alt] = np.e**orbit_alt
+    # pressure level that goes with altitude
+    inst[inst_out_pres] = inst_model_coord
 
-    return inst_out
+    return [inst_out_alt, inst_out_pres]
+
 
 def instrument_view_through_model(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name,
@@ -317,7 +324,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         # collect model grid points together
         points = []
         # time dim first
-        points.append(model[mod_datetime_name].values.astype(int) )
+        points.append(model[mod_datetime_name].values.astype(int))
         # now spatial
         for iscale, var in zip(inst_scale, mod_name):
             points.append(model[var].values/iscale)
@@ -333,6 +340,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         inst[output_names[-1]] = interp[label](inst_pts)
 
     return output_names
+
 
 def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                     mod_datetime_name,
@@ -400,6 +408,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     if len(inst_name) == 0:
         estr = 'Must provide inst_name as a list of strings.'
         raise ValueError(estr)
+
     if len(sel_name) == 0:
         estr = 'Must provide sel_name as a list of strings.'
         raise ValueError(estr)
@@ -502,6 +511,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                                  rescale=True)
         pysat_mu.logger.debug('Complete.')
     return output_names
+
 
 def extract_modelled_observations(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name, mod_units,
