@@ -198,7 +198,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
 def instrument_view_through_model(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name,
                                   mod_units, sel_name=None,
-                                  method='linear', model_label='model'):
+                                  methods=['linear'], model_label='model'):
     """Interpolates model values onto instrument locations.
 
     Parameters
@@ -224,9 +224,9 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     sel_name : array-like or NoneType
         list of names of modelled data indices to append to instrument object,
         or None to append all modelled data (default=None)
-    method : string ['linear', 'nearest']
+    methods : string ['linear', 'nearest']
         'linear' interpolation or 'nearest' neighbor options for
-        RegularGrid
+        RegularGrid. Must supply an option for each variable.
     model_label : string
         name of model, used to identify interpolated data values in instrument
         (default="model")
@@ -262,12 +262,18 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     # Ensure the coordinate and data variable names are array-like
     inst_name = np.asarray(inst_name)
     mod_name = np.asarray(mod_name)
+    method = np.asarray(methods)
 
     # interp over all vars if None provided
     if sel_name is None:
         sel_name = np.asarray(list(model.data_vars.keys()))
     else:
         sel_name = np.asarray(sel_name)
+
+    if len(methods) != len(sel_name):
+        estr = ' '.join('Must provide interpolation selection',
+                        'for each variable via methods keyword.')
+        raise ValueError(estr)
 
     # Test input
     if len(inst_name) == 0:
@@ -318,7 +324,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     # perform the interpolation
     interp = {}
     output_names = []
-    for label in sel_name:
+    for label, method in zip(sel_name, methods):
         # Determine the unit scaling between model and instrument data
         inst_scale = np.ones(shape=len(inst_name), dtype=float)
         # collect model grid points together
