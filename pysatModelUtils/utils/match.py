@@ -18,6 +18,7 @@ from __future__ import unicode_literals
 import datetime as dt
 import numpy as np
 from os import path
+from pandas import (DateOffset, date_range)
 
 import pysat
 
@@ -183,10 +184,13 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
         raise ValueError('Need routine to clean the instrument data')
 
     # Download the instrument data, if needed
-    # Could use some improvement, for not re-downloading times that you already
-    # have
     if (stop - start).days != len(inst.files[start:stop]):
-        inst.download(start=start, stop=stop, **inst_download_kwargs)
+        missing_times = [tt for tt in date_range(start, stop, freq='1D',
+                                                 closed='left')
+                         if tt not in inst.files[start:stop].index]
+        for tt in missing_times:
+            inst.download(start=tt, stop=tt+DateOffset(days=1),
+                          user=user, password=password)
 
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
