@@ -27,7 +27,7 @@ class TestUtilsExtractObsViewModel:
     def test_str_coords(self):
         """ Test string coordinate input"""
         self.args[2] = self.args[2][0]
-        extract.satellite_view_through_model(*self.args)
+        extract.instrument_view_through_model(*self.args)
 
         for label in self.args[3]:
             assert "model_{:s}".format(label) in self.args[1].data.columns
@@ -35,7 +35,7 @@ class TestUtilsExtractObsViewModel:
     def test_str_obs(self):
         """ Test string model observation input"""
         self.args[3] = self.args[3][0]
-        extract.satellite_view_through_model(*self.args)
+        extract.instrument_view_through_model(*self.args)
 
         assert "model_{:s}".format(self.args[3]) in self.args[1].data.columns
 
@@ -111,4 +111,3 @@ class TestUtilsExtractModObs:
         for label in sel_val:
             assert "model_{:s}".format(label) in out_keys
         assert len(out_keys) == len(np.asarray(sel_val))
-
