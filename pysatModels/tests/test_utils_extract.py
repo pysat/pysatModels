@@ -114,4 +114,3 @@ class TestUtilsExtractModObs:
         for label in self.model.data_vars.keys():
             if label not in self.input_args[3]:
                 assert "model_{:s}".format(label) in out_keys
-
