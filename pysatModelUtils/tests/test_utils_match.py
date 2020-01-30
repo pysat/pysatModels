@@ -17,7 +17,7 @@ class TestUtilsMatchLoadModelXarray:
         """ Runs before every method to create a clean testing setup."""
         self.ftime = dt.datetime(2009, 1, 1)
         self.model_inst = pysat.Instrument(platform=str('pysat'),
-                                           name=str('testing'),
+                                           name=str('testing_xarray'),
                                            sat_id='12', clean_level='clean')
         self.xout = None
 
@@ -38,7 +38,7 @@ class TestUtilsMatchLoadModelXarray:
 
         assert isinstance(self.xout, xr.core.dataset.Dataset)
 
-        for kk in self.model_inst.data.columns:
+        for kk in self.model_inst.data.data_vars:
             assert kk in self.xout.data_vars
 
         assert self.model_inst.index.name in self.xout.coords
@@ -51,28 +51,28 @@ class TestUtilsMatchCollectInstModPairs:
     """ Unit tests for utils.match.collect_inst_model_pairs """
     def setup(self):
         """Runs before every method to create a clean testing setup."""
+        self.inst = pysat.Instrument(platform=str('pysat'), name=str('testing'),
+                                     clean_level='clean')
+        self.inst.load(yr=2009, doy=1)
         self.input_args = [dt.datetime(2009, 1, 1), dt.datetime(2009, 1, 2),
-                           dt.timedelta(days=1),
-                           pysat.Instrument(platform=str('pysat'),
-                                            name=str('testing'),
-                                            clean_level='clean')]
+                           dt.timedelta(days=1), self.inst]
+        self.model = pysat.Instrument(platform=str('pysat'),
+                                      name=str('testing_xarray'), sat_id='10',
+                                      clean_level='clean')
         self.required_kwargs = {"model_load_kwargs":
-                                {"model_inst":
-                                 pysat.Instrument(platform=str('pysat'),
-                                                  name=str('testing'),
-                                                  clean_level='clean')},
+                                {"model_inst": self.model},
                                 "inst_clean_rout": lambda x: True,
                                 "inst_lon_name": "longitude",
                                 "mod_lon_name": "longitude",
                                 "inst_name": ["longitude", "latitude", "slt"],
                                 "mod_name": ["longitude", "latitude", "slt"],
-                                "mod_datetime_name": "Epoch",
-                                "mod_time_name": "Epoch",
+                                "mod_datetime_name": "time",
+                                "mod_time_name": "time",
                                 "mod_units": ["deg", "deg", "h"]}
 
     def teardown(self):
         """Runs after every method to clean up previous testing."""
-        del self.input_args, self.required_kwargs
+        del self.input_args, self.required_kwargs, self.inst, self.model
 
     @pytest.mark.parametrize("del_key,err_msg",
                              [("model_load_kwargs",
@@ -118,7 +118,6 @@ class TestUtilsMatchCollectInstModPairs:
         assert match.collect_inst_model_pairs(*self.input_args,
                                               **self.required_kwargs) is None
 
-    @pytest.mark.skip(reason="test is failing, need to fix extract first")
     @pytest.mark.parametrize("tinc_val", [dt.timedelta(days=1),
                                           dt.timedelta(days=2)])
     def test_tinc_success(self, tinc_val):

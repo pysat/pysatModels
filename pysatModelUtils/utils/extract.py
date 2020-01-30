@@ -518,11 +518,11 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         pysat_mu.logger.debug('Complete.')
     return output_names
 
-
 def extract_modelled_observations(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name, mod_units,
                                   sel_name=None, method='linear',
-                                  model_label='model'):
+                                  model_label='model',
+                                  model_units_attr='units'):
     """Extracts instrument-aligned data from a modelled data set
 
     Parameters
@@ -554,6 +554,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     model_label : string
         name of model, used to identify interpolated data values in instrument
         (default="model")
+    model_units_attr : string
+        Attribute for model xarray values that contains units (default='units')
 
     Returns
     -------
@@ -570,7 +572,6 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     For best results, select clean instrument data after alignment with model
 
     """
-
     # Ensure the array-like inputs are arrays
     inst_name = np.asarray(inst_name)
     mod_name = np.asarray(mod_name)
@@ -608,7 +609,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     for i, iname in enumerate(inst_name):
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
-                                      '{:}'.format(iname)]))
+                                      '{:} '.format(iname),
+                                      '(should not be epoch time)']))
         inst_scale[i] = pyutils.scale_units(mod_units[i],
                                             inst.meta.data.units[iname])
 
@@ -630,11 +632,21 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     # resolution of a model run
     mind = list()
     iind = list()
-    for i, tt in enumerate(mod_datetime):
-        del_sec = abs(tt - inst.index).total_seconds()
-        if del_sec.min() <= min_del:
-            iind.append(del_sec.argmin())
-            mind.append(i)
+    del_sec = abs(mod_datetime-inst.index[:, np.newaxis]).astype(float) * 1.0e-9
+    for inst_ind, mod_ind in enumerate(del_sec.argmin(axis=1)):
+        if del_sec[inst_ind, mod_ind] <= min_del:
+            if mod_ind in mind:
+                # Test to see if this model observation has multiple pairings
+                old_ind = mind.index(mod_ind)
+                if(del_sec[inst_ind, mod_ind] <
+                   del_sec[iind[old_ind],mind[old_ind]]):
+                    # If this one is closer, keep it
+                    iind[old_ind] = inst_ind
+                    mind[old_ind] = mod_ind
+            else:
+                # If this is a new point, keep it
+                iind.append(inst_ind)
+                mind.append(mod_ind)
 
     # Determine the model coordinates closest to the satellite track
     interp_shape = inst.index.shape if inst.pandas_format else \
@@ -669,7 +681,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             ndim = model.data_vars[mdat].data.shape
             indices = {mod_time_name: mind[i]}
 
-            # Construct the data needed for interpolation
+            # Construct the data needed for interpolation, ensuring that
+            # the types are appropriate
             values = model[indices][mdat].data
             points = [model.coords[kk].data for kk in dims if kk in mod_name]
             get_coords = True if len(points) > 0 else False
@@ -754,8 +767,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if str(verr).find("requested xi is out of bounds") > 0:
                         # This is acceptable, pad the interpolated data with
                         # NaN
-                        print("Warning: {:} for ".format(verr) +
-                              "{:s} data at {:}".format(mdat, xi))
+                        pysat_mu.logger.Warning(
+                            "{:} for {:s} data at {:}".format(verr, mdat, xi))
                         yi = [np.nan]
                     else:
                         raise ValueError(verr)
@@ -765,8 +778,12 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     # Update the instrument object and attach units to the metadata
     for mdat in interp_data.keys():
+        # Assign the units, if keyword is present in xarray data
         attr_name = mdat.split("{:s}_".format(model_label))[-1]
-        inst.meta[mdat] = {inst.units_label: model.data_vars[attr_name].units}
+        mod_units = "missing"
+        if hasattr(model.data_vars[attr_name], model_units_attr):
+            mod_units = getattr(model.data_vars[attr_name], model_units_attr)
+        inst.meta[mdat] = {inst.units_label: mod_units}
 
         if inst.pandas_format:
             inst[mdat] = pds.Series(interp_data[mdat], index=inst.index)

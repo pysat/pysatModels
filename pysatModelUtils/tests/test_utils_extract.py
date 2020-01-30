@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import numpy as np
 import pytest
 
 import pysat
@@ -45,18 +46,21 @@ class TestUtilsExtractModObs:
     def setup(self):
         """Runs before every method to create a clean testing setup."""
         self.inst = pysat.Instrument(platform=str('pysat'),
-                                     name=str('testing'),
+                                     name=str('testing'), sat_id='1',
                                      clean_level='clean')
+        self.model = pysat.Instrument(platform=str('pysat'),
+                                      name=str('testing2d_xarray'),
+                                      clean_level='clean')
         self.inst.load(yr=2009, doy=1)
-        self.input_args = [self.inst,
-                           self.inst.data.to_xarray(),
+        self.model.load(yr=2009, doy=1)
+        self.input_args = [self.inst, self.model.data,
                            ["longitude", "latitude", "slt"],
                            ["longitude", "latitude", "slt"],
-                           "Epoch", "Epoch", ["deg", "deg", "h"]]
+                           "uts", "time", ["deg", "deg", "h"]]
 
     def teardown(self):
         """Runs after every method to clean up previous testing."""
-        del self.inst, self.input_args
+        del self.inst, self.model, self.input_args
 
     @pytest.mark.parametrize("bad_index,bad_input,err_msg",
                              [(2, [], "Must provide instrument location"),
@@ -74,29 +78,28 @@ class TestUtilsExtractModObs:
         with pytest.raises(ValueError) as verr:
             extract.extract_modelled_observations(*self.input_args)
 
-        assert verr.value.args[0].find(err_msg) >= 0
+        assert str(verr.value.args[0]).find(err_msg) >= 0
 
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
-                             [("sel_name", ["longitude", "latitude", "slt"],
+                             [("sel_name", ["Epoch"],
                                "No model data keys to interpolate"),
                              ("method", "not_a_method",
-                              "interpn only understand the methods"),
-                              ("model_label", 1, "Unknown formate code ")])
+                              "interpn only understands the methods"),
+                              ("model_label", 1, "Unknown format code ")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
         """ Test for expected failure with bad kwarg input """
         kwargs = {bad_key: bad_val}
 
-        with pytest.raises(ValueError) as verr:
+        with pytest.raises(Exception) as err:
             extract.extract_modelled_observations(*self.input_args, **kwargs)
 
-        assert verr.value.args[0].find(err_msg) >= 0
+        assert str(err.value.args[0]).find(err_msg) >= 0
 
-    @pytest.mark.parametrize("sel_val", [(["dummy1", "dummy2"]), ("dummy1")])
+    @pytest.mark.parametrize("sel_val", [["dummy1", "dummy2"], ["dummy1"]])
     def test_good_sel_name(self, sel_val):
         """ Test for success with different good selection name inputs"""
         out_keys = extract.extract_modelled_observations(*self.input_args,
-                                                         **{"sel_name":
-                                                            sel_val})
+                                                         sel_name=sel_val)
         for label in sel_val:
             assert "model_{:s}".format(label) in out_keys
         assert len(out_keys) == len(np.asarray(sel_val))
@@ -108,6 +111,7 @@ class TestUtilsExtractModObs:
         """ Test the extraction success"""
         out_keys = extract.extract_modelled_observations(*self.input_args)
 
-        for label in sel_val:
-            assert "model_{:s}".format(label) in out_keys
-        assert len(out_keys) == len(np.asarray(sel_val))
+        for label in self.model.data_vars.keys():
+            if label not in self.input_args[3]:
+                assert "model_{:s}".format(label) in out_keys
+
