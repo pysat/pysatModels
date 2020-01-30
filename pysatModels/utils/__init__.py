@@ -4,7 +4,7 @@
 # Full license can be found in License.md
 #-----------------------------------------------------------------------------
 """
-pysatModelUtils.utils
+pysatModels.utils
 =====================
 
 Utilities designed to extract, match, and compare modelled and observed data

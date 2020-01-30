@@ -8,8 +8,8 @@ import xarray as xr
 
 import pysat
 
-import pysatModelUtils as pysat_mu
-import pysatModelUtils.utils.match as match
+import pysatModels as pysat_mu
+import pysatModels.utils.match as match
 
 class TestUtilsMatchLoadModelXarray:
     """ Unit tests for utils.match.load_model_xarray"""

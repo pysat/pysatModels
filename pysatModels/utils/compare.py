@@ -20,7 +20,7 @@ import numpy as np
 import verify  # PyForecastTools
 import pysat
 
-import pysatModelUtils as pysat_mu
+import pysatModels as pysat_mu
 
 
 def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],

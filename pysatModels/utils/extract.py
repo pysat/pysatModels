@@ -24,7 +24,7 @@ import scipy.interpolate as interpolate
 
 import pysat.utils as pyutils
 
-import pysatModelUtils as pysat_mu
+import pysatModels as pysat_mu
 
 
 def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,

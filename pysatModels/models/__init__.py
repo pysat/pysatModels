@@ -4,7 +4,7 @@
 # Full license can be found in License.md
 #-----------------------------------------------------------------------------
 """
-pysatModelUtils.models
+pysatModels.models
 ======================
 
 Routines for loading model data into a pysat Instrument object

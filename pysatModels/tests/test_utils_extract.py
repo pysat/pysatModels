@@ -7,7 +7,7 @@ import pytest
 
 import pysat
 
-import pysatModelUtils.utils.extract as extract
+import pysatModels.utils.extract as extract
 
 @pytest.mark.skip("input requires a regular grid for the model")
 class TestUtilsExtractObsViewModel:

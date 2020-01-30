@@ -13,7 +13,7 @@ addons:
   apt:
     packages:
     - gfortran
-    
+
 before_install:
   - pip install pytest-cov
   - pip install coveralls
@@ -32,13 +32,13 @@ before_install:
   - mkdir /home/travis/build/pysatData
   # install pysat
   - python setup.py install >/dev/null
-  - cd ../pysatModelUtils
+  - cd ../pysatModels
 
 install:
   - python setup.py install
 
 script:
-  - pytest -vs --cov=pysatModelUtils/
+  - pytest -vs --cov=pysatModels/
 
 after_success:
   - coveralls
