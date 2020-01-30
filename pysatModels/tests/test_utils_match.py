@@ -11,6 +11,7 @@ import pysat
 import pysatModels as pysat_mu
 import pysatModels.utils.match as match
 
+
 class TestUtilsMatchLoadModelXarray:
     """ Unit tests for utils.match.load_model_xarray"""
     def setup(self):
@@ -51,7 +52,8 @@ class TestUtilsMatchCollectInstModPairs:
     """ Unit tests for utils.match.collect_inst_model_pairs """
     def setup(self):
         """Runs before every method to create a clean testing setup."""
-        self.inst = pysat.Instrument(platform=str('pysat'), name=str('testing'),
+        self.inst = pysat.Instrument(platform=str('pysat'),
+                                     name=str('testing'),
                                      clean_level='clean')
         self.inst.load(yr=2009, doy=1)
         self.input_args = [dt.datetime(2009, 1, 1), dt.datetime(2009, 1, 2),
@@ -100,7 +102,7 @@ class TestUtilsMatchCollectInstModPairs:
                              [("mod_lon_name", "glon",
                                "unknown name for model longitude"),
                               ("mod_datetime_name", "dt",
-                               "unknown model name for datetime"),])
+                               "unknown model name for datetime"), ])
     def test_bad_input(self, cng_key, bad_val, err_msg):
         """ Test for expected failure with bad input """
         self.required_kwargs[cng_key] = bad_val

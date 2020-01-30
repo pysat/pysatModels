@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 """
 Routines to align and work with pairs of modelled and observational data
 
