@@ -22,7 +22,8 @@ from pandas import (DateOffset, date_range)
 
 import pysat
 
-from . import extract
+from pysatModels.utils import extract
+
 
 def load_model_xarray(ftime, model_inst=None, filename=None):
     """ Load and extract data from a model Instrument at the specified time

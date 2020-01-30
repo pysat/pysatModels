@@ -18,8 +18,8 @@ from __future__ import unicode_literals
 import logging
 import os
 
-from . import (utils)
-from . import (models)
+from pysatModels import (utils)
+from pysatModels import (models)
 
 # set the version
 here = os.path.abspath(os.path.dirname(__file__))
