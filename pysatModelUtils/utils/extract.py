@@ -75,7 +75,6 @@ def satellite_view_through_model(obs, mod, obs_coords, mod_dat_names):
     return
 
 
-
 def extract_modelled_observations(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name, mod_units,
                                   sel_name=None, method='linear',
@@ -190,13 +189,13 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     # resolution of a model run
     mind = list()
     iind = list()
-    del_sec = abs(mod_datetime-inst.index[:,np.newaxis]).astype(float) * 1.0e-9
+    del_sec = abs(mod_datetime-inst.index[:, np.newaxis]).astype(float) * 1.0e-9
     for inst_ind, mod_ind in enumerate(del_sec.argmin(axis=1)):
-        if del_sec[inst_ind,mod_ind] <= min_del:
+        if del_sec[inst_ind, mod_ind] <= min_del:
             if mod_ind in mind:
                 # Test to see if this model observation has multiple pairings
                 old_ind = mind.index(mod_ind)
-                if(del_sec[inst_ind,mod_ind] <
+                if(del_sec[inst_ind, mod_ind] <
                    del_sec[iind[old_ind],mind[old_ind]]):
                     # If this one is closer, keep it
                     iind[old_ind] = inst_ind
