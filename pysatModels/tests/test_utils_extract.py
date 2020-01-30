@@ -112,6 +112,6 @@ class TestUtilsExtractModObs:
         """ Test the extraction success"""
         out_keys = extract.extract_modelled_observations(*self.input_args)
 
-        for label in self.model.data_vars.keys():
+        for label in self.model.data.data_vars.keys():
             if label not in self.input_args[3]:
                 assert "model_{:s}".format(label) in out_keys
