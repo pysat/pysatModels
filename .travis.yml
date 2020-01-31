@@ -19,8 +19,8 @@ before_install:
   - pip install coveralls
   - pip install future
   - pip install numpy
-  - pip install 'pandas<0.25'
-  - pip install 'xarray<0.15'
+  - pip install pandas
+  - pip install xarray
   - pip install matplotlib
   # Install pysatCDF and dump output
   - pip install pysatCDF >/dev/null
