@@ -7,7 +7,8 @@ import pytest
 
 import pysat
 
-import pysatModelUtils.utils.extract as extract
+import pysatModels.utils.extract as extract
+
 
 @pytest.mark.skip("input requires a regular grid for the model")
 class TestUtilsExtractObsViewModel:
@@ -81,10 +82,10 @@ class TestUtilsExtractModObs:
         assert str(verr.value.args[0]).find(err_msg) >= 0
 
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
-                             [("sel_name", ["Epoch"],
+                             [("sel_name", ["slt"],
                                "No model data keys to interpolate"),
-                             ("method", "not_a_method",
-                              "interpn only understands the methods"),
+                              ("method", "not_a_method",
+                               "interpn only understands the methods"),
                               ("model_label", 1, "Unknown format code ")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
         """ Test for expected failure with bad kwarg input """
@@ -104,14 +105,13 @@ class TestUtilsExtractModObs:
             assert "model_{:s}".format(label) in out_keys
         assert len(out_keys) == len(np.asarray(sel_val))
 
+    # TODO: Add test for out-of-bounds data
+    # TODO: Add tests for model data already in instrument
 
-    # Add test for out-of-bounds data
-    # Add tests for model data already in instrument
     def test_success(self):
         """ Test the extraction success"""
         out_keys = extract.extract_modelled_observations(*self.input_args)
 
-        for label in self.model.data_vars.keys():
+        for label in self.model.data.data_vars.keys():
             if label not in self.input_args[3]:
                 assert "model_{:s}".format(label) in out_keys
-

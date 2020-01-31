@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 """
-pysatModelUtils
+pysatModels
 ===============
 
 Model utilities designed to facilitate studies that integrate observational
@@ -18,8 +18,8 @@ from __future__ import unicode_literals
 import logging
 import os
 
-from . import (utils)
-from . import (models)
+from pysatModels import (utils)
+from pysatModels import (models)
 
 # set the version
 here = os.path.abspath(os.path.dirname(__file__))
@@ -28,4 +28,4 @@ with open(os.path.join(here, 'version.txt')) as version_file:
 
 # Define a logger object to allow easier log handling
 logging.raiseExceptions = False
-logger = logging.getLogger('pysatModelUtils_logger')
+logger = logging.getLogger('pysatModels_logger')

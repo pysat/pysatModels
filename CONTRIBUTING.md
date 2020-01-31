@@ -2,18 +2,18 @@ Contributing
 ============
 
 Bug reports, feature suggestions and other contributions are greatly
-appreciated!  PysatModelUtils is a community-driven project and welcomes both feedback and contributions.
+appreciated!  pysatModels is a community-driven project and welcomes both feedback and contributions.
 
 Short version
 =============
 
-* Submit bug reports and feature requests at `GitHub <https://github.com/pysat/PysatModelUtils/issues>`_
+* Submit bug reports and feature requests at `GitHub <https://github.com/pysat/pysatModels/issues>`_
 * Make pull requests to the ``develop`` branch
 
 Bug reports
 ===========
 
-When `reporting a bug <https://github.com/pysat/PysatModelUtils/issues>`_ please
+When `reporting a bug <https://github.com/pysat/pysatModels/issues>`_ please
 include:
 
 * Your operating system name and version
@@ -24,7 +24,7 @@ Feature requests and feedback
 =============================
 
 The best way to send feedback is to file an issue at
-`GitHub <https://github.com/pysat/PysatModelUtils/issues>`_.
+`GitHub <https://github.com/pysat/pysatModels/issues>`_.
 
 If you are proposing a feature:
 
@@ -36,12 +36,12 @@ If you are proposing a feature:
 Development
 ===========
 
-To set up `PysatModelUtils` for local development:
+To set up `pysatModels` for local development:
 
-1. `Fork pysat on GitHub <https://github.com/pysat/PysatModelUtils/fork>`_.
+1. `Fork pysat on GitHub <https://github.com/pysat/pysatModels/fork>`_.
 2. Clone your fork locally::
 
-    git clone git@github.com:your_name_here/PysatModelUtils.git
+    git clone git@github.com:your_name_here/pysatModels.git
 
 3. Create a branch for local development::
 
@@ -49,7 +49,7 @@ To set up `PysatModelUtils` for local development:
 
    Now you can make your changes locally. Tests for new instruments are
    performed automatically.  Tests for custom functions should be added to the
-   appropriately named file in ``PysatModelUtils/tests``.  For example, the averaging routines in avg.py are tested in ``PysatModelUtils/tests/test_avg.py``.  If no
+   appropriately named file in ``pysatModels/tests``.  For example, the averaging routines in avg.py are tested in ``pysatModels/tests/test_avg.py``.  If no
    test file exists, then you should create one.  This testing uses pytest, which
    will run tests on any python file in the test directory that starts with
    ``test_``.

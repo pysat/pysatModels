@@ -1,4 +1,4 @@
-pysatModelUtils allows users to compare models with data obtained through pysat
+pysatModels allows users to compare models with data obtained through pysat
 
 Main Features
 -------------

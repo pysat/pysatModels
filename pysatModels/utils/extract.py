@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 """
 Routines to extract observational-style data from model output
 
@@ -24,7 +24,7 @@ import scipy.interpolate as interpolate
 
 import pysat.utils as pyutils
 
-import pysatModelUtils as pysat_mu
+import pysatModels as ps_mod
 
 
 def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
@@ -112,7 +112,6 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
 
-
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
     for i, iname in enumerate(inst_name):
@@ -126,7 +125,8 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
             inst_scale[i] = 1.
         else:
             inst_scale[i] = pyutils.scale_units(mod_units[i],
-                                                inst.meta[iname, inst.units_label])
+                                                inst.meta[iname,
+                                                          inst.units_label])
 
     # create initial fake regular grid index in inst
     inst_model_coord = inst[inst_name[0]]*0
@@ -136,7 +136,8 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     # First, model locations for interpolation
     # we use the dimensions associated with model altitude
     # in the order provided
-    points = [model[dim].values/temp_scale for dim, temp_scale in zip(mod_name, inst_scale)]
+    points = [model[dim].values/temp_scale for dim, temp_scale in zip(mod_name,
+                                                                      inst_scale)]
     # time first
     points.insert(0, model[mod_datetime_name].values.astype(int))
 
@@ -146,8 +147,8 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
                                                  bounds_error=False,
                                                  fill_value=None)
     # use this interpolator to figure out what altitudes we are at
-    # each loop, use the current estimated path through model expressed in pressure
-    # and interp above to get the equivalent altitude of this path
+    # each loop, use the current estimated path through model expressed in
+    # pressure and interp above to get the equivalent altitude of this path
     # compare this altitude to the actual instrument altitude
     # shift the equivalent pressure for the instrument up/down
     # until difference between altitudes is small
@@ -238,9 +239,9 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
 
     Notes
     -----
-    Updates the inst Instrument with interpolated data from the model Instrument.
-    The interpolation is performed via the RegularGridInterpolator for
-    quick performance.
+    Updates the inst Instrument with interpolated data from the model
+    Instrument. The interpolation is performed via the RegularGridInterpolator
+    for quick performance.
 
     This method may require the use of a pre-processor on coordinate
     dimensions to ensure that a regular interpolation may actually be
@@ -300,7 +301,6 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
 
-
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
     for i, iname in enumerate(inst_name):
@@ -309,7 +309,6 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
                                       '{:}'.format(iname)]))
         inst_scale[i] = pyutils.scale_units(mod_units[i],
                                             inst.meta[iname, inst.units_label])
-
 
     # create inst input based upon provided dimension names
     coords = [inst[coord_name] for coord_name in inst_name]
@@ -431,8 +430,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     # ensure coordinate dimensions match
     for var in sel_name:
         if var.dims != model[mod_irreg_var].dims:
-            estr = ' '.join(('Coordinate dimensions must match for "mod_irreg_var"',
-                             'and', var.name))
+            estr = ' '.join(('Coordinate dimensions must match for',
+                             '"mod_irreg_var" and', var.name))
             raise ValueError(estr)
     # ensure mod_reg_dim in mod_irreg_var
     if mod_reg_dim not in model[mod_irreg_var].dims:
@@ -441,7 +440,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     for mname in mod_name:
         if mname not in model[mod_irreg_var].dims:
-            estr = 'mod_name must contain coordinate dimension labels for mod_irreg_var.'
+            estr = ' '.join(('mod_name must contain coordinate dimension',
+                             'labels for mod_irreg_var.'))
             raise ValueError(estr)
 
     # Determine the scaling between model and instrument data
@@ -455,7 +455,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                             inst.meta[iname, inst.units_label])
 
     # First, model locations for interpolation (regulargrid)
-    coords = [model[dim].values/temp_scale for dim, temp_scale in zip(mod_name, inst_scale)]
+    coords = [model[dim].values/temp_scale for dim, temp_scale in zip(mod_name,
+                                                                      inst_scale)]
     # time first
     coords.insert(0, model[mod_datetime_name].values.astype(int))
 
@@ -475,7 +476,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     # create mesh corresponding to coordinate values and store
     pts = np.meshgrid(*coords, indexing='ij')
     for i, pt in enumerate(pts):
-        points[:,i] = np.ravel(pt)
+        points[:, i] = np.ravel(pt)
     # replace existing regular dimension with irregular data
     points[:, update_dim] = np.ravel(dvar)
 
@@ -499,7 +500,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     idx, = np.where((points[:, update_dim] >= min_sel_val) &
                     (points[:, update_dim] <= max_sel_val))
     points = points[idx, :]
-    pysat_mu.logger.debug('Remaining points after downselection ' + str(len(idx)))
+    ps_mod.logger.debug('Remaining points after downselection '
+                          + str(len(idx)))
 
     # create input array using inst time/position
     coords = [inst[coord] for coord in inst_name]
@@ -509,14 +511,16 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     # perform interpolation of user desired variables
     output_names = []
     for var in sel_name:
-        pysat_mu.logger.debug('Creating interpolation object for ' + var)
+        ps_mod.logger.debug('Creating interpolation object for ' + var)
         output_names.append('_'.join((model_label, var)))
-        inst[output_names[-1]] = interpolate.griddata(points,
-                                                 np.ravel(model[var].values)[idx],
-                                                 sat_pts,
-                                                 rescale=True)
-        pysat_mu.logger.debug('Complete.')
+        inst[output_names[-1]] = \
+            interpolate.griddata(points,
+                                 np.ravel(model[var].values)[idx],
+                                 sat_pts,
+                                 rescale=True)
+        ps_mod.logger.debug('Complete.')
     return output_names
+
 
 def extract_modelled_observations(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name, mod_units,
@@ -673,7 +677,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                 # Test to see if this model observation has multiple pairings
                 old_ind = mind.index(mod_ind)
                 if(del_sec[inst_ind, mod_ind] <
-                   del_sec[iind[old_ind],mind[old_ind]]):
+                   del_sec[iind[old_ind], mind[old_ind]]):
                     # If this one is closer, keep it
                     iind[old_ind] = inst_ind
                     mind[old_ind] = mod_ind
@@ -696,7 +700,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     for mdat in interp_data.keys():
         if mdat in inst.data.keys():
-            pysat_mu.logger.warning("".join(["model data already interpolated:",
+            ps_mod.logger.warning("".join(["model data already interpolated:",
                                              " {:}".format(mdat)]))
             del interp_data[mdat]
 
@@ -803,7 +807,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if str(verr).find("requested xi is out of bounds") > 0:
                         # This is acceptable, pad the interpolated data with
                         # NaN
-                        pysat_mu.logger.Warning(
+                        ps_mod.logger.Warning(
                             "{:} for {:s} data at {:}".format(verr, mdat, xi))
                         yi = [np.nan]
                     else:
