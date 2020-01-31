@@ -520,7 +520,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
 def extract_modelled_observations(inst, model, inst_name, mod_name,
                                   mod_datetime_name, mod_time_name, mod_units,
-                                  sel_name=None, method='linear',
+                                  sel_name=None, time_method='min',
+                                  pair_method='closest', method='linear',
                                   model_label='model',
                                   model_units_attr='units'):
     """Extracts instrument-aligned data from a modelled data set
@@ -547,6 +548,12 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     sel_name : array-like or NoneType
         list of names of modelled data indices to append to instrument object,
         or None to append all modelled data (default=None)
+    time_method : string
+        Pair data using larger (max) or smaller (min) of the smallest
+        instrument/model time increments (default='min')
+    pair_method : string
+        Find all relevent pairs ('all') or just the closest pairs ('closest').
+        (default='closest')
     method : string
         Interpolation method.  Supported are 'linear', 'nearest', and
         'splinef2d'.  The last is only supported for 2D data and is not
@@ -581,6 +588,10 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     else:
         sel_name = np.asarray(sel_name)
 
+    # Ensure the method flags are all lower-case for easy testing
+    time_method = time_method.lower()
+    pair_method = pair_method.lower()
+
     # Test input
     if len(inst_name) == 0:
         estr = 'Must provide instrument location attribute names as a list'
@@ -598,6 +609,15 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
 
+    if time_method not in ['min', 'max']:
+        raise ValueError("unknown time method, expects 'min' or 'max'")
+
+    if pair_method not in ['all', 'closest']:
+        raise ValueError("unknown pairing method, expects 'all' or 'closest'")
+
+    # Ensure mod_name is a list
+    mod_name = list(mod_name)
+    
     # Remove any model coordinates from the modelled data to interpolate
     sel_name = sel_name[[mdat not in mod_name for mdat in sel_name]]
 
@@ -623,10 +643,24 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         raise ValueError("".join(["unknown model name for datetime: ",
                                   mod_datetime_name]))
 
-    tm_sec = (mod_datetime[1:] - mod_datetime[:-1]).min()
-    tm_sec /= np.timedelta64(1, 's')
-    ti_sec = (inst.index[1:] - inst.index[:-1]).min().total_seconds()
-    min_del = tm_sec if tm_sec < ti_sec else ti_sec
+    # Determine the appropriate time difference in seconds from the instrument
+    # and model data.  If only one time value is present, assume anything is
+    # close enough
+    dtime = mod_datetime[1:] - mod_datetime[:-1]
+    if len(dtime) == 0:
+        tm_sec = np.inf
+    else:
+        tm_sec = dmod_time.min()
+        tm_sec /= np.timedelta64(1, 's')
+
+    dtime = inst.index[1:] - inst.index[:-1]
+    ti_sec = np.inf if len(dtime) == 0 else dtime.min().total_seconds()
+    # This will still work if infinite, since it will cause all data to be
+    # accepted as close enough.
+    if time_method == 'max':
+        min_del = tm_sec if tm_sec > ti_sec else ti_sec
+    else:
+        min_del = tm_sec if tm_sec < ti_sec else ti_sec
 
     # Determine which instrument observations are within the model time
     # resolution of a model run
@@ -635,7 +669,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     del_sec = abs(mod_datetime-inst.index[:, np.newaxis]).astype(float) * 1.0e-9
     for inst_ind, mod_ind in enumerate(del_sec.argmin(axis=1)):
         if del_sec[inst_ind, mod_ind] <= min_del:
-            if mod_ind in mind:
+            if mod_ind in mind and pair_method == 'closest':
                 # Test to see if this model observation has multiple pairings
                 old_ind = mind.index(mod_ind)
                 if(del_sec[inst_ind, mod_ind] <
@@ -650,7 +684,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     # Determine the model coordinates closest to the satellite track
     interp_shape = inst.index.shape if inst.pandas_format else \
-        inst.data.data_vars.items()[0][1].shape
+        [inst.data.sizes[ss] for ss in inst.data.coords.keys()]
     inst_coord = {kk: getattr(inst.data, inst_name[i]).values * inst_scale[i]
                   for i, kk in enumerate(mod_name)}
 
@@ -699,7 +733,9 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if idims == 0:
                         # Determine the number of dimensions
                         idims = len(inst.data.coords)
-                        idim_names = inst.data.coords.keys()[1:]
+                        idim_names = [ckey for i, ckey in
+                                      enumerate(inst.data.coords.keys())
+                                      if i > 0]
 
                         # Find relevent dimensions for cycling and slicing
                         ind_dims = [k for k, kk in enumerate(inst_name)
@@ -790,6 +826,6 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         else:
             inst.data = inst.data.assign(interp_key=(inst.data.coords.keys(),
                                                      interp_data[mdat]))
-            inst.data.rename({"interp_key": mdat}, inplace=True)
+            inst.data = inst.data.rename({"interp_key": mdat})
 
     return interp_data.keys()
