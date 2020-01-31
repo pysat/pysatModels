@@ -8,7 +8,7 @@ import xarray as xr
 
 import pysat
 
-import pysatModels as pysat_mu
+import pysatModels as ps_mod
 import pysatModels.utils.match as match
 
 

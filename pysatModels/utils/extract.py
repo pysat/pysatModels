@@ -24,7 +24,7 @@ import scipy.interpolate as interpolate
 
 import pysat.utils as pyutils
 
-import pysatModels as pysat_mu
+import pysatModels as ps_mod
 
 
 def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
@@ -500,7 +500,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     idx, = np.where((points[:, update_dim] >= min_sel_val) &
                     (points[:, update_dim] <= max_sel_val))
     points = points[idx, :]
-    pysat_mu.logger.debug('Remaining points after downselection '
+    ps_mod.logger.debug('Remaining points after downselection '
                           + str(len(idx)))
 
     # create input array using inst time/position
@@ -511,14 +511,14 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     # perform interpolation of user desired variables
     output_names = []
     for var in sel_name:
-        pysat_mu.logger.debug('Creating interpolation object for ' + var)
+        ps_mod.logger.debug('Creating interpolation object for ' + var)
         output_names.append('_'.join((model_label, var)))
         inst[output_names[-1]] = \
             interpolate.griddata(points,
                                  np.ravel(model[var].values)[idx],
                                  sat_pts,
                                  rescale=True)
-        pysat_mu.logger.debug('Complete.')
+        ps_mod.logger.debug('Complete.')
     return output_names
 
 
@@ -666,7 +666,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     for mdat in interp_data.keys():
         if mdat in inst.data.keys():
-            pysat_mu.logger.warning("".join(["model data already interpolated:",
+            ps_mod.logger.warning("".join(["model data already interpolated:",
                                              " {:}".format(mdat)]))
             del interp_data[mdat]
 
@@ -771,7 +771,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if str(verr).find("requested xi is out of bounds") > 0:
                         # This is acceptable, pad the interpolated data with
                         # NaN
-                        pysat_mu.logger.Warning(
+                        ps_mod.logger.Warning(
                             "{:} for {:s} data at {:}".format(verr, mdat, xi))
                         yi = [np.nan]
                     else:

@@ -20,7 +20,7 @@ import numpy as np
 import verify  # PyForecastTools
 import pysat
 
-import pysatModels as pysat_mu
+import pysatModels as ps_mod
 
 
 def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
@@ -173,7 +173,7 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
                 # Not all data types can use all statistics.  Inform the user
                 # instead of stopping processing.  Only valid statistics will
                 # be included in output
-                pysat_mu.logger.info("{:s} can't use {:s}: {:}".format(iname,
+                ps_mod.logger.info("{:s} can't use {:s}: {:}".format(iname,
                                                                        mm, err))
 
     return stat_dict, data_units
