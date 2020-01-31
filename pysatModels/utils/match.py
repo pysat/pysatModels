@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 """
 Routines to match modelled and observational data
 
@@ -22,7 +22,8 @@ from pandas import (DateOffset, date_range)
 
 import pysat
 
-from . import extract
+from pysatModels.utils import extract
+
 
 def load_model_xarray(ftime, model_inst=None, filename=None):
     """ Load and extract data from a model Instrument at the specified time
@@ -35,7 +36,8 @@ def load_model_xarray(ftime, model_inst=None, filename=None):
         Model instrument object
     filename : str or NoneType
         Model filename, if the file is not include in the Instrument filelist.
-        or a filename that requires time specification from ftime (default=None)
+        or a filename that requires time specification from ftime
+        (default=None)
 
     Returns
     -------
@@ -65,11 +67,11 @@ def load_model_xarray(ftime, model_inst=None, filename=None):
     elif model_inst.pandas_format:
         model_xarray = model_inst.data.to_xarray()
     else:
-       model_xarray = model_inst.data
+        model_xarray = model_inst.data
 
     return model_xarray
 
-    
+
 def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                              model_load_rout=load_model_xarray,
                              model_load_kwargs={}, inst_clean_rout=None,
@@ -95,9 +97,9 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     model_load_rout : routine
         Routine to load model data into an xarray using datetime as argument
         input input and other necessary data as keyword arguments.  If the
-        routine requires a time-dependent filename, ensure that the load routine
-        uses the datetime input to construct the correct filename, as done in
-        load_model_xarray. (default=load_model_xarray)
+        routine requires a time-dependent filename, ensure that the load
+        routine uses the datetime input to construct the correct filename, as
+        done in load_model_xarray. (default=load_model_xarray)
     model_load_kwargs : dict
         Keyword arguments for the model loading routine. (default={})
     inst_clean_rout : routine
@@ -171,8 +173,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
         raise ValueError(estr)
 
     if len(inst_name) != len(mod_name):
-        estr = ''.join(['Must provide the same number of instrument and model ',
-                       'location attribute names as a list'])
+        estr = ''.join(['Must provide the same number of instrument and ',
+                       'model location attribute names as a list'])
         raise ValueError(estr)
 
     if len(mod_name) != len(mod_units):
@@ -207,7 +209,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
             else:
                 raise ValueError("".join(["unknown name for model longitude: ",
                                           mod_lon_name]))
-            
+
             # Load the instrument data, if needed
             if inst.empty or inst.index[-1] < istart:
                 inst.custom.add(pysat.utils.coords.update_longitude, 'modify',
@@ -284,4 +286,3 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                     inst.meta.data.units[im]
 
     return matched_inst
-

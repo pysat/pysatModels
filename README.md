@@ -3,9 +3,9 @@
         <img width="20%" src="/poweredbypysat.png" alt="pysat" title="pysat"</img>
 </div>
 
-# pysatModelUtils
-[![Build Status](https://travis-ci.org/pysat/pysatModelUtils.svg?branch=master)](https://travis-ci.org/pysat/pysatModelUtils)
-[![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModelUtils/badge.svg?branch=master)](https://coveralls.io/github/pysat/pysatModelUtils?branch=master)
+# pysatModels
+[![Build Status](https://travis-ci.org/pysat/pysatModels.svg?branch=master)](https://travis-ci.org/pysat/pysatModels)
+[![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=master)](https://coveralls.io/github/pysat/pysatModels?branch=master)
 
 This code handles the model-data comparison routines for pysat. It is currently a work in progress, and will eventually replace the pysat.model_utils module in pysat.
 
@@ -15,13 +15,13 @@ This code handles the model-data comparison routines for pysat. It is currently 
 First, checkout the repository:
 
 ```
-  git clone https://github.com/pysat/pysatModelUtils.git
+  git clone https://github.com/pysat/pysatModels.git
 ```
 
 Change directories into the repository folder and run the setup.py file.  For
 a local install use the "--user" flag after "install".
 
 ```
-  cd pysatModelUtils/
+  cd pysatModels/
   python setup.py install
 ```

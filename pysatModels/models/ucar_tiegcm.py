@@ -191,11 +191,11 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
     the returned files are up to pysat specifications.
 
     """
-    
+
     if format_str is None:
         # default file naming
         format_str = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
-        
+
     return pysat.Files.from_os(data_path=data_path, format_str=format_str)
 
 

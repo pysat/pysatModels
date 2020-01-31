@@ -12,7 +12,7 @@ from setuptools import setup, find_packages
 here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, 'description.txt'), encoding='utf-8') as f:
     long_description = f.read()
-version_filename = os.path.join('pysatModelUtils', 'version.txt')
+version_filename = os.path.join('pysatModels', 'version.txt')
 with codecs.open(os.path.join(here, version_filename)) as version_file:
     version = version_file.read().strip()
 
@@ -22,9 +22,9 @@ install_requires = ['pysat', 'scipy', 'pandas', 'xarray', 'numpy']
 
 # Run setup
 
-setup(name='pysatModelUtils',
+setup(name='pysatModels',
       version=version,
-      url='github.com/pysat/pysatModelUtils',
+      url='github.com/pysat/pysatModels',
       author='Angeline G. Burrell, Jeff Klenzing, Russell Stoneback',
       author_email='angeline.burrell@nrl.navy.mil',
       description='Model-data comparisons for the pysat ecosystem',
@@ -37,10 +37,10 @@ setup(name='pysatModelUtils',
           "License :: BSD",
           "Natural Language :: English",
           "Programming Language :: Python :: 2.7",
-          "Programming Language :: Python :: 3.4",
           "Programming Language :: Python :: 3.5",
           "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: 3.7",
+          "Programming Language :: Python :: 3.8",
           "Operating System :: MacOS :: MacOS X",
       ],
       include_package_data=True,
