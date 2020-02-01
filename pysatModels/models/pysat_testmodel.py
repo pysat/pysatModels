@@ -67,9 +67,9 @@ def load(fnames, tag=None, sat_id=None):
                               'longitude': longitude, 'altitude': altitude})
 
     slt = np.zeros([len(uts), len(longitude)])
-    for i in range(len(uts)):
-        for j in range(len(longitude)):
-            slt[i, j] = np.mod(uts[i]/3600.0 + longitude[j]/15.0, 24.0)
+    for i, ut in enumerate(uts):
+        for j, long in enumerate(longitude):
+            slt[i, j] = np.mod(ut/3600.0 + long/15.0, 24.0)
     data['slt'] = (('time', 'longtiude'), slt)
 
     # Fake 3D data consisting of ones everywhere
