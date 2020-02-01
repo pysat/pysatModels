@@ -69,11 +69,11 @@ def load(fnames, tag=None, sat_id=None):
     slt = np.zeros([len(uts), len(longitude)])
     for i, ut in enumerate(uts):
         for j, long in enumerate(longitude):
-            slt[i, j] = np.mod(ut/3600.0 + long/15.0, 24.0)
+            slt[i, j] = np.mod(ut / 3600.0 + long / 15.0, 24.0)
     data['slt'] = (('time', 'longtiude'), slt)
 
     # Fake 3D data consisting of values between 0 and 21 everywhere
-    dummy1 = np.mod(data['uts']*data['latitude']*data['longitude'], 21.0)
+    dummy1 = np.mod(data['uts'] * data['latitude'] * data['longitude'], 21.0)
     data['dummy1'] = (('time', 'latitude', 'longitude'), dummy1)
 
     # Fake 4D data consisting of between 0 and 21 everywhere
@@ -131,8 +131,8 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None,
     # Determine the appropriate date range for the fake files
     if file_date_range is None:
         start = _test_dates[''][''] - pds.DateOffset(years=1)
-        stop = _test_dates[''][''] + pds.DateOffset(years=2) \
-            - pds.DateOffset(days=1)
+        stop = (_test_dates[''][''] + pds.DateOffset(years=2)
+                - pds.DateOffset(days=1))
         file_date_range = pds.date_range(start, stop)
 
     index = file_date_range
