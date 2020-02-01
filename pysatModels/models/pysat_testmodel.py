@@ -43,7 +43,7 @@ def load(fnames, tag=None, sat_id=None, malformed_index=False):
     data : (xr.Dataset)
         Testing data
     meta : (pysat.Meta)
-        Metadataxs
+        Metadata
 
     """
 
@@ -76,9 +76,11 @@ def load(fnames, tag=None, sat_id=None, malformed_index=False):
             slt[i, j] = np.mod(uts[i]/3600.0 + longitude[j]/15.0, 24.0)
     data['slt'] = (('time', 'longtiude'), slt)
 
+    # Fake 3D data consisting of ones everywhere
     dummy1 = np.ones([len(uts), len(latitude), len(longitude)])
     data['dummy1'] = (('time', 'latitude', 'longitude'), dummy1)
 
+    # Fake 4D data consisting of ones everywhere
     dummy2 = np.ones([len(uts), len(latitude), len(longitude), len(altitude)])
     data['dummy2'] = (('time', 'latitude', 'longitude', 'altitude'), dummy2)
 
