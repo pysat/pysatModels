@@ -771,7 +771,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if str(verr).find("requested xi is out of bounds") > 0:
                         # This is acceptable, pad the interpolated data with
                         # NaN
-                        ps_mod.logger.Warning(
+                        ps_mod.logger.warning(
                             "{:} for {:s} data at {:}".format(verr, mdat, xi))
                         yi = [np.nan]
                     else:
