@@ -56,7 +56,7 @@ class TestUtilsExtractModObs:
         self.input_args = [self.inst, self.model.data,
                            ["longitude", "latitude", "slt"],
                            ["longitude", "latitude", "slt"],
-                           "uts", "time", ["deg", "deg", "h"]]
+                           "time", "time", ["deg", "deg", "h"]]
 
     def teardown(self):
         """Runs after every method to clean up previous testing."""

@@ -62,7 +62,7 @@ def load(fnames, tag=None, sat_id=None):
     latitude = np.linspace(-50, 50, 21)
     longitude = np.linspace(0, 360, 73)
     altitude = np.linspace(300, 500, 41)
-    data = xr.Dataset({'uts': (('time'), index)},
+    data = xr.Dataset({'uts': (('time'), uts)},
                       coords={'time': index, 'latitude': latitude,
                               'longitude': longitude, 'altitude': altitude})
 
