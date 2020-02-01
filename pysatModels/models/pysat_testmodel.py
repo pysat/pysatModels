@@ -72,12 +72,12 @@ def load(fnames, tag=None, sat_id=None):
             slt[i, j] = np.mod(ut/3600.0 + long/15.0, 24.0)
     data['slt'] = (('time', 'longtiude'), slt)
 
-    # Fake 3D data consisting of ones everywhere
-    dummy1 = np.ones([len(uts), len(latitude), len(longitude)])
+    # Fake 3D data consisting of values between 0 and 21 everywhere
+    dummy1 = np.mod(data['uts']*data['latitude']*data['longitude'], 21.0)
     data['dummy1'] = (('time', 'latitude', 'longitude'), dummy1)
 
-    # Fake 4D data consisting of ones everywhere
-    dummy2 = np.ones([len(uts), len(latitude), len(longitude), len(altitude)])
+    # Fake 4D data consisting of between 0 and 21 everywhere
+    dummy2 = np.mod(data['dummy1'] * data['altitude'], 21.0)
     data['dummy2'] = (('time', 'latitude', 'longitude', 'altitude'), dummy2)
 
     meta = pysat.Meta()
