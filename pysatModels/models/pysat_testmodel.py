@@ -56,9 +56,6 @@ def load(fnames, tag=None, sat_id=None):
     # Create one day of data at desired frequency
     index = pds.date_range(start=date, end=date+pds.DateOffset(seconds=86399),
                            freq='9000s')
-    # Allow numeric string to select first set of data
-    if sat_id.isnumeric() and (int(sat_id) < 86400):
-        index = index[0:int(sat_id)]
 
     uts = index.hour*3600 + index.minute*60 + index.second
 
