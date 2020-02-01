@@ -23,7 +23,7 @@ def init(self):
     self.new_thing = True
 
 
-def load(fnames, tag=None, sat_id=None, malformed_index=False):
+def load(fnames, tag=None, sat_id=None):
     """ Loads the test files
 
     Parameters
@@ -35,8 +35,7 @@ def load(fnames, tag=None, sat_id=None, malformed_index=False):
     sat_id : (str or NoneType)
         Instrument satellite ID (accepts '' or a number (i.e., '10'), which
         specifies the number of data points to include in the test instrument)
-    malformed_index : bool (False)
-        If True, the time index will be non-unique and non-monotonic.
+
 
     Returns
     -------
