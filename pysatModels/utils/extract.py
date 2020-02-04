@@ -657,7 +657,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         tm_sec = dmod_time.min()
         tm_sec /= np.timedelta64(1, 's')
 
-    dtime = inst.index[1:] - inst.index[:-1]
+    dtime = inst.index.values[1:] - inst.index.values[:-1]
     ti_sec = np.inf if len(dtime) == 0 else dtime.min().total_seconds()
     # This will still work if infinite, since it will cause all data to be
     # accepted as close enough.
