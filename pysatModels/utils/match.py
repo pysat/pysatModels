@@ -78,6 +78,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                              inst_lon_name=None, mod_lon_name=None,
                              inst_name=[], mod_name=[], mod_datetime_name=None,
                              mod_time_name=None, mod_units=[], sel_name=None,
+                             time_method='min', pair_method='closest',
                              method='linear', model_label='model',
                              comp_clean='clean'):
     """Pair instrument and model data
@@ -124,6 +125,12 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     sel_name : list of strings or NoneType
         list of names of modelled data indices to append to instrument object,
         or None to append all modelled data (default=None)
+    time_method : string
+        Pair data using larger (max) or smaller (min) of the smallest
+        instrument/model time increments (default='min')
+    pair_method : string
+        Find all relevent pairs ('all') or just the closest pairs ('closest').
+        (default='closest')
     method : string
         Interpolation method.  Supported are 'linear', 'nearest', and
         'splinef2d'.  The last is only supported for 2D data and is not
@@ -224,7 +231,9 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                                         mod_datetime_name=mod_datetime_name,
                                         mod_time_name=mod_time_name,
                                         mod_units=mod_units, sel_name=sel_name,
-                                        method=method, model_label=model_label)
+                                        time_method=time_method, method=method,
+                                        pair_method=pair_method,
+                                        model_label=model_label)
 
                 if len(added_names) > 0:
                     # Clean the instrument data
