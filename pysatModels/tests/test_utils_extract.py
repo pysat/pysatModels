@@ -86,7 +86,9 @@ class TestUtilsExtractModObs:
                                "No model data keys to interpolate"),
                               ("method", "not_a_method",
                                "interpn only understands the methods"),
-                              ("model_label", 1, "Unknown format code ")])
+                              ("model_label", 1, "Unknown format code "),
+                              ("time_method", "fun", "unknown time method"),
+                              ("pair_method", "fun", "unknown pairing method")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
         """ Test for expected failure with bad kwarg input """
         kwargs = {bad_key: bad_val}
