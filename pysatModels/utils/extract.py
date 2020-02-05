@@ -657,8 +657,9 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         tm_sec = dmod_time.min()
         tm_sec /= np.timedelta64(1, 's')
 
+    # Casting as values creates an array of numpy.timedelta64 objects in ns
     dtime = inst.index.values[1:] - inst.index.values[:-1]
-    ti_sec = np.inf if len(dtime) == 0 else dtime.min().total_seconds()
+    ti_sec = np.inf if len(dtime) == 0 else dtime.min().astype(float) * 1.0e-9
     # This will still work if infinite, since it will cause all data to be
     # accepted as close enough.
     if time_method == 'max':
