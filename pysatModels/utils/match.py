@@ -197,7 +197,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                          if tt not in inst.files[start:stop].index]
         for tt in missing_times:
             inst.download(start=tt, stop=tt+DateOffset(days=1),
-                          user=user, password=password)
+                          **inst_download_kwargs)
 
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
