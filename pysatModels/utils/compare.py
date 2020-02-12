@@ -169,7 +169,7 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
                             else nn
                         stat_dict[iname][new] = stat_dict[iname][mm][nn]
                     del stat_dict[iname][mm]
-            except ValueError or NotImplementedError as err:
+            except (ValueError, NotImplementedError, ZeroDivisionError) as err:
                 # Not all data types can use all statistics.  Inform the user
                 # instead of stopping processing.  Only valid statistics will
                 # be included in output
