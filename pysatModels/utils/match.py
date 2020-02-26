@@ -190,14 +190,19 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     if inst_clean_rout is None:
         raise ValueError('Need routine to clean the instrument data')
 
-    # Download the instrument data, if needed
-    if (stop - start).days != len(inst.files[start:stop]):
+    skip_download = False
+    if "skip_download" in inst_download_kwargs.keys():
+        skip_download = inst_download_kwargs['skip_download']
+        del inst_download_kwargs['skip_download']
+
+    # Download the instrument data, if needed and wanted
+    if not skip_download and (stop - start).days != len(inst.files[start:stop]):
         missing_times = [tt for tt in date_range(start, stop, freq='1D',
                                                  closed='left')
                          if tt not in inst.files[start:stop].index]
         for tt in missing_times:
             inst.download(start=tt, stop=tt+DateOffset(days=1),
-                          user=user, password=password)
+                          **inst_download_kwargs)
 
     # Cycle through the times, loading the model and instrument data as needed
     istart = start

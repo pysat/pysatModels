@@ -654,11 +654,12 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     if len(dtime) == 0:
         tm_sec = np.inf
     else:
-        tm_sec = dmod_time.min()
+        tm_sec = dtime.min()
         tm_sec /= np.timedelta64(1, 's')
 
+    # Casting as values creates an array of numpy.timedelta64 objects in ns
     dtime = inst.index.values[1:] - inst.index.values[:-1]
-    ti_sec = np.inf if len(dtime) == 0 else dtime.min().total_seconds()
+    ti_sec = np.inf if len(dtime) == 0 else dtime.min().astype(float) * 1.0e-9
     # This will still work if infinite, since it will cause all data to be
     # accepted as close enough.
     if time_method == 'max':
@@ -700,8 +701,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     for mdat in interp_data.keys():
         if mdat in inst.data.keys():
-            ps_mod.logger.warning("".join(["model data already interpolated:",
-                                             " {:}".format(mdat)]))
+            ps_mod.logger.warn("".join(["model data already interpolated:",
+                                        " {:}".format(mdat)]))
             del interp_data[mdat]
 
     if len(interp_data.keys()) == 0:
@@ -807,7 +808,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if str(verr).find("requested xi is out of bounds") > 0:
                         # This is acceptable, pad the interpolated data with
                         # NaN
-                        ps_mod.logger.Warning(
+                        ps_mod.logger.warn(
                             "{:} for {:s} data at {:}".format(verr, mdat, xi))
                         yi = [np.nan]
                     else:
