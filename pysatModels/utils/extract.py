@@ -654,7 +654,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     if len(dtime) == 0:
         tm_sec = np.inf
     else:
-        tm_sec = dmod_time.min()
+        tm_sec = dtime.min()
         tm_sec /= np.timedelta64(1, 's')
 
     # Casting as values creates an array of numpy.timedelta64 objects in ns
