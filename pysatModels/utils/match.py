@@ -8,6 +8,7 @@ Routines to match modelled and observational data
 
 Routines
 --------
+load_model_xarray
 collect_inst_model_pairs
 
 """
@@ -18,8 +19,8 @@ from __future__ import unicode_literals
 import datetime as dt
 import numpy as np
 from os import path
-from pandas import (DateOffset, date_range)
 
+from pandas import (DateOffset, date_range)
 import pysat
 
 from pysatModels.utils import extract
