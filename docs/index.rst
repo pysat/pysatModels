@@ -12,9 +12,12 @@ model-oriented analysis, such as model validation.
    :maxdepth: -1
 
    overview.rst
+   installation.rst
    citing.rst
-   supported_datasets.rst
-   example.rst
+   supported_models.rst
+   examples.rst
+   develop_guide.rst
+   history.rst
    
 
 
