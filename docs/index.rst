@@ -18,8 +18,6 @@ model-oriented analysis, such as model validation.
    examples.rst
    develop_guide.rst
    history.rst
-   
-
 
 
 Indices and tables
