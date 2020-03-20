@@ -6,10 +6,6 @@
 """
 Routines to match modelled and observational data
 
-Routines
---------
-collect_inst_model_pairs
-
 """
 
 from __future__ import absolute_import
