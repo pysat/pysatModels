@@ -1,5 +1,5 @@
-Citing the pysatModels package and data sets
-============================================
+Citation Guidelines
+===================
 
 When publishing work that uses pysatModels, please cite the package and any
 package it depends on that plays an important role in your analysis.

@@ -15,6 +15,7 @@ model-oriented analysis, such as model validation.
    installation.rst
    citing.rst
    supported_models.rst
+   utils.rst
    examples.rst
    develop_guide.rst
    history.rst

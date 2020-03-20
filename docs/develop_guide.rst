@@ -1,12 +1,6 @@
 Guide for Developers
 ====================
 
-Code of Conduct
----------------
-
-.. include:: ../CODE_OF_CONDUCT.md
-
-How to Contribute
------------------
-
-.. include:: ../CONTRIBUTING.md
+.. toctree::
+   develop_guide/code_of_conduct.rst
+   develop_guide/contributing.rst
