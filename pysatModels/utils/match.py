@@ -8,6 +8,7 @@ Routines to match modelled and observational data
 
 Routines
 --------
+load_model_xarray
 collect_inst_model_pairs
 
 """
@@ -16,12 +17,14 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import datetime as dt
+import logging
 import numpy as np
 from os import path
-from pandas import (DateOffset, date_range)
 
+from pandas import (DateOffset, date_range)
 import pysat
 
+import pysatModels
 from pysatModels.utils import extract
 
 
@@ -208,7 +211,12 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     istart = start
     while start < stop:
         # Load the model data for each time
-        mdata = model_load_rout(start, **model_load_kwargs)
+        try:
+            mdata = model_load_rout(start, **model_load_kwargs)
+        except (IOError, ValueError) as err:
+            pysatModels.logger.info(
+                'unable to load model data at {:}\n{:}'.format(start, err))
+            mdata = None
 
         if mdata is not None:
             # Get the range for model longitude
