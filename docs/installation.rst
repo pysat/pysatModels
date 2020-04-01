@@ -6,6 +6,12 @@ The following instructions will allow you to install pysatModels.
 Prerequisites
 -------------
 
+.. image:: images/poweredbypysat.png
+    :width: 150px
+    :align: right
+    :alt: powered by pysat Logo, blue planet with orbiting python
+
+
 pysatModels uses common Python modules, as well as modules developed by and for
 the Space Physics community.  This module officially supports Python 3.6+.
 
@@ -16,7 +22,7 @@ the Space Physics community.  This module officially supports Python 3.6+.
   scipy         pyForecastTools   
   pandas                             
   xarray              
- ============== =================              
+ ============== =================
 
 
 Installation Options
