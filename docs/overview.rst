@@ -11,3 +11,7 @@ routines written to use data stored in
 objects or
 `xarray Datasets <http://xarray.pydata.org/en/stable/generated/xarray.Dataset.html>`_.
 
+.. image:: images/pysatModels.png
+    :width: 400px
+    :align: center
+    :alt: PysatModels Logo, CubeGrid planet with orbiting python and the module name superimposed.

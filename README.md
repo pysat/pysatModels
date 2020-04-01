@@ -1,6 +1,6 @@
 <div align="left">
         <img height="0" width="0px">
-        <img width="20%" src="docs/images/poweredbypysat.png" alt="pysat" title="pysat"</img>
+        <img width="20%" src="docs/images/pysatModels.png" alt="pysat" title="pysatModels"</img>
 </div>
 
 # pysatModels
