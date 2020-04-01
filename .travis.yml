@@ -23,7 +23,10 @@ before_install:
   - pip install pandas
   - pip install xarray
   - pip install matplotlib
-  # Install pysatCDF and dump output
+# Travis CI currently not working with netCDF4 1.5.3
+  - pip install 'cftime==1.1.1'
+  - pip install 'netCDF4<1.5.3'
+# Install pysatCDF and dump output
   - pip install pysatCDF >/dev/null
   # Prepare pysat install from git
   - cd ..
