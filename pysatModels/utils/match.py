@@ -232,9 +232,9 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
 
             # Load the instrument data, if needed
             if inst.empty or inst.index[-1] < istart:
-                inst.custom.add(pysat.utils.coords.update_longitude, 'modify',
-                                low=lon_low, lon_name=inst_lon_name,
-                                high=lon_high)
+                inst.custom.attach(pysat.utils.coords.update_longitude,
+                                   'modify', low=lon_low,
+                                   lon_name=inst_lon_name, high=lon_high)
                 inst.load(date=istart)
 
             if not inst.empty and inst.index[0] >= istart:
