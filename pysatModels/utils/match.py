@@ -166,6 +166,11 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     matched_inst = None
 
     # Test the input
+    if 'model_inst' not in model_load_kwargs.keys():
+        raise ValueError('must provide a pysat.Instrument object')
+    elif not hasattr(model_load_kwargs['model_inst'], 'load'):
+        raise ValueError('must provide a pysat.Instrument object')
+
     if inst_lon_name is None:
         raise ValueError('Need longitude name for instrument data')
 
