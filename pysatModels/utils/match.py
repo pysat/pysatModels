@@ -6,11 +6,6 @@
 """
 Routines to match modelled and observational data
 
-Routines
---------
-load_model_xarray
-collect_inst_model_pairs
-
 """
 
 from __future__ import absolute_import

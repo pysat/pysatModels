@@ -6,13 +6,6 @@
 """
 Routines to extract observational-style data from model output
 
-Routines
---------
-instrument_altitude_to_model_pressure
-instrument_view_through_model
-instrument_view_irregular_model
-extract_modelled_observations
-
 """
 
 from __future__ import absolute_import
@@ -249,9 +242,8 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
 
     Models, such as TIEGCM, have a regular grid in pressure, not in altitude.
     To use this routine for TIEGCM please use
-        instrument_altitude_to_model_pressure
-    first to transform instrument altitudes to pressure levels suitable for
-    this method.
+    instrument_altitude_to_model_pressure first to transform instrument
+    altitudes to pressure levels suitable for this method.
 
     Variables that vary exponentially in height
     may be approximated by taking a log before interpolating, though

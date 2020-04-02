@@ -1,0 +1,4 @@
+numpy
+numpydoc
+m2r
+pysat

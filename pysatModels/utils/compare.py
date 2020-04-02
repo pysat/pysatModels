@@ -6,10 +6,6 @@
 """
 Routines to align and work with pairs of modelled and observational data
 
-Routines
---------
-compare_model_and_inst
-
 """
 
 from __future__ import absolute_import
@@ -51,34 +47,34 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
     Statistics are calculated using PyForecastTools (imported as verify).
     See notes there for more details.
 
-    all - all statistics
-    all_bias - bias, meanPercentageError, medianLogAccuracy,
-               symmetricSignedBias
-    accuracy - returns dict with mean squared error, root mean squared error,
-               mean absolute error, and median absolute error
-    scaledAccuracy - returns dict with normaled root mean squared error, mean
-                     absolute scaled error, mean absolute percentage error,
-                     median absolute percentage error, median symmetric
-                     accuracy
-    bias - scale-dependent bias as measured by the mean error
-    meanPercentageError - mean percentage error
-    medianLogAccuracy - median of the log accuracy ratio
-    symmetricSignedBias - Symmetric signed bias, as a percentage
-    meanSquaredError - mean squared error
-    RMSE - root mean squared error
-    meanAbsError - mean absolute error
-    medAbsError - median absolute error
-    nRMSE - normaized root mean squared error
-    scaledError - scaled error (see PyForecastTools for references)
-    MASE - mean absolute scaled error
-    forecastError - forecast error (see PyForecastTools for references)
-    percError - percentage error
-    absPercError - absolute percentage error
-    logAccuracy - log accuracy ratio
-    medSymAccuracy - Scaled measure of accuracy
-    meanAPE - mean absolute percentage error
+    1. all: all statistics
+    2. all_bias: bias, meanPercentageError, medianLogAccuracy,
+       symmetricSignedBias
+    3. accuracy: returns dict with mean squared error, root mean squared error,
+       mean absolute error, and median absolute error
+    4. scaledAccuracy: returns dict with normaled root mean squared error, mean
+       absolute scaled error, mean absolute percentage error,  median absolute
+       percentage error, median symmetric accuracy
+    5. bias: scale-dependent bias as measured by the mean error
+    6. meanPercentageError: mean percentage error
+    7. medianLogAccuracy: median of the log accuracy ratio
+    8. symmetricSignedBias: Symmetric signed bias, as a percentage
+    9. meanSquaredError: mean squared error
+    10. RMSE: root mean squared error
+    11. meanAbsError: mean absolute error
+    12. medAbsError: median absolute error
+    13. nRMSE: normaized root mean squared error
+    14. scaledError: scaled error (see PyForecastTools for references)
+    15. MASE: mean absolute scaled error
+    16. forecastError: forecast error (see PyForecastTools for references)
+    17. percError: percentage error
+    18. absPercError: absolute percentage error
+    19. logAccuracy: log accuracy ratio
+    20. medSymAccuracy: Scaled measure of accuracy
+    21. meanAPE: mean absolute percentage error
 
     """
+
     method_rout = {"bias": verify.bias, "accuracy": verify.accuracy,
                    "meanPercentageError": verify.meanPercentageError,
                    "medianLogAccuracy": verify.medianLogAccuracy,

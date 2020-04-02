@@ -15,17 +15,17 @@ tag : string
 sat_id : string
     None supported
 
-Note
-----
-::
-
-    Loads into xarray format.
+Notes
+-----
+Loads into xarray format.
 
 """
 
 # python 2/3 comptability
 from __future__ import print_function
 from __future__ import absolute_import
+
+import warnings
 
 import xarray as xr
 import pysat
@@ -63,16 +63,10 @@ def init(self):
     self : pysat.Instrument
         This object
 
-    Returns
-    --------
-    Void : (NoneType)
-        Object modified in place.
-
-
     """
 
-    print("Mission acknowledgements and data restrictions will be printed " +
-          "here when available.")
+    print(" ".join(["References and information about TIEGCM are available at",
+                    "https://www.hao.ucar.edu/modeling/tgcm/index.php"]))
     return
 
 
@@ -100,18 +94,21 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
 
     Returns
     -------
-    data, metadata
-        Data and Metadata are formatted for pysat. Data is an xarray
-        DataSet while metadata is a pysat.Meta instance.
+    data : xarray.Dataset
+        pysat formatted xarray Dataset
+    metadata : pysat.Metadata
+        Model run meta data
 
-    Note
-    ----
+    Notes
+    -----
     Any additional keyword arguments passed to pysat.Instrument
     upon instantiation are passed along to this routine.
 
     Examples
     --------
     ::
+
+
         inst = pysat.Instrument('ucar', 'tiegcm')
         inst.load(2019,1)
 
@@ -149,11 +146,6 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
 def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
     """Produce a list of files corresponding to UCAR TIEGCM.
 
-    This routine is invoked by pysat and is not intended for direct
-    use by the end user. Arguments are provided by pysat.
-
-    Multiple data levels may be supported via the 'tag' input string.
-
     Parameters
     ----------
     tag : string ('')
@@ -176,19 +168,26 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
     pandas.Series
         Series of filename strings, including the path, indexed by datetime.
 
-    Examples
-    --------
-    ::
-        If a filename is SPORT_L2_IVM_2019-01-01_v01r0000.NC then the template
-        is 'SPORT_L2_IVM_{year:04d}-{month:02d}-{day:02d}_' +
-        'v{version:02d}r{revision:04d}.NC'
+    Notes
+    -----
+    This routine is invoked by pysat and is not intended for direct
+    use by the end user. Arguments are provided by pysat.
 
-    Note
-    ----
+    Multiple data levels may be supported via the 'tag' input string.
+
     The returned Series should not have any duplicate datetimes. If there are
     multiple versions of a file the most recent version should be kept and the
     rest discarded. This routine uses the pysat.Files.from_os constructor, thus
     the returned files are up to pysat specifications.
+
+    Examples
+    --------
+    ::
+
+
+        If a filename is SPORT_L2_IVM_2019-01-01_v01r0000.NC then the template
+        is 'SPORT_L2_IVM_{year:04d}-{month:02d}-{day:02d}_' +
+        'v{version:02d}r{revision:04d}.NC'
 
     """
 
@@ -202,9 +201,6 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
 def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
              **kwargs):
     """Placeholder for UCAR TIEGCM downloads. Doesn't do anything.
-
-    This routine is invoked by pysat and is not intended for direct use by
-    the end user.
 
     Parameters
     ----------
@@ -231,15 +227,12 @@ def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
         routine attached to a pysat.Instrument object are passed to this
         routine via kwargs.
 
-    Returns
-    --------
-    Void : (NoneType)
-        Downloads data to disk.
-
+    Notes
+    -----
+    This routine is invoked by pysat and is not intended for direct use by
+    the end user.
 
     """
-
-    import warnings
 
     warnings.warn('Not implemented in this version.')
     return
