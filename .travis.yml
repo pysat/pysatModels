@@ -34,7 +34,7 @@ before_install:
   - mkdir /home/travis/build/pysatData
   # install pysat
   - git checkout download_flags
-  - python setup.py install >/dev/null
+  - python setup.py install
   - cd ../pysatModels
 
 install:
