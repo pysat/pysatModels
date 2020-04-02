@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 import pysat
+from pysat.instruments import pysat_testmodel
 
 import pysatModels.utils.extract as extract
 
@@ -47,17 +48,15 @@ class TestUtilsExtractModObs:
     def setup(self):
         """Runs before every method to create a clean testing setup."""
         self.inst = pysat.Instrument(platform=str('pysat'),
-                                     name=str('testing'), sat_id='1',
+                                     name=str('testing'), sat_id='10',
                                      clean_level='clean')
-        self.model = pysat.Instrument(platform=str('pysat'),
-                                      name=str('testing2d_xarray'),
-                                      clean_level='clean')
+        self.model = pysat.Instrument(inst_module=pysat_testmodel)
         self.inst.load(yr=2009, doy=1)
         self.model.load(yr=2009, doy=1)
         self.input_args = [self.inst, self.model.data,
                            ["longitude", "latitude", "slt"],
                            ["longitude", "latitude", "slt"],
-                           "uts", "time", ["deg", "deg", "h"]]
+                           "time", "time", ["deg", "deg", "h"]]
 
     def teardown(self):
         """Runs after every method to clean up previous testing."""

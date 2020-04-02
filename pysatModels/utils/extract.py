@@ -12,9 +12,9 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import numpy as np
-import pandas as pds
 import scipy.interpolate as interpolate
 
+import pandas as pds
 import pysat.utils as pyutils
 
 import pysatModels as ps_mod
@@ -735,11 +735,12 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                                       if i > 0]
 
                         # Find relevent dimensions for cycling and slicing
-                        ind_dims = [k for k, kk in enumerate(inst_name)
-                                    if kk in idim_names]
+                        ind_dims = [k for k, iname in enumerate(inst_name)
+                                    if iname in idim_names]
                         imod_dims = [k for k in ind_dims
                                      if mod_name[k] in dims]
-                        ind_dims = [inst.data.coords.keys().index(inst_name[k])
+                        coord_keys = [ckey for ckey in inst.data.coords.keys()]
+                        ind_dims = [coord_keys.index(inst_name[k])
                                     for k in imod_dims]
 
                         # Set the number of cycles

@@ -12,12 +12,14 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import datetime as dt
+import logging
 import numpy as np
 from os import path
-from pandas import (DateOffset, date_range)
 
+from pandas import (DateOffset, date_range)
 import pysat
 
+import pysatModels
 from pysatModels.utils import extract
 
 
@@ -204,7 +206,12 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     istart = start
     while start < stop:
         # Load the model data for each time
-        mdata = model_load_rout(start, **model_load_kwargs)
+        try:
+            mdata = model_load_rout(start, **model_load_kwargs)
+        except (IOError, ValueError) as err:
+            pysatModels.logger.info(
+                'unable to load model data at {:}\n{:}'.format(start, err))
+            mdata = None
 
         if mdata is not None:
             # Get the range for model longitude
@@ -220,9 +227,9 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
 
             # Load the instrument data, if needed
             if inst.empty or inst.index[-1] < istart:
-                inst.custom.add(pysat.utils.coords.update_longitude, 'modify',
-                                low=lon_low, lon_name=inst_lon_name,
-                                high=lon_high)
+                inst.custom.attach(pysat.utils.coords.update_longitude,
+                                   'modify', low=lon_low,
+                                   lon_name=inst_lon_name, high=lon_high)
                 inst.load(date=istart)
 
             if not inst.empty and inst.index[0] >= istart:
