@@ -77,9 +77,7 @@ class TestUtilsMatchCollectInstModPairs:
         del self.input_args, self.required_kwargs, self.inst, self.model
 
     @pytest.mark.parametrize("del_key,err_msg",
-                             [("model_load_kwargs",
-                               "must provide a pysat.Instrument object"),
-                              ("inst_lon_name", "Need longitude name for inst"),
+                             [("inst_lon_name", "Need longitude name for inst"),
                               ("mod_lon_name", "Need longitude name for model"),
                               ("inst_name", "Must provide instrument location"),
                               ("mod_name", "Must provide the same number"),
