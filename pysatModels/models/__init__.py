@@ -15,3 +15,5 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 from pysatModels.models import ucar_tiegcm
+
+__all__ = ['ucar_tiegcm']
