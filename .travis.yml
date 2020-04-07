@@ -35,7 +35,6 @@ before_install:
   # install pysat
   - git checkout download_flags
   - python setup.py install >/dev/null
-  - ls
   - cd ../pysatModels
 
 install:
