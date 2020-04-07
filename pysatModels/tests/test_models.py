@@ -2,6 +2,7 @@ import pytest
 
 import pysatModels
 
+import pysat.tests
 import pysat.tests.test_instruments
 from pysat.tests.test_instruments import generate_instrument_list
 from pysat.tests.test_instruments import TestInstrumentsAll
