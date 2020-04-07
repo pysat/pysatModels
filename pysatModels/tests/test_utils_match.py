@@ -3,6 +3,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import datetime as dt
+import os
 import pytest
 import xarray as xr
 
@@ -17,13 +18,19 @@ class TestUtilsMatchLoadModelXarray:
     def setup(self):
         """ Runs before every method to create a clean testing setup."""
         self.ftime = dt.datetime(2009, 1, 1)
+        self.filename = "%Y-%m-%d.nofile"
         self.model_inst = pysat.Instrument(platform=str('pysat'),
                                            name=str('testing_xarray'),
                                            sat_id='12', clean_level='clean')
         self.xout = None
+        self.temp_file = 'None'
 
     def teardown(self):
-        del self.ftime, self.model_inst, self.xout
+        if os.path.isfile(self.temp_file):
+            os.remove(self.temp_file)
+
+        del self.ftime, self.model_inst, self.xout, self.filename
+        del self.temp_file
 
     def test_no_inst(self):
         """ Test failure when no instrument object is provided"""
@@ -32,11 +39,23 @@ class TestUtilsMatchLoadModelXarray:
 
         assert verr.value.args[0].find("must provide a pysat.Instrument") >= 0
 
-    def test_no_filename(self):
-        """ Test success when loading through a specified time alone"""
+    @pytest.mark.parametrize("fname", [(None), ('filename')])
+    def test_load_filename(self, fname):
+        """ Test success when loading through different filename options"""
+        if fname is not None:
+            if hasattr(self, fname):
+                fname = getattr(self, fname)
+            self.temp_file = self.ftime.strftime(fname)
 
-        self.xout = match.load_model_xarray(self.ftime, self.model_inst)
+            # Create a temporary file
+            with open(self.temp_file, 'w') as fout:
+                fout.write('')
 
+        # Load the test instrument data
+        self.xout = match.load_model_xarray(self.ftime, self.model_inst,
+                                            filename=fname)
+
+        # Test the output
         assert isinstance(self.xout, xr.core.dataset.Dataset)
 
         for kk in self.model_inst.data.data_vars:
