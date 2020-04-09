@@ -19,9 +19,11 @@ class TestUtilsMatchLoadModelXarray:
         """ Runs before every method to create a clean testing setup."""
         self.ftime = dt.datetime(2009, 1, 1)
         self.filename = "%Y-%m-%d.nofile"
-        self.model_inst = pysat.Instrument(platform=str('pysat'),
-                                           name=str('testing_xarray'),
-                                           sat_id='12', clean_level='clean')
+        self.model_kwargs = {'platform': str('pysat'),
+                             'name': str('testing_xarray'),
+                             'sat_id': '12',
+                             'clean_level': 'clean'}
+        self.model_inst = None
         self.xout = None
         self.temp_file = 'None'
 
@@ -29,8 +31,8 @@ class TestUtilsMatchLoadModelXarray:
         if os.path.isfile(self.temp_file):
             os.remove(self.temp_file)
 
-        del self.ftime, self.model_inst, self.xout, self.filename
-        del self.temp_file
+        del self.ftime, self.model_kwargs, self.xout, self.filename
+        del self.temp_file, self.model_inst
 
     def test_no_inst(self):
         """ Test failure when no instrument object is provided"""
@@ -52,6 +54,7 @@ class TestUtilsMatchLoadModelXarray:
                 fout.write('')
 
         # Load the test instrument data
+        self.model_inst = pysat.Instrument(**self.model_kwargs)
         self.xout = match.load_model_xarray(self.ftime, self.model_inst,
                                             filename=fname)
 
@@ -63,8 +66,29 @@ class TestUtilsMatchLoadModelXarray:
 
         assert self.model_inst.index.name in self.xout.coords
 
-    # Add a test for timeformatted and non-formatted file with ftime=None
-    # Once we get a file to test
+    def test_load_pandas_inst(self):
+        """ Test success when loading a panads pysat Instrument
+        """
+        self.model_kwargs["name"] = "testing"
+        self.model_inst = pysat.Instrument(**self.model_kwargs)
+        self.xout = match.load_model_xarray(self.ftime, self.model_inst)
+
+        # Test the output
+        assert isinstance(self.xout, xr.core.dataset.Dataset)
+
+        for kk in self.model_inst.data.columns:
+            assert kk in self.xout.data_vars
+
+        assert self.model_inst.index.name in self.xout.coords
+
+    def test_load_empty_inst(self):
+        """ Test return value of None with empty instrument load
+        """
+        self.model_inst = pysat.Instrument(**self.model_kwargs)
+        self.ftime = self.model_inst.files.files.index[0] - dt.timedelta(days=1)
+        self.xout = match.load_model_xarray(self.ftime, self.model_inst)
+
+        assert self.xout is None
 
 
 class TestUtilsMatchCollectInstModPairs:
