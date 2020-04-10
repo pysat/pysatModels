@@ -14,6 +14,7 @@ InstClasses = [TestInstrumentsAll, TestInstrumentsDownload,
                TestInstrumentsNoDownload]
 
 for InstClass in InstClasses:
+    # Need to turn off __test__ so that tests are not run until modified
     InstClass.__test__ = False
     method_list = [func for func in dir(InstClass)
                    if callable(getattr(InstClass, func))]
@@ -23,7 +24,9 @@ for InstClass in InstClasses:
             Nargs =  len(getattr(InstClass, method).pytestmark)
             names = [getattr(InstClass, method).pytestmark[j].name
                      for j in range(0, Nargs)]
+            # Remove instruments imported from pysat
             getattr(InstClass, method).pytestmark.clear()
+            # Add instruments from pysatModels
             if InstClass == TestInstrumentsAll:
                 mark = pytest.mark.parametrize("name", instruments['names'])
                 getattr(InstClass, method).pytestmark.append(mark)
