@@ -225,6 +225,15 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                 raise ValueError("".join(["unknown name for model longitude: ",
                                           mod_lon_name]))
 
+            if lon_high > 180.0 and lon_low < 0.0:
+                raise ValueError("unexpected longitude range")
+            elif lon_high > 180.0 or lon_low >= 0.0:
+                lon_low = 0.0
+                lon_high = 360.0
+            else:
+                lon_low = -180.0
+                lon_high = 180.0
+
             # Load the instrument data, if needed
             if inst.empty or inst.index[-1] < istart:
                 inst.custom.attach(pysat.utils.coords.update_longitude,

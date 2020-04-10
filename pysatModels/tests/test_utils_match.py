@@ -109,6 +109,7 @@ class TestUtilsMatchCollectInstModPairs:
         self.inst.load(yr=2009, doy=1)
         self.input_args = [dt.datetime(2009, 1, 1), dt.datetime(2009, 1, 2),
                            dt.timedelta(days=1), self.inst]
+        self.ref_col = self.inst.data.columns[0]
         self.model = pysat.Instrument(platform=str('pysat'),
                                       name=str('testing2d_xarray'), sat_id='10',
                                       clean_level='clean')
@@ -209,11 +210,16 @@ class TestUtilsMatchCollectInstModPairs:
         """ Test the match success with different time increments
         """
         self.input_args[2] = tinc_val
+        self.required_kwargs['model_label'] = 'tmodel'
+        self.ref_col = '{:s}_{:s}'.format(self.required_kwargs['model_label'],
+                                          self.ref_col)
 
         self.out = match.collect_inst_model_pairs(*self.input_args,
                                                   **self.required_kwargs)
 
         assert isinstance(self.out.data, xr.Dataset)
+        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()])
+        assert len(self.out.data.data_vars[self.ref_col]) > 0
 
     def test_1D_model_success(self):
         """ Test the match success with one dimensional model data
@@ -222,23 +228,33 @@ class TestUtilsMatchCollectInstModPairs:
                                       name=str('testing_xarray'), sat_id='10',
                                       clean_level='clean')
         self.required_kwargs["model_load_kwargs"] = {"model_inst": self.model}
+        self.required_kwargs['model_label'] = 'tmodel'
+        self.ref_col = '{:s}_{:s}'.format(self.required_kwargs['model_label'],
+                                          self.ref_col)
 
         self.out = match.collect_inst_model_pairs(*self.input_args,
                                                   **self.required_kwargs)
 
         assert isinstance(self.out.data, xr.Dataset)
+        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()])
+        assert len(self.out.data.data_vars[self.ref_col]) > 0
 
-    def test_tinc_success_skip_download(self):
+    def test_success_skip_download(self):
         """ Test the match success with skip_download key
         """
         self.required_kwargs['inst_download_kwargs'] = {'skip_download': True}
+        self.required_kwargs['model_label'] = 'tmodel'
+        self.ref_col = '{:s}_{:s}'.format(self.required_kwargs['model_label'],
+                                          self.ref_col)
 
         self.out = match.collect_inst_model_pairs(*self.input_args,
                                                   **self.required_kwargs)
 
         assert isinstance(self.out.data, xr.Dataset)
+        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()])
+        assert len(self.out.data.data_vars[self.ref_col]) > 0
 
-    def test_tinc_inst_download_missing(self):
+    def test__inst_download_missing(self):
         """ Test the download data loop, which will fail to download anything
         """
         self.input_args[0] = self.inst.files.files.index[0]-dt.timedelta(days=1)
