@@ -15,8 +15,8 @@ import datetime as dt
 import logging
 import numpy as np
 from os import path
+import pandas as pds
 
-from pandas import (DateOffset, date_range)
 import pysat
 
 import pysatModels
@@ -195,11 +195,11 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
 
     # Download the instrument data, if needed and wanted
     if not skip_download and (stop - start).days != len(inst.files[start:stop]):
-        missing_times = [tt for tt in date_range(start, stop, freq='1D',
-                                                 closed='left')
+        missing_times = [tt for tt in pds.date_range(start, stop, freq='1D',
+                                                     closed='left')
                          if tt not in inst.files[start:stop].index]
         for tt in missing_times:
-            inst.download(start=tt, stop=tt+DateOffset(days=1),
+            inst.download(start=tt, stop=tt+pds.DateOffset(days=1),
                           **inst_download_kwargs)
 
     # Cycle through the times, loading the model and instrument data as needed
@@ -251,10 +251,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                     im = list()
                     for aname in added_names:
                         # Determine the number of good points
-                        if inst.pandas_format:
-                            imnew = np.where(np.isfinite(inst[aname]))
-                        else:
-                            imnew = np.where(np.isfinite(inst[aname].values))
+                        imnew = np.where(np.isfinite(inst[aname].values))
 
                         # Some data types are higher dimensions than others,
                         # make sure we end up choosing a high dimension one
@@ -276,8 +273,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                         matched_inst.data = inst[im]
                     else:
                         idata = inst[im]
-                        matched_inst.data = \
-                            inst.concat_data([matched_inst.data, idata])
+                        matched_inst.data = inst.concat_data([matched_inst.data,
+                                                              idata])
 
                     # Reset the clean flag
                     inst.clean_level = 'none'
