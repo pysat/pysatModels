@@ -5,6 +5,7 @@ from __future__ import absolute_import, unicode_literals
 import datetime as dt
 import logging
 from io import StringIO
+import numpy as np
 import os
 import pytest
 import xarray as xr
@@ -109,20 +110,20 @@ class TestUtilsMatchCollectInstModPairs:
         self.inst.load(yr=2009, doy=1)
         self.input_args = [dt.datetime(2009, 1, 1), dt.datetime(2009, 1, 2),
                            dt.timedelta(days=1), self.inst]
-        self.ref_col = self.inst.data.columns[0]
+        self.ref_col = 'dummy1'
         self.model = pysat.Instrument(platform=str('pysat'),
-                                      name=str('testing2d_xarray'), sat_id='10',
+                                      name=str('testmodel'), sat_id='10',
                                       clean_level='clean')
         self.required_kwargs = {"model_load_kwargs":
                                 {"model_inst": self.model},
                                 "inst_clean_rout": lambda x: True,
                                 "inst_lon_name": "longitude",
                                 "mod_lon_name": "longitude",
-                                "inst_name": ["longitude", "latitude", "slt"],
-                                "mod_name": ["longitude", "latitude", "slt"],
+                                "inst_name": ["longitude", "latitude"],
+                                "mod_name": ["longitude", "latitude"],
                                 "mod_datetime_name": "time",
                                 "mod_time_name": "time",
-                                "mod_units": ["deg", "deg", "h"]}
+                                "mod_units": ["deg", "deg"]}
         self.log_capture = StringIO()
         ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
         ps_mod.logger.setLevel(logging.INFO)
@@ -204,13 +205,14 @@ class TestUtilsMatchCollectInstModPairs:
         assert match.collect_inst_model_pairs(*self.input_args,
                                               **self.required_kwargs) is None
 
-    @pytest.mark.parametrize("tinc_val", [dt.timedelta(days=1),
-                                          dt.timedelta(days=2)])
-    def test_tinc_success(self, tinc_val):
+    @pytest.mark.parametrize("tinc_val,num", [(dt.timedelta(days=1), 3),
+                                              (dt.timedelta(days=2), 3)])
+    def test_tinc_success(self, tinc_val, num):
         """ Test the match success with different time increments
         """
         self.input_args[2] = tinc_val
         self.required_kwargs['model_label'] = 'tmodel'
+        self.required_kwargs['sel_name'] = [self.ref_col]
         self.ref_col = '{:s}_{:s}'.format(self.required_kwargs['model_label'],
                                           self.ref_col)
 
@@ -218,32 +220,16 @@ class TestUtilsMatchCollectInstModPairs:
                                                   **self.required_kwargs)
 
         assert isinstance(self.out.data, xr.Dataset)
-        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()])
-        assert len(self.out.data.data_vars[self.ref_col]) > 0
-
-    def test_1D_model_success(self):
-        """ Test the match success with one dimensional model data
-        """
-        self.model = pysat.Instrument(platform=str('pysat'),
-                                      name=str('testing_xarray'), sat_id='10',
-                                      clean_level='clean')
-        self.required_kwargs["model_load_kwargs"] = {"model_inst": self.model}
-        self.required_kwargs['model_label'] = 'tmodel'
-        self.ref_col = '{:s}_{:s}'.format(self.required_kwargs['model_label'],
-                                          self.ref_col)
-
-        self.out = match.collect_inst_model_pairs(*self.input_args,
-                                                  **self.required_kwargs)
-
-        assert isinstance(self.out.data, xr.Dataset)
-        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()])
-        assert len(self.out.data.data_vars[self.ref_col]) > 0
+        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()]
+        assert len(self.out.data.data_vars[self.ref_col]) == num
+        assert np.all(np.isfinite(self.out.data.data_vars[self.ref_col].values))
 
     def test_success_skip_download(self):
         """ Test the match success with skip_download key
         """
         self.required_kwargs['inst_download_kwargs'] = {'skip_download': True}
         self.required_kwargs['model_label'] = 'tmodel'
+        self.required_kwargs['sel_name'] = [self.ref_col]
         self.ref_col = '{:s}_{:s}'.format(self.required_kwargs['model_label'],
                                           self.ref_col)
 
@@ -251,7 +237,7 @@ class TestUtilsMatchCollectInstModPairs:
                                                   **self.required_kwargs)
 
         assert isinstance(self.out.data, xr.Dataset)
-        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()])
+        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()]
         assert len(self.out.data.data_vars[self.ref_col]) > 0
 
     def test__inst_download_missing(self):
