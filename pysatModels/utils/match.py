@@ -204,6 +204,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
 
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
+    inst_lon_adjust = True
     while start < stop:
         # Load the model data for each time
         try:
@@ -214,31 +215,38 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
             mdata = None
 
         if mdata is not None:
-            # Get the range for model longitude
-            if mod_lon_name in mdata.coords:
-                lon_high = float(mdata.coords[mod_lon_name].max())
-                lon_low = float(mdata.coords[mod_lon_name].min())
-            elif mod_lon_name in mdata.data_vars:
-                lon_high = float(np.nanmax(mdata.data_vars[mod_lon_name]))
-                lon_low = float(np.nanmin(mdata.data_vars[mod_lon_name]))
-            else:
-                raise ValueError("".join(["unknown name for model longitude: ",
-                                          mod_lon_name]))
+            # Get the range for model longitude, if it has not already been set
+            if inst_lon_adjust:
+                if mod_lon_name in mdata.coords:
+                    lon_high = float(mdata.coords[mod_lon_name].max())
+                    lon_low = float(mdata.coords[mod_lon_name].min())
+                elif mod_lon_name in mdata.data_vars:
+                    lon_high = float(np.nanmax(mdata.data_vars[mod_lon_name]))
+                    lon_low = float(np.nanmin(mdata.data_vars[mod_lon_name]))
+                else:
+                    raise ValueError("".join(["unknown name for model ",
+                                              "longitude: ", mod_lon_name]))
 
-            if lon_high > 180.0 and lon_low < 0.0:
-                raise ValueError("unexpected longitude range")
-            elif lon_high > 180.0 or lon_low >= 0.0:
-                lon_low = 0.0
-                lon_high = 360.0
-            else:
-                lon_low = -180.0
-                lon_high = 180.0
+                if lon_high > 180.0 and lon_low < 0.0:
+                    raise ValueError("unexpected longitude range")
+                elif lon_high > 180.0 or lon_low >= 0.0:
+                    lon_low = 0.0
+                    lon_high = 360.0
+                else:
+                    lon_low = -180.0
+                    lon_high = 180.0
 
-            # Load the instrument data, if needed
-            if inst.empty or inst.index[-1] < istart:
+                # Set the range of the instrument longitude
                 inst.custom.attach(pysat.utils.coords.update_longitude,
                                    'modify', low=lon_low,
                                    lon_name=inst_lon_name, high=lon_high)
+                inst.load(date=istart)
+
+                # Set flag to false now that the range has been set
+                inst_lon_adjust = False
+
+            # Load the instrument data, if needed
+            if inst.empty or inst.index[-1] < istart:
                 inst.load(date=istart)
 
             if not inst.empty and inst.index[0] >= istart:
