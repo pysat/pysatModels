@@ -224,6 +224,56 @@ class TestUtilsMatchCollectInstModPairs:
         assert len(self.out.data.data_vars[self.ref_col]) == num
         assert np.all(np.isfinite(self.out.data.data_vars[self.ref_col].values))
 
+    @pytest.mark.parametrize("lin,lout,test_out",
+                             [([-179.0,179.0], [-180.0,180.0], 3),
+                              ([0.5,359.0], [0.0,360.0], 3),
+                              ([-1.0,210.0], None,
+                               'unexpected longitude range')])
+    def test_lon_output(self, lin, lout, test_out):
+        """ Test the match handling with different longitude range input
+        """
+        def lon_model_load(ftime, model_inst=None, filename=None):
+            mdata = match.load_model_xarray(ftime, model_inst, filename)
+
+            if mdata is not None:
+                if lout is None:
+                    glon = {'glon': (('time'),
+                                     np.linspace(*lin, mdata.dims['time']))}
+                    mdata = mdata.assign(glon)
+                else:
+                    mdata.coords['longitude'] = np.linspace(
+                        *lin, mdata.dims['longitude'])
+            return mdata
+        
+        self.required_kwargs['model_load_rout'] = lon_model_load
+        self.required_kwargs['model_label'] = 'tmodel'
+        self.required_kwargs['sel_name'] = [self.ref_col]
+        self.ref_col = '{:s}_{:s}'.format(self.required_kwargs['model_label'],
+                                          self.ref_col)
+
+        if lout is None:
+            hold_lon = self.required_kwargs['mod_lon_name']
+            self.required_kwargs['mod_lon_name'] = 'glon'
+            self.required_kwargs['mod_name'][0] = 'glon'
+
+            with pytest.raises(ValueError, match=test_out) as verr:
+                match.collect_inst_model_pairs(*self.input_args,
+                                               **self.required_kwargs)
+
+            self.required_kwargs['mod_lon_name'] = hold_lon
+            self.required_kwargs['mod_name'][0] = hold_lon
+        else:
+            self.out = match.collect_inst_model_pairs(*self.input_args,
+                                                      **self.required_kwargs)
+
+            assert isinstance(self.out.data, xr.Dataset)
+            assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()]
+            assert len(self.out.data.data_vars[self.ref_col]) == test_out
+            assert np.all(np.isfinite(
+                self.out.data.data_vars[self.ref_col].values))
+            assert self.out.data.data_vars['longitude'].min() >= lout[0]
+            assert self.out.data.data_vars['longitude'].max() <= lout[1]
+
     def test_success_skip_download(self):
         """ Test the match success with skip_download key
         """
