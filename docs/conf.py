@@ -37,9 +37,12 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.ifconfig',
               'sphinx.ext.viewcode',
               'sphinx.ext.githubpages',
+              'sphinx.ext.autosectionlabel',
               'numpydoc',
               'm2r',
 ]
+autosectionlabel_prefix_document = True
+autosectionlabel_maxdepth = 3
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
