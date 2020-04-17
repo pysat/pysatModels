@@ -4,8 +4,8 @@
 # Full license can be found in License.md and AUTHORS.md
 # -----------------------------------------------------------------------------
 
-import os
 import codecs
+import os
 from setuptools import setup, find_packages
 
 
@@ -16,13 +16,11 @@ version_filename = os.path.join('pysatModels', 'version.txt')
 with codecs.open(os.path.join(here, version_filename)) as version_file:
     version = version_file.read().strip()
 
-# change setup.py for readthedocs - commented for now
-# on_rtd = os.environ.get('READTHEDOCS') == 'True'
+# Define requirements
 install_requires = ['pysat', 'scipy', 'pandas', 'xarray', 'numpy',
                     'PyForecastTools']
 
 # Run setup
-
 setup(name='pysatModels',
       version=version,
       url='github.com/pysat/pysatModels',
@@ -31,20 +29,16 @@ setup(name='pysatModels',
       description='Model-data comparisons for the pysat ecosystem',
       long_description=long_description,
       packages=find_packages(),
-      classifiers=[
-          "Development Status :: 4 - Beta",
-          "Topic :: Scientific/Engineering :: Physics",
-          "Intended Audience :: Science/Research",
-          "License :: BSD",
-          "Natural Language :: English",
-          "Programming Language :: Python :: 2.7",
-          "Programming Language :: Python :: 3.5",
-          "Programming Language :: Python :: 3.6",
-          "Programming Language :: Python :: 3.7",
-          "Programming Language :: Python :: 3.8",
-          "Operating System :: MacOS :: MacOS X",
-      ],
+      classifiers=["Development Status :: 4 - Beta",
+                   "Topic :: Scientific/Engineering :: Physics",
+                   "Intended Audience :: Science/Research",
+                   "License :: BSD",
+                   "Natural Language :: English",
+                   "Programming Language :: Python :: 3.5",
+                   "Programming Language :: Python :: 3.6",
+                   "Programming Language :: Python :: 3.7",
+                   "Programming Language :: Python :: 3.8",
+                   "Operating System :: MacOS :: MacOS X",],
       include_package_data=True,
       zip_safe=False,
-      install_requires=install_requires,
-      )
+      install_requires=install_requires,)
