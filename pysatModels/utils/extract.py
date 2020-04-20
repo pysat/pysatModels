@@ -129,7 +129,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     # First, model locations for interpolation
     # we use the dimensions associated with model altitude
     # in the order provided
-    points = [model[dim].values/temp_scale
+    points = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
     # time first
     points.insert(0, model[mod_datetime_name].values.astype(int))
@@ -328,9 +328,9 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
             points.append(model[var].values / iscale)
 
         # create the interpolator
-        interp[label] = interpolate.RegularGridInterpolator(points,
-            model[label].values, bounds_error=False, fill_value=None,
-                                                            method=method)
+        interp[label] = interpolate.RegularGridInterpolator(
+            points, model[label].values, bounds_error=False, fill_value=None,
+            method=method)
         # apply it at observed locations and store result
         output_names.append('_'.join((model_label, label)))
         inst[output_names[-1]] = interp[label](inst_pts)

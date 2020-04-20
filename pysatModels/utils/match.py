@@ -234,9 +234,9 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                 inst.load(date=istart)
 
             if not inst.empty and inst.index[0] >= istart:
-                added_names = extract.extract_modelled_observations(inst=inst,
-                    model=mdata, inst_name=inst_name, mod_name=mod_name,
-                    mod_datetime_name=mod_datetime_name,
+                added_names = extract.extract_modelled_observations(
+                    inst=inst, model=mdata, inst_name=inst_name,
+                    mod_name=mod_name, mod_datetime_name=mod_datetime_name,
                     mod_time_name=mod_time_name, mod_units=mod_units,
                     sel_name=sel_name, time_method=time_method, method=method,
                     pair_method=pair_method, model_label=model_label)
