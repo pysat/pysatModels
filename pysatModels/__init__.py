@@ -18,6 +18,7 @@ from __future__ import unicode_literals
 import logging
 import os
 
+# Import key modules and skip F401 testing in flake8
 from pysatModels import (utils)  # noqa: F401
 from pysatModels import (models)  # noqa: F401
 
