@@ -57,10 +57,11 @@ To set up `pysatModels` for local development:
    ``test_``.
 
 4. When you're done making changes, run all the checks to ensure that nothing
-   is broken on your local system::
+   is broken on your local system.  You may need to install pytest and
+   pytest-flake8 first. ::
 
 
-    pytest -vs
+       pytest -vs --flake8
 
 5. Update/add documentation (in ``docs``), if relevant
 
