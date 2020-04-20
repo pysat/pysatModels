@@ -116,8 +116,8 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
         raise ValueError('must provide Dataset of paired observations')
 
     if len(inst_name) != len(mod_name):
-        raise ValueError('must provide equal number of instrument and model ' +
-                         'data names for comparison')
+        raise ValueError(''.join(['must provide equal number of instrument ',
+                                  'and model data names for comparison']))
 
     if not np.all([iname in pairs.data_vars.keys() for iname in inst_name]):
         raise ValueError('unknown instrument data value supplied')
@@ -130,9 +130,9 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
         known_methods.extend(list(grouped_methods.keys()))
         unknown_methods = [mm for mm in methods
                            if mm not in list(method_rout.keys())]
-        raise ValueError('unknown statistical method(s) requested:\n' +
-                         '{:}\nuse only:\n{:}'.format(unknown_methods,
-                                                      known_methods))
+        raise ValueError(''.join(['unknown statistical method(s) requested:\n',
+                                  '{:}\nuse only:\n{:}'.format(unknown_methods,
+                                                               known_methods)])
 
     # Initialize the output
     stat_dict = {iname: dict() for iname in inst_name}
@@ -170,6 +170,6 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
                 # instead of stopping processing.  Only valid statistics will
                 # be included in output
                 ps_mod.logger.info("{:s} can't use {:s}: {:}".format(iname,
-                                                                       mm, err))
+                                                                     mm, err))
 
     return stat_dict, data_units

@@ -5,7 +5,7 @@
 # -----------------------------------------------------------------------------
 """
 pysatModels
-===============
+===========
 
 Model utilities designed to facilitate studies that integrate observational
 and modelled data sets.

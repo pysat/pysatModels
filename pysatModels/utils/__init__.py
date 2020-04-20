@@ -5,13 +5,13 @@
 # -----------------------------------------------------------------------------
 """
 pysatModels.utils
-=====================
+=================
 
 Utilities designed to extract, match, and compare modelled and observed data
 
 """
 
-from __future__ import absolute_import,  unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from pysatModels.utils import extract
 from pysatModels.utils import match
