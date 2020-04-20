@@ -131,8 +131,8 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
         unknown_methods = [mm for mm in methods
                            if mm not in list(method_rout.keys())]
         raise ValueError(''.join(['unknown statistical method(s) requested:\n',
-                                  '{:}\nuse only:\n{:}'.format(unknown_methods,
-                                                               known_methods)])
+                                  '{:}\nuse only:\n'.format(unknown_methods),
+                                  '{:}'.format(unknown_methods)]))
 
     # Initialize the output
     stat_dict = {iname: dict() for iname in inst_name}
