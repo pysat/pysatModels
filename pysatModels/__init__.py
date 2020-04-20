@@ -18,8 +18,8 @@ from __future__ import unicode_literals
 import logging
 import os
 
-from pysatModels import (utils)
-from pysatModels import (models)
+from pysatModels import (utils)  # noqa: F401
+from pysatModels import (models)  # noqa: F401
 
 # set the version
 here = os.path.abspath(os.path.dirname(__file__))
