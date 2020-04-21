@@ -9,13 +9,13 @@ Short version
 =============
 
 * Submit bug reports and feature requests at
-  `GitHub <https://github.com/pysat/pysatModels/issues>`_
+  [GitHub Issues](https://github.com/pysat/pysatModels/issues>)
 * Make pull requests to the ``develop`` branch
 
 Bug reports
 ===========
 
-When `reporting a bug <https://github.com/pysat/pysatModels/issues>`_ please
+When [reporting a bug](https://github.com/pysat/pysatModels/issues) please
 include:
 
 * Your operating system name and version
@@ -26,7 +26,7 @@ Feature requests and feedback
 =============================
 
 The best way to send feedback is to file an issue at
-`GitHub <https://github.com/pysat/pysatModels/issues>`_.
+[GitHub Issues](https://github.com/pysat/pysatModels/issues>).
 
 If you are proposing a feature:
 
@@ -44,12 +44,12 @@ To set up `pysatModels` for local development:
 2. Clone your fork locally::
 
 
-    git clone git@github.com:your_name_here/pysatModels.git
+       git clone git@github.com:your_name_here/pysatModels.git
 
 3. Create a branch for local development::
 
 
-    git checkout -b name-of-your-bugfix-or-feature
+       git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally. Tests for new instruments are
    performed automatically.  Tests for custom functions should be added to the
@@ -74,13 +74,12 @@ To set up `pysatModels` for local development:
 
 6. Commit your changes and push your branch to GitHub.  Our commit statements
    follow the basic rules in the
-   [Numpy/SciPy workflow](https://docs.scipy.org/doc/numpy-1.15.1/dev/gitwash/development_workflow.html)
-   ::
+   [Numpy/SciPy workflow](https://docs.scipy.org/doc/numpy-1.15.1/dev/gitwash/development_workflow.html)::
 
 
-    git add .
-    git commit -m "TYPE: Brief description of your changes"
-    git push origin name-of-your-bugfix-or-feature
+       git add .
+       git commit -m "TYPE: Brief description of your changes"
+       git push origin name-of-your-bugfix-or-feature
 
 7. Submit a pull request through the GitHub website. Pull requests should be
    made to the ``develop`` branch.
