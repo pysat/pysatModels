@@ -12,7 +12,6 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import datetime as dt
-import logging
 import numpy as np
 from os import path
 import pandas as pds
@@ -183,7 +182,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
         raise ValueError(estr)
 
     if len(mod_name) != len(mod_units):
-        raise ValueError('Must provide units for each model location attribute')
+        raise ValueError(''.join(['Must provide units for each model location',
+                                  ' attribute']))
 
     if inst_clean_rout is None:
         raise ValueError('Need routine to clean the instrument data')
@@ -194,7 +194,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
         del inst_download_kwargs['skip_download']
 
     # Download the instrument data, if needed and wanted
-    if not skip_download and (stop - start).days != len(inst.files[start:stop]):
+    if not skip_download and (stop
+                              - start).days != len(inst.files[start:stop]):
         missing_times = [tt for tt in pds.date_range(start, stop, freq='1D',
                                                      closed='left')
                          if tt not in inst.files[start:stop].index]
@@ -250,15 +251,12 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                 inst.load(date=istart)
 
             if not inst.empty and inst.index[0] >= istart:
-                added_names = extract.extract_modelled_observations(inst=inst,
-                                        model=mdata, inst_name=inst_name,
-                                        mod_name=mod_name,
-                                        mod_datetime_name=mod_datetime_name,
-                                        mod_time_name=mod_time_name,
-                                        mod_units=mod_units, sel_name=sel_name,
-                                        time_method=time_method, method=method,
-                                        pair_method=pair_method,
-                                        model_label=model_label)
+                added_names = extract.extract_modelled_observations(
+                    inst=inst, model=mdata, inst_name=inst_name,
+                    mod_name=mod_name, mod_datetime_name=mod_datetime_name,
+                    mod_time_name=mod_time_name, mod_units=mod_units,
+                    sel_name=sel_name, time_method=time_method, method=method,
+                    pair_method=pair_method, model_label=model_label)
 
                 if len(added_names) > 0:
                     # Clean the instrument data

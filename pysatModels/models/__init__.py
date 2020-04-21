@@ -14,4 +14,5 @@ Routines for loading model data into a pysat Instrument object
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
-from pysatModels.models import ucar_tiegcm
+# Import key modules and skip F401 testing in flake8
+from pysatModels.models import ucar_tiegcm  # noqa: F401

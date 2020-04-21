@@ -5,14 +5,15 @@
 # -----------------------------------------------------------------------------
 """
 pysatModels.utils
-=====================
+=================
 
 Utilities designed to extract, match, and compare modelled and observed data
 
 """
 
-from __future__ import absolute_import,  unicode_literals
+from __future__ import absolute_import, unicode_literals
 
-from pysatModels.utils import extract
-from pysatModels.utils import match
-from pysatModels.utils import compare
+# Import key modules and skip F401 testing in flake8
+from pysatModels.utils import extract  # noqa: F401
+from pysatModels.utils import match  # noqa: F401
+from pysatModels.utils import compare  # noqa: F401

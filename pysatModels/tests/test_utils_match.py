@@ -12,7 +12,6 @@ import xarray as xr
 
 import pysat
 
-import pysatModels as ps_mod
 import pysatModels.utils.match as match
 
 
@@ -166,12 +165,16 @@ class TestUtilsMatchCollectInstModPairs:
                                                **self.required_kwargs)
 
     @pytest.mark.parametrize("del_key,err_msg",
-                             [("inst_lon_name", "Need longitude name for inst"),
-                              ("mod_lon_name", "Need longitude name for model"),
-                              ("inst_name", "Must provide instrument location"),
+                             [("inst_lon_name",
+                               "Need longitude name for inst"),
+                              ("mod_lon_name",
+                               "Need longitude name for model"),
+                              ("inst_name",
+                               "Must provide instrument location"),
                               ("mod_name", "Must provide the same number"),
                               ("mod_units", "Must provide units for each "),
-                              ("mod_datetime_name", "Need datetime coordinate"),
+                              ("mod_datetime_name",
+                               "Need datetime coordinate"),
                               ("mod_time_name", "Need time coordinate"),
                               ("inst_clean_rout", "Need routine to clean")])
     def test_input_failure(self, del_key, err_msg):

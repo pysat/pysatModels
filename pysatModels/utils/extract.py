@@ -99,8 +99,8 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         raise ValueError(estr)
 
     if len(mod_name) != len(mod_units):
-        raise ValueError('Must provide units for each model location ' +
-                         'attribute')
+        raise ValueError(''.join(['Must provide units for each model location',
+                                  ' attribute']))
 
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
@@ -122,21 +122,22 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
                                                           inst.units_label])
 
     # create initial fake regular grid index in inst
-    inst_model_coord = inst[inst_name[0]]*0
+    inst_model_coord = inst[inst_name[0]] * 0
 
     # we need to create altitude index from model
     # collect relevant inputs
     # First, model locations for interpolation
     # we use the dimensions associated with model altitude
     # in the order provided
-    points = [model[dim].values/temp_scale for dim, temp_scale in zip(mod_name,
-                                                                      inst_scale)]
+    points = [model[dim].values / temp_scale
+              for dim, temp_scale in zip(mod_name, inst_scale)]
     # time first
     points.insert(0, model[mod_datetime_name].values.astype(int))
 
     # create interpolator
     interp = interpolate.RegularGridInterpolator(points,
-                                                 np.log(model[mod_alt].values/alt_scale),
+                                                 np.log(model[mod_alt].values
+                                                        / alt_scale),
                                                  bounds_error=False,
                                                  fill_value=None)
     # use this interpolator to figure out what altitudes we are at
@@ -149,7 +150,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     # log of instrument altitude
     log_ialt = np.log(inst[inst_alt])
     # initial difference signal
-    diff = log_ialt*0 + 2.*tol
+    diff = log_ialt * 0 + 2.0 * tol
     while np.any(np.abs(diff) > tol):
         # create input array using satellite time/position
         # replace the altitude coord with the fake tiegcm one
@@ -160,7 +161,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
                 coords.append(inst_model_coord)
             else:
                 # scale other dimensions to the model
-                coords.append(inst[coord]*iscale)
+                coords.append(inst[coord] * iscale)
 
         coords.insert(0, inst.index.values.astype(int))
         # to peform the interpolation we need points
@@ -179,7 +180,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         # shift index in inst for model pressure level
         # in the opposite direction to diff
         # reduced value by scale, the 'scale height'
-        inst_model_coord -= diff/scale
+        inst_model_coord -= diff / scale
 
     # achieved model altitude
     inst[inst_out_alt] = np.e**orbit_alt
@@ -287,8 +288,8 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         raise ValueError(estr)
 
     if len(mod_name) != len(mod_units):
-        raise ValueError('Must provide units for each model location ' +
-                         'attribute')
+        raise ValueError(''.join(['Must provide units for each model location',
+                                  ' attribute']))
 
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
@@ -324,14 +325,12 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         points.append(model[mod_datetime_name].values.astype(int))
         # now spatial
         for iscale, var in zip(inst_scale, mod_name):
-            points.append(model[var].values/iscale)
+            points.append(model[var].values / iscale)
 
         # create the interpolator
-        interp[label] = interpolate.RegularGridInterpolator(points,
-                                                            model[label].values,
-                                                            bounds_error=False,
-                                                            fill_value=None,
-                                                            method=method)
+        interp[label] = interpolate.RegularGridInterpolator(
+            points, model[label].values, bounds_error=False, fill_value=None,
+            method=method)
         # apply it at observed locations and store result
         output_names.append('_'.join((model_label, label)))
         inst[output_names[-1]] = interp[label](inst_pts)
@@ -416,8 +415,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         raise ValueError(estr)
 
     if len(mod_name) != len(mod_units):
-        raise ValueError('Must provide units for each model location ' +
-                         'attribute')
+        raise ValueError(''.join(['Must provide units for each model location',
+                                  ' attribute']))
 
     # ensure coordinate dimensions match
     for var in sel_name:
@@ -447,8 +446,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                             inst.meta[iname, inst.units_label])
 
     # First, model locations for interpolation (regulargrid)
-    coords = [model[dim].values/temp_scale for dim, temp_scale in zip(mod_name,
-                                                                      inst_scale)]
+    coords = [model[dim].values / temp_scale
+              for dim, temp_scale in zip(mod_name, inst_scale)]
     # time first
     coords.insert(0, model[mod_datetime_name].values.astype(int))
 
@@ -489,11 +488,11 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     else:
         max_sel_val = max_pts_alt
     # perform downselection
-    idx, = np.where((points[:, update_dim] >= min_sel_val) &
-                    (points[:, update_dim] <= max_sel_val))
+    idx, = np.where((points[:, update_dim] >= min_sel_val)
+                    & (points[:, update_dim] <= max_sel_val))
     points = points[idx, :]
-    ps_mod.logger.debug('Remaining points after downselection '
-                          + str(len(idx)))
+    ps_mod.logger.debug('Remaining points after downselection {:d}'.format(
+        len(idx)))
 
     # create input array using inst time/position
     coords = [inst[coord] for coord in inst_name]
@@ -599,8 +598,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         raise ValueError(estr)
 
     if len(mod_name) != len(mod_units):
-        raise ValueError('Must provide units for each model location ' +
-                         'attribute')
+        raise ValueError(''.join(['Must provide units for each model location',
+                                  ' attribute']))
 
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
@@ -613,7 +612,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     # Ensure mod_name is a list
     mod_name = list(mod_name)
-    
+
     # Remove any model coordinates from the modelled data to interpolate
     sel_name = sel_name[[mdat not in mod_name for mdat in sel_name]]
 
@@ -663,14 +662,15 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     # resolution of a model run
     mind = list()
     iind = list()
-    del_sec = abs(mod_datetime-inst.index[:, np.newaxis]).astype(float) * 1.0e-9
+    del_sec = abs(mod_datetime
+                  - inst.index[:, np.newaxis]).astype(float) * 1.0e-9
     for inst_ind, mod_ind in enumerate(del_sec.argmin(axis=1)):
         if del_sec[inst_ind, mod_ind] <= min_del:
             if mod_ind in mind and pair_method == 'closest':
                 # Test to see if this model observation has multiple pairings
                 old_ind = mind.index(mod_ind)
-                if(del_sec[inst_ind, mod_ind] <
-                   del_sec[iind[old_ind], mind[old_ind]]):
+                if(del_sec[inst_ind, mod_ind]
+                   < del_sec[iind[old_ind], mind[old_ind]]):
                     # If this one is closer, keep it
                     iind[old_ind] = inst_ind
                     mind[old_ind] = mod_ind
@@ -709,7 +709,6 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
             # Determine the dimension values
             dims = list(model.data_vars[mdat].dims)
-            ndim = model.data_vars[mdat].data.shape
             indices = {mod_time_name: mind[i]}
 
             # Construct the data needed for interpolation, ensuring that
@@ -753,7 +752,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if icycles < ncycles or icycles == 0:
                         ss = [ii if k == 0 else 0 for k in range(idims)]
                         se = [ii + 1 if k == 0 else
-                              len(inst.data.coords[idim_names[k-1]])
+                              len(inst.data.coords[idim_names[k - 1]])
                               for k in range(idims)]
                         xout = [cinds[ind_dims.index(k)] if k in ind_dims
                                 else slice(ss[k], se[k]) for k in range(idims)]
@@ -779,11 +778,11 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                             k = 0
                             cinds[k] += 1
 
-                            while cinds[k] > \
-                                inst.data.coords.dims[inst_name[imod_dims[k]]]:
+                            while cinds[k] > inst.data.coords.dims[
+                                    inst_name[imod_dims[k]]]:
                                 k += 1
                                 if k < len(cinds):
-                                    cinds[k-1] = 0
+                                    cinds[k - 1] = 0
                                     cinds[k] += 1
                                 else:
                                     break
