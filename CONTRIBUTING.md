@@ -9,7 +9,7 @@ Short version
 =============
 
 * Submit bug reports and feature requests at
-  [GitHub Issues](https://github.com/pysat/pysatModels/issues>)
+  [GitHub Issues](https://github.com/pysat/pysatModels/issues)
 * Make pull requests to the ``develop`` branch
 
 Bug reports
@@ -26,7 +26,7 @@ Feature requests and feedback
 =============================
 
 The best way to send feedback is to file an issue at
-[GitHub Issues](https://github.com/pysat/pysatModels/issues>).
+[GitHub Issues](https://github.com/pysat/pysatModels/issues).
 
 If you are proposing a feature:
 
