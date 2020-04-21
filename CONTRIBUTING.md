@@ -40,7 +40,7 @@ Development
 
 To set up `pysatModels` for local development:
 
-1. `Fork pysat on GitHub <https://github.com/pysat/pysatModels/fork>`_.
+1. Fork pysat on [GitHub](https://github.com/pysat/pysatModels/fork).
 2. Clone your fork locally::
 
 
@@ -74,7 +74,8 @@ To set up `pysatModels` for local development:
 
 6. Commit your changes and push your branch to GitHub.  Our commit statements
    follow the basic rules in the
-   [Numpy/SciPy workflow](https://docs.scipy.org/doc/numpy-1.15.1/dev/gitwash/development_workflow.html) ::
+   [Numpy/SciPy workflow](https://docs.scipy.org/doc/numpy-1.15.1/dev/gitwash/development_workflow.html)
+   ::
 
 
     git add .
