@@ -95,10 +95,10 @@ For merging, you should:
 1. Include an example for use
 2. Add a note to ``CHANGELOG.md`` about the changes
 3. Ensure that all checks passed (current checks include Scrutinizer, Travis-CI,
-   and Coveralls) [^1]
+   and Coveralls).
 
-[^1] If you don't have all the necessary Python versions available locally or
-    have trouble building all the testing environments, you can rely on
-    Travis to run the tests for each change you add in the pull request.
-    Because testing here will delay tests by other developers, please ensure
-    that the code passes all tests on your local system first.
+   If you don't have all the necessary Python versions available locally or
+   have trouble building all the testing environments, you can rely on
+   Travis to run the tests for each change you add in the pull request.
+   Because testing here will delay tests by other developers, please ensure
+   that the code passes all tests on your local system first.
