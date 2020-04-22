@@ -5,7 +5,7 @@
 # -----------------------------------------------------------------------------
 """
 pysatModels
-===============
+===========
 
 Model utilities designed to facilitate studies that integrate observational
 and modelled data sets.
@@ -18,8 +18,9 @@ from __future__ import unicode_literals
 import logging
 import os
 
-from pysatModels import (utils)
-from pysatModels import (models)
+# Import key modules and skip F401 testing in flake8
+from pysatModels import (utils)  # noqa: F401
+from pysatModels import (models)  # noqa: F401
 
 # set the version
 here = os.path.abspath(os.path.dirname(__file__))
