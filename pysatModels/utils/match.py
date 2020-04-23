@@ -14,8 +14,8 @@ from __future__ import unicode_literals
 import datetime as dt
 import numpy as np
 from os import path
+import pandas as pds
 
-from pandas import (DateOffset, date_range)
 import pysat
 
 import pysatModels
@@ -196,15 +196,16 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     # Download the instrument data, if needed and wanted
     if not skip_download and (stop
                               - start).days != len(inst.files[start:stop]):
-        missing_times = [tt for tt in date_range(start, stop, freq='1D',
-                                                 closed='left')
+        missing_times = [tt for tt in pds.date_range(start, stop, freq='1D',
+                                                     closed='left')
                          if tt not in inst.files[start:stop].index]
         for tt in missing_times:
-            inst.download(start=tt, stop=tt + DateOffset(days=1),
+            inst.download(start=tt, stop=tt+pds.DateOffset(days=1),
                           **inst_download_kwargs)
 
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
+    inst_lon_adjust = True
     while start < stop:
         # Load the model data for each time
         try:
@@ -215,22 +216,38 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
             mdata = None
 
         if mdata is not None:
-            # Get the range for model longitude
-            if mod_lon_name in mdata.coords:
-                lon_high = float(mdata.coords[mod_lon_name].max())
-                lon_low = float(mdata.coords[mod_lon_name].min())
-            elif mod_lon_name in mdata.data_vars:
-                lon_high = float(np.nanmax(mdata.data_vars[mod_lon_name]))
-                lon_low = float(np.nanmin(mdata.data_vars[mod_lon_name]))
-            else:
-                raise ValueError("".join(["unknown name for model longitude: ",
-                                          mod_lon_name]))
+            # Get the range for model longitude, if it has not already been set
+            if inst_lon_adjust:
+                if mod_lon_name in mdata.coords:
+                    lon_high = float(mdata.coords[mod_lon_name].max())
+                    lon_low = float(mdata.coords[mod_lon_name].min())
+                elif mod_lon_name in mdata.data_vars:
+                    lon_high = float(np.nanmax(mdata.data_vars[mod_lon_name]))
+                    lon_low = float(np.nanmin(mdata.data_vars[mod_lon_name]))
+                else:
+                    raise ValueError("".join(["unknown name for model ",
+                                              "longitude: ", mod_lon_name]))
 
-            # Load the instrument data, if needed
-            if inst.empty or inst.index[-1] < istart:
+                if lon_high > 180.0 and lon_low < 0.0:
+                    raise ValueError("unexpected longitude range")
+                elif lon_high > 180.0 or lon_low >= 0.0:
+                    lon_low = 0.0
+                    lon_high = 360.0
+                else:
+                    lon_low = -180.0
+                    lon_high = 180.0
+
+                # Set the range of the instrument longitude
                 inst.custom.attach(pysat.utils.coords.update_longitude,
                                    'modify', low=lon_low,
                                    lon_name=inst_lon_name, high=lon_high)
+                inst.load(date=istart)
+
+                # Set flag to false now that the range has been set
+                inst_lon_adjust = False
+
+            # Load the instrument data, if needed
+            if inst.empty or inst.index[-1] < istart:
                 inst.load(date=istart)
 
             if not inst.empty and inst.index[0] >= istart:
@@ -249,10 +266,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                     im = list()
                     for aname in added_names:
                         # Determine the number of good points
-                        if inst.pandas_format:
-                            imnew = np.where(np.isfinite(inst[aname]))
-                        else:
-                            imnew = np.where(np.isfinite(inst[aname].values))
+                        imnew = np.where(np.isfinite(inst[aname].values))
 
                         # Some data types are higher dimensions than others,
                         # make sure we end up choosing a high dimension one
@@ -274,8 +288,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                         matched_inst.data = inst[im]
                     else:
                         idata = inst[im]
-                        matched_inst.data = \
-                            inst.concat_data([matched_inst.data, idata])
+                        matched_inst.data = inst.concat_data([matched_inst.data,
+                                                              idata])
 
                     # Reset the clean flag
                     inst.clean_level = 'none'
