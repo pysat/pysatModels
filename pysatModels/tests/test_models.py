@@ -1,8 +1,8 @@
 import pytest
 
 import pysatModels
-from pysat.tests.instrument_tests import generate_instrument_list
-from pysat.tests.instrument_tests import InstTestClass
+from pysat.tests.instrument_test_class import generate_instrument_list
+from pysat.tests.instrument_test_class import InstTestClass
 
 instruments = generate_instrument_list(pysatModels.models.__all__,
                                        package='pysatModels.models')
