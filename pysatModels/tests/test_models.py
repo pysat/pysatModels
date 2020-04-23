@@ -33,8 +33,7 @@ class TestModels(InstTestClass):
     def setup(self):
         """Runs before every method to create a clean testing setup."""
         self.package = 'pysatModels.models'
-        pass
 
     def teardown(self):
         """Runs after every method to clean up previous testing."""
-        pass
+        del self.package
