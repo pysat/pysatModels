@@ -36,6 +36,7 @@ before_install:
   # install pysat
   - git checkout develop-3
   - python setup.py install >/dev/null
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - cd ../pysatModels
 
 install:
