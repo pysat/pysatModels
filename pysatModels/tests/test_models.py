@@ -4,8 +4,7 @@ import pysatModels
 from pysat.tests.instrument_test_class import generate_instrument_list
 from pysat.tests.instrument_test_class import InstTestClass
 
-instruments = generate_instrument_list(pysatModels.models.__all__,
-                                       package='pysatModels.models')
+instruments = generate_instrument_list(package=pysatModels.models)
 
 method_list = [func for func in dir(InstTestClass)
                if callable(getattr(InstTestClass, func))]
@@ -32,7 +31,7 @@ class TestModels(InstTestClass):
 
     def setup(self):
         """Runs before every method to create a clean testing setup."""
-        self.package = 'pysatModels.models'
+        self.package = pysatModels.models
 
     def teardown(self):
         """Runs after every method to clean up previous testing."""
