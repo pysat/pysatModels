@@ -2,12 +2,15 @@
 
 from __future__ import absolute_import, unicode_literals
 
+import logging
+from io import StringIO
 import numpy as np
 import pytest
 
 import pysat
 from pysat.instruments import pysat_testmodel
 
+import pysatModels as ps_mod
 import pysatModels.utils.extract as extract
 
 
@@ -45,26 +48,37 @@ class TestUtilsExtractObsViewModel:
 
 class TestUtilsExtractModObs:
     """ Unit tests for utils.extract.extract_modelled_observations """
+
     def setup(self):
         """Runs before every method to create a clean testing setup."""
         self.inst = pysat.Instrument(platform=str('pysat'),
-                                     name=str('testing'), sat_id='10',
-                                     clean_level='clean')
+                                     name=str('testing'), clean_level='clean')
         self.model = pysat.Instrument(inst_module=pysat_testmodel)
         self.inst.load(yr=2009, doy=1)
         self.model.load(yr=2009, doy=1)
+        self.model_label = 'tmodel'
         self.input_args = [self.inst, self.model.data,
-                           ["longitude", "latitude", "slt"],
-                           ["longitude", "latitude", "slt"],
-                           "time", "time", ["deg", "deg", "h"]]
+                           ["longitude", "latitude", "altitude"],
+                           ["longitude", "latitude", "altitude"],
+                           "time", "time", ["deg", "deg", "km"]]
+        self.input_kwargs = {"sel_name":
+                             [kk for kk in self.model.data.data_vars
+                              if len([dd for dd
+                                      in self.model.data.data_vars[kk].dims
+                                      if dd in self.input_args[3]])]}
+        self.out = []
+        self.log_capture = StringIO()
+        ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
+        ps_mod.logger.setLevel(logging.INFO)
 
     def teardown(self):
         """Runs after every method to clean up previous testing."""
-        del self.inst, self.model, self.input_args
+        del self.inst, self.model, self.input_args, self.out, self.model_label
+        del self.input_kwargs, self.log_capture
 
     @pytest.mark.parametrize("bad_index,bad_input,err_msg",
                              [(2, [], "Must provide instrument location"),
-                              (2, ['glon', 'latitude', 'slt'],
+                              (2, ['glon', 'latitude', 'altitude'],
                                "Unknown instrument location index"),
                               (3, [], "Must provide the same number"),
                               (6, [], "Must provide units for each "),
@@ -81,7 +95,7 @@ class TestUtilsExtractModObs:
         assert str(verr.value.args[0]).find(err_msg) >= 0
 
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
-                             [("sel_name", ["slt"],
+                             [("sel_name", ["altitude"],
                                "No model data keys to interpolate"),
                               ("method", "not_a_method",
                                "interpn only understands the methods"),
@@ -91,29 +105,88 @@ class TestUtilsExtractModObs:
                                "unknown pairing method")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
         """ Test for expected failure with bad kwarg input """
-        kwargs = {bad_key: bad_val}
+        self.input_kwargs[bad_key] = bad_val
 
         with pytest.raises(Exception) as err:
-            extract.extract_modelled_observations(*self.input_args, **kwargs)
+            extract.extract_modelled_observations(*self.input_args,
+                                                  **self.input_kwargs)
 
         assert str(err.value.args[0]).find(err_msg) >= 0
 
     @pytest.mark.parametrize("sel_val", [["dummy1", "dummy2"], ["dummy1"]])
     def test_good_sel_name(self, sel_val):
         """ Test for success with different good selection name inputs"""
-        out_keys = extract.extract_modelled_observations(*self.input_args,
-                                                         sel_name=sel_val)
+        self.input_kwargs = {"sel_name": sel_val,
+                             "model_label": self.model_label}
+        self.out = extract.extract_modelled_observations(*self.input_args,
+                                                         **self.input_kwargs)
         for label in sel_val:
-            assert "model_{:s}".format(label) in out_keys
-        assert len(out_keys) == len(np.asarray(sel_val))
+            assert "{:s}_{:s}".format(self.model_label, label) in self.out
+        assert len(self.out) == len(np.asarray(sel_val))
 
-    # TODO: Add test for out-of-bounds data
-    # TODO: Add tests for model data already in instrument
+    def test_success_w_out_of_bounds(self):
+        """ Test the extraction success for all variables without UT dependence
+        """
+        self.input_kwargs["model_label"] = self.model_label
+        self.out = extract.extract_modelled_observations(*self.input_args,
+                                                         **self.input_kwargs)
+        lout = self.log_capture.getvalue()
 
-    def test_success(self):
-        """ Test the extraction success"""
-        out_keys = extract.extract_modelled_observations(*self.input_args)
+        assert lout.find('One of the requested xi is out of bounds') >= 0
 
-        for label in self.model.data.data_vars.keys():
+        for label in self.input_kwargs['sel_name']:
             if label not in self.input_args[3]:
-                assert "model_{:s}".format(label) in out_keys
+                # Test each of the extracted model data columns
+                tcol =  "{:s}_{:s}".format(self.model_label, label)
+                assert tcol in self.out
+                assert tcol in self.inst.data.columns
+                assert (self.inst.data[self.input_args[2][0]].shape
+                        == self.inst.data[tcol].shape)
+                assert len(self.inst.data[tcol][
+                    ~np.isnan(self.inst.data[tcol])]) > 0
+
+    def test_failure_for_already_ran_data(self):
+        """ Test the failure for all model variables already extracted """
+
+        self.input_kwargs["model_label"] = self.model_label
+
+        # Run everything successfully once
+        extract.extract_modelled_observations(*self.input_args,
+                                              **self.input_kwargs)
+
+        # Run everything again, raising a value error
+        with pytest.raises(ValueError) as err:
+            extract.extract_modelled_observations(*self.input_args,
+                                                  **self.input_kwargs)
+
+            self.out = self.log_capture.getvalue()
+            assert self.out.find('model data already interpolated') >= 0
+
+
+        assert str(err.value.args[0]).find(
+            'instrument object already contains all model data') >= 0
+
+    def test_success_for_some_already_ran_data(self):
+        """ Test the success for some model variables already extracted """
+
+        all_sel = list(self.input_kwargs['sel_name'])
+        self.input_kwargs['model_label'] = self.model_label
+
+        # Run through twice
+        for i, selected in enumerate([all_sel[2:], all_sel]):
+            self.input_kwargs['sel_name'] = selected
+            self.out = extract.extract_modelled_observations(
+                *self.input_args, **self.input_kwargs)
+            lout = self.log_capture.getvalue()
+
+        assert lout.find('model data already interpolated') >= 0
+
+        for label in all_sel:
+            if label not in self.input_args[3]:
+                # Test each of the extracted model data columns
+                tcol =  "{:s}_{:s}".format(self.model_label, label)
+                assert tcol in self.inst.data.columns
+                assert (self.inst.data[self.input_args[2][0]].shape
+                        == self.inst.data[tcol].shape)
+                assert len(self.inst.data[tcol][
+                    ~np.isnan(self.inst.data[tcol])]) > 0
