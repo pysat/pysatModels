@@ -92,7 +92,8 @@ class TestUtilsMatchLoadModelXarray:
         """ Test return value of None with empty instrument load
         """
         self.model_inst = pysat.Instrument(**self.model_kwargs)
-        self.ftime = self.model_inst.files.files.index[0] - dt.timedelta(days=1)
+        self.ftime = self.model_inst.files.files.index[0] - dt.timedelta(
+            days=1)
         self.xout = match.load_model_xarray(self.ftime, self.model_inst)
 
         assert self.xout is None
@@ -161,7 +162,7 @@ class TestUtilsMatchCollectInstModPairs:
             assert lout.find('unable to load model data at') >= 0
         else:
             self.required_kwargs['model_load_kwargs'] = {}
-            with pytest.raises(TypeError, match=mout) as terr:
+            with pytest.raises(TypeError, match=mout):
                 match.collect_inst_model_pairs(*self.input_args,
                                                **self.required_kwargs)
 
@@ -183,7 +184,7 @@ class TestUtilsMatchCollectInstModPairs:
         """
         del self.required_kwargs[del_key]
 
-        with pytest.raises(ValueError, match=err_msg) as verr:
+        with pytest.raises(ValueError, match=err_msg):
             match.collect_inst_model_pairs(*self.input_args,
                                            **self.required_kwargs)
 
@@ -197,7 +198,7 @@ class TestUtilsMatchCollectInstModPairs:
         """
         self.required_kwargs[cng_key] = bad_val
 
-        with pytest.raises(ValueError, match=err_msg) as verr:
+        with pytest.raises(ValueError, match=err_msg):
             match.collect_inst_model_pairs(*self.input_args,
                                            **self.required_kwargs)
 
@@ -226,12 +227,13 @@ class TestUtilsMatchCollectInstModPairs:
         assert isinstance(self.out.data, xr.Dataset)
         assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()]
         assert len(self.out.data.data_vars[self.ref_col]) == num
-        assert np.all(np.isfinite(self.out.data.data_vars[self.ref_col].values))
+        assert np.all(np.isfinite(
+            self.out.data.data_vars[self.ref_col].values))
 
     @pytest.mark.parametrize("lin,lout,test_out",
-                             [([-179.0,179.0], [-180.0,180.0], 3),
-                              ([0.5,359.0], [0.0,360.0], 3),
-                              ([-1.0,210.0], None,
+                             [([-179.0, 179.0], [-180.0, 180.0], 3),
+                              ([0.5, 359.0], [0.0, 360.0], 3),
+                              ([-1.0, 210.0], None,
                                'unexpected longitude range')])
     def test_lon_output(self, lin, lout, test_out):
         """ Test the match handling with different longitude range input
@@ -248,7 +250,7 @@ class TestUtilsMatchCollectInstModPairs:
                     mdata.coords['longitude'] = np.linspace(
                         *lin, mdata.dims['longitude'])
             return mdata
-        
+
         self.required_kwargs['model_load_rout'] = lon_model_load
         self.required_kwargs['model_label'] = 'tmodel'
         self.required_kwargs['sel_name'] = [self.ref_col]
@@ -260,7 +262,7 @@ class TestUtilsMatchCollectInstModPairs:
             self.required_kwargs['mod_lon_name'] = 'glon'
             self.required_kwargs['mod_name'][0] = 'glon'
 
-            with pytest.raises(ValueError, match=test_out) as verr:
+            with pytest.raises(ValueError, match=test_out):
                 match.collect_inst_model_pairs(*self.input_args,
                                                **self.required_kwargs)
 
@@ -271,7 +273,8 @@ class TestUtilsMatchCollectInstModPairs:
                                                       **self.required_kwargs)
 
             assert isinstance(self.out.data, xr.Dataset)
-            assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()]
+            assert self.ref_col in [kk for kk
+                                    in self.out.data.data_vars.keys()]
             assert len(self.out.data.data_vars[self.ref_col]) == test_out
             assert np.all(np.isfinite(
                 self.out.data.data_vars[self.ref_col].values))
@@ -297,7 +300,8 @@ class TestUtilsMatchCollectInstModPairs:
     def test__inst_download_missing(self):
         """ Test the download data loop, which will fail to download anything
         """
-        self.input_args[0] = self.inst.files.files.index[0]-dt.timedelta(days=1)
+        self.input_args[0] = self.inst.files.files.index[0] - dt.timedelta(
+            days=1)
         self.input_args[1] = self.inst.files.files.index[0]
 
         self.out = match.collect_inst_model_pairs(*self.input_args,
