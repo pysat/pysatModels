@@ -200,7 +200,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                                                      closed='left')
                          if tt not in inst.files[start:stop].index]
         for tt in missing_times:
-            inst.download(start=tt, stop=tt+pds.DateOffset(days=1),
+            inst.download(start=tt, stop=tt + pds.DateOffset(days=1),
                           **inst_download_kwargs)
 
     # Cycle through the times, loading the model and instrument data as needed
@@ -288,8 +288,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                         matched_inst.data = inst[im]
                     else:
                         idata = inst[im]
-                        matched_inst.data = inst.concat_data([matched_inst.data,
-                                                              idata])
+                        matched_inst.data = inst.concat_data(
+                            [matched_inst.data, idata])
 
                     # Reset the clean flag
                     inst.clean_level = 'none'

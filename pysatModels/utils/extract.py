@@ -691,14 +691,18 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                    np.full(shape=interp_shape, fill_value=np.nan)
                    for mdat in sel_name}
 
+    del_list = list()
     for mdat in interp_data.keys():
         if mdat in inst.data.keys():
             ps_mod.logger.warning("".join(["model data already interpolated:",
                                            " {:}".format(mdat)]))
-            del interp_data[mdat]
+            del_list.append(mdat)
 
-    if len(interp_data.keys()) == 0:
+    if len(interp_data.keys()) == len(del_list):
         raise ValueError("instrument object already contains all model data")
+    elif len(del_list) > 0:
+        for mdat in del_list:
+            del interp_data[mdat]
 
     for i, ii in enumerate(iind):
         # Cycle through each model data type, since it may not depend on
@@ -707,8 +711,12 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             # Define the output key
             attr_name = "{:s}_{:s}".format(model_label, mdat)
 
+            # Skip if this is already included in the output instrument
+            if attr_name not in interp_data.keys():
+                break
+
             # Determine the dimension values
-            dims = list(model.data_vars[mdat].dims)
+            dims = [kk for kk in model.data_vars[mdat].dims]
             indices = {mod_time_name: mind[i]}
 
             # Construct the data needed for interpolation, ensuring that
@@ -810,9 +818,9 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                 try:
                     interp_data[attr_name][xout] = yi[0]
                 except TypeError as terr:
-                    ps_mod.logger.error(''.join(['check mod_name input against',
-                                                 ' dimensions for ', mdat,
-                                                 ' in model data']))
+                    ps_mod.logger.error(''.join(['check mod_name input ',
+                                                 'against dimensions for ',
+                                                 mdat, ' in model data']))
                     raise TypeError(terr)
 
     # Update the instrument object and attach units to the metadata
