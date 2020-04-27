@@ -818,9 +818,9 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                 try:
                     interp_data[attr_name][xout] = yi[0]
                 except TypeError as terr:
-                    ps_mod.logger.error(''.join(['check mod_name input against',
-                                                 ' dimensions for ', mdat,
-                                                 ' in model data']))
+                    ps_mod.logger.error(''.join(['check mod_name input ',
+                                                 'against dimensions for ',
+                                                 mdat, ' in model data']))
                     raise TypeError(terr)
 
     # Update the instrument object and attach units to the metadata
