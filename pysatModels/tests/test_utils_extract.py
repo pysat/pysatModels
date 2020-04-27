@@ -137,7 +137,7 @@ class TestUtilsExtractModObs:
         for label in self.input_kwargs['sel_name']:
             if label not in self.input_args[3]:
                 # Test each of the extracted model data columns
-                tcol =  "{:s}_{:s}".format(self.model_label, label)
+                tcol = "{:s}_{:s}".format(self.model_label, label)
                 assert tcol in self.out
                 assert tcol in self.inst.data.columns
                 assert (self.inst.data[self.input_args[2][0]].shape
@@ -162,7 +162,6 @@ class TestUtilsExtractModObs:
             self.out = self.log_capture.getvalue()
             assert self.out.find('model data already interpolated') >= 0
 
-
         assert str(err.value.args[0]).find(
             'instrument object already contains all model data') >= 0
 
@@ -184,7 +183,7 @@ class TestUtilsExtractModObs:
         for label in all_sel:
             if label not in self.input_args[3]:
                 # Test each of the extracted model data columns
-                tcol =  "{:s}_{:s}".format(self.model_label, label)
+                tcol = "{:s}_{:s}".format(self.model_label, label)
                 assert tcol in self.inst.data.columns
                 assert (self.inst.data[self.input_args[2][0]].shape
                         == self.inst.data[tcol].shape)
