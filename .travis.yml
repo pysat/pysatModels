@@ -17,6 +17,7 @@ addons:
     - gfortran
 
 install:
+  # Use the conda management under the install script, as separate scripts will revert to pip
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
