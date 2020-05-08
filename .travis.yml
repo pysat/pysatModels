@@ -49,7 +49,7 @@ install:
   # set up data directory
   - mkdir /home/travis/build/pysatData
   # install pysat
-  - git checkout remove_madrigal
+  - git checkout develop-3
   - python setup.py install >/dev/null
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   # install pysatModels
