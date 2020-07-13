@@ -239,8 +239,9 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
 
                 # Set the range of the instrument longitude
                 inst.custom.attach(pysat.utils.coords.update_longitude,
-                                   'modify', low=lon_low,
-                                   lon_name=inst_lon_name, high=lon_high)
+                                   'modify', kwargs={'low': lon_low,
+                                                     'lon_name': inst_lon_name,
+                                                     'high': lon_high})
                 inst.load(date=istart)
 
                 # Set flag to false now that the range has been set
