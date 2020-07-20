@@ -44,7 +44,7 @@ tags = {'': 'sami2py output file',
 sat_ids = {'': ['']}
 _test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
 _test_download = {'': {'': False,
-                       'test': False}}
+                       'test': True}}
 
 # specify using xarray (not using pandas)
 pandas_format = False
@@ -119,6 +119,8 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
 
     # load data
     data = xr.open_dataset(fnames[0])
+    # rename time variable to be pysat compatible
+    data = data.rename({'ut': 'time'})
     # move attributes to the Meta object
     # these attributes will be trasnferred to the Instrument object
     # automatically by pysat
