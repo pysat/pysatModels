@@ -31,7 +31,9 @@ import os
 import requests
 import warnings
 
+import pandas as pds
 import xarray as xr
+
 import pysat
 from pysat.instruments.methods import general as mm_gen
 
@@ -135,8 +137,9 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
 
     # load data
     data = xr.open_dataset(fnames[0])
-    # rename time variable to be pysat compatible
-    data = data.rename({'ut': 'time'})
+    # add time variable for pysat compatibilty
+    data['time'] = [dt.datetime(2019, 1, 1) + pds.DateOffset(hours=val)
+                    for val in data['ut'].values]
     # move attributes to the Meta object
     # these attributes will be trasnferred to the Instrument object
     # automatically by pysat
