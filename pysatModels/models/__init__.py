@@ -15,6 +15,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 # Import key modules and skip F401 testing in flake8
+from pysatModels.models import sami2py_sami2  # noqa: F401
 from pysatModels.models import ucar_tiegcm  # noqa: F401
 
-__all__ = ['ucar_tiegcm']
+__all__ = ['sami2py_sami2', 'ucar_tiegcm']
