@@ -71,9 +71,22 @@ def init(self):
 
     """
 
-    logger.info("".join(["References and information about samip2y are ",
-                         "available at https://sami2py.readthedocs.io/en/",
-                         "latest/introduction.html#references"]))
+    self.meta.acknowledgments = " ".join(("This work uses the SAMI2 ionosphere",
+                                          "model written and developed by the",
+                                          "Naval Research Laboratory."))
+    self.meta.references = " ".join(("Huba, J.D., G. Joyce, and J.A. Fedder,",
+                                     "Sami2 is Another Model of the Ionosphere",
+                                     "(SAMI2): A new low‐latitude ionosphere",
+                                     "model, J. Geophys. Res., 105, Pages",
+                                     "23035-23053,",
+                                     "https://doi.org/10.1029/2000JA000035,",
+                                     "2000.\n",
+                                     "Klenzing, J., Jonathon Smith, Michael",
+                                     "Hirsch, & Angeline G. Burrell. (2020,",
+                                     "July 17). sami2py/sami2py: Version 0.2.2",
+                                     "(Version v0.2.2). Zenodo.",
+                                     "http://doi.org/10.5281/zenodo.3950564"))
+    logger.info(self.meta.acknowledgments)
 
 
 def load(fnames, tag=None, sat_id=None, **kwargs):
