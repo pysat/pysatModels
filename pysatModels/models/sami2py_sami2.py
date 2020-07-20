@@ -137,7 +137,8 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     # load data
     data = xr.open_dataset(fnames[0])
     # add time variable for pysat compatibilty
-    data['time'] = [dt.datetime(2019, 1, 1) + dt.timedelta(seconds=int(val * 3600.0))
+    data['time'] = [dt.datetime(2019, 1, 1)
+                    + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
     # move attributes to the Meta object
     # these attributes will be trasnferred to the Instrument object
