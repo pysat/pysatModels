@@ -216,9 +216,13 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
     This routine is invoked by pysat and is not intended for direct use by
     the end user.
 
+    The test object generates the datetime requested by thte user, which may not
+    match the date of the model run.
+
     """
 
     if tag == 'test':
+        date = date_array[0]
         remote_url = 'https://github.com/sami2py/sami2py/'
         remote_path = 'blob/main/sami2py/tests/test_data/'
         # Need to tell github to show the raw data, not the webpage version
@@ -226,8 +230,9 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
         # Create pysat-compatible name
         format_str = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
         saved_local_fname = os.path.join(data_path,
-                                         format_str.format(year=2019,
-                                                           month=1, day=1))
+                                         format_str.format(year=date.year,
+                                                           month=date.month,
+                                                           day=date.day))
         remote_path = '/'.join((remote_url.strip('/'), remote_path.strip('/'),
                                 fname))
         req = requests.get(remote_path)
