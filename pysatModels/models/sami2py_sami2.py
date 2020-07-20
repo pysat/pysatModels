@@ -26,6 +26,7 @@ from __future__ import absolute_import
 
 import datetime as dt
 import functools
+import logging
 import os
 import requests
 import warnings
@@ -33,6 +34,9 @@ import warnings
 import xarray as xr
 import pysat
 from pysat.instruments.methods import general as mm_gen
+
+
+logger = logging.getLogger(__name__)
 
 platform = 'sami2py'
 name = 'sami2'
@@ -67,9 +71,9 @@ def init(self):
 
     """
 
-    print("".join(["References and information about samip2y are available at ",
-                   "https://sami2py.readthedocs.io/en/latest/introduction.html",
-                   "#references"]))
+    logger.info("".join(["References and information about samip2y are ",
+                         "available at https://sami2py.readthedocs.io/en/",
+                         "latest/introduction.html#references"]))
 
 
 def load(fnames, tag=None, sat_id=None, **kwargs):
@@ -194,5 +198,5 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
             open(saved_local_fname, 'wb').write(req.content)
 
     else:
-        warnings.warn('Not implemented in this version.')
+        warnings.warn('Downloads currently only supported for test files.')
     return
