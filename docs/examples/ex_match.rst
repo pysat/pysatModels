@@ -12,53 +12,56 @@ can be found in the
 `utils.extract <../utils.html#module-pysatModels.utils.extract>`_ routine:
 ``extract_modelled_observations``.
 
-In the example below, we load a series of TIEGCM files that were created every
-15 minutes and are stored in a specified directory.  We pair them with CINDI
-C/NOFS ion drift data that was previously downloaded using pysat.
+In the example below, we load SAMI2 files that were created for testing and
+pair them with DMSP IVM data from F18.  This example uses the external modules:
+
+- pysat
+- pysatMadrigal
 
 ::
 
 
    import datetime as dt
    import pysat
+   import pysatMadrigal
    import pysatModels as ps_mod
 
-   stime = dt.datetime(2010, 1, 1)
-   etime = dt.datetime(2010, 2, 1)
-   tinc = dt.timedelta(minutes=15)
+   stime = dt.datetime(2019, 1, 1)
+   tinc = dt.timedelta(days=1) # Required input is not used in this example
    input_kwargs = dict()
 
    # Initialize the model input information, including the keyword arguements
    # needed to load the model Instrument into an xarray Dataset using
    # the match.load_model_xarray routine
-   filename = 'sample_experiment/tiegcm_%Y%j.%H%M.nc'
-   tiegcm = pysat.Instrument(platform='ucar', name='tiegcm')
-   input_kwargs["model_load_kwargs"] = {'model_inst': tiegcm,'filename': filename}
+   sami2 = pysat.Instrument(inst_module=ps_mod.models.sami2py_sami2, tag='test')
+   sami2.download(stime, stime) # Optional, only needs to be done once
+   filename = sami2.files.files[stime]
+   input_kwargs["model_load_kwargs"] = {'model_inst': sami2, 'filename': filename}
 
-   # Initialize the CINDI C/NOFS input, and ensure the best model interpolation
-   # by extracting the clean model data after matching
-   cindi = pysat.Instrument(platform='cnofs', name='ivm', clean_level='none')
-   cindi.download(stime, etime) # Skip this if you already have the data
-   input_kwargs["inst_clean_rout"] = pysat.instruments.cnofs_ivm.clean
+   # Initialize the DMSP IVM input, and ensure the best model interpolation
+   # by extracting the clean model data after matching.
+   dmsp_f18 = pysat.Instrument(inst_module=pysatMadrigal.instruments.dmsp_ivm, sat_id='f18', clean_level='none')
+   dmsp_f18.download(stime, stime) # Skip this if you already have the data
+   input_kwargs["inst_clean_rout"] = pysatMadrigal.instruments.dmsp_ivm.clean
    input_kwargs["inst_download_kwargs"] = {"skip_download": True}
 
    # Many keyword arguements are required, as they provide information on
    # the names of coordinates needed to extract data
    input_kwargs["inst_lon_name"] = "glon"
-   input_kwargs["mod_lon_name"] = "longitude"
-   input_kwargs["inst_name"] = ["glon", "glat", "altitude"]
-   input_kwargs["mod_name"] = ["longitude", "latitude", "altitude"]
+   input_kwargs["mod_lon_name"] = "glon"
+   input_kwargs["inst_name"] = ["glon", "gdlat", "gdalt"]
+   input_kwargs["mod_name"] = ["glon", "glat", "zalt"]
    input_kwargs["mod_units"] = ["deg", "deg", "km"]
    input_kwargs["mod_datetime_name"] = "time"
    input_kwargs["mod_time_name"] = "time"
 
    # Now we are ready to run using the defaults!
-   matched_inst = ps_mod.utils.match.collect_inst_model_pairs(stime, etime, tinc, cindi, **input_kwargs)
+   matched_inst = ps_mod.utils.match.collect_inst_model_pairs(stime, stime+tinc, tinc, dmsp_f18, **input_kwargs)
 
 
-This returns a pysat Instrument object with the CINDI C/NOFS data and TIEGCM
-data at the same times and locations.  The CINDI data has the same names as
-the normal Instrument, and the TIEGCM data has the same name as the TIEGCM
+This returns a pysat Instrument object with the DMSP IVM data and SAMI2
+data at the same times and locations.  The DMSP IVM data has the same names as
+the normal Instrument, and the SAMI2 data has the same name as the SAMI2
 data, but with ``model_`` as a prefix to prevent confusion.  You can change
 this prefix using the ``model_label`` keyword argument, allowing multiple
 models to be matched to the same observational data set.
