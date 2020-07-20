@@ -62,4 +62,4 @@ script:
   - pytest -vs --cov=pysatModels/  --flake8
 
 after_success:
-  - coveralls
+  - coveralls --rcfile=setup.cfg
