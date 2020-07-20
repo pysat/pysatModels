@@ -44,7 +44,7 @@ tags = {'': 'sami2py output file',
 sat_ids = {'': ['']}
 _test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
 _test_download = {'': {'': False,
-                       'test': True}}
+                       'test': False}}
 
 # specify using xarray (not using pandas)
 pandas_format = False
