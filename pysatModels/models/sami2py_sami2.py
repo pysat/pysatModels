@@ -40,11 +40,9 @@ name = 'sami2'
 tags = {'': 'sami2py output file',
         'test': 'Standard output of sami2py for benchmarking'}
 sat_ids = {'': ['']}
-# good day to download test data for. Downloads aren't currently supported!
-# format is outer dictionary has sat_id as the key
-# each sat_id has a dictionary of test dates keyed by tag string
 _test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
-_test_download = {'': {'': False, 'test': True}}
+_test_download = {'': {'': False,
+                       'test': True}}
 
 # specify using xarray (not using pandas)
 pandas_format = False
@@ -62,13 +60,13 @@ def init(self):
 
     """
 
-    print(" ".join(["References and information about TIEGCM are available at",
-                    "https://www.hao.ucar.edu/modeling/tgcm/index.php"]))
-    return
+    print("".join(["References and information about samip2y are available at ",
+                   "https://sami2py.readthedocs.io/en/latest/introduction.html",
+                   "#references"]))
 
 
 def load(fnames, tag=None, sat_id=None, **kwargs):
-    """Loads TIEGCM data using xarray.
+    """Loads sami2py data using xarray.
 
     This routine is called as needed by pysat. It is not intended
     for direct user interaction.
@@ -106,8 +104,8 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     ::
 
 
-        inst = pysat.Instrument('ucar', 'tiegcm')
-        inst.load(2019,1)
+        inst = pysat.Instrument('sami2py', 'sami2')
+        inst.load(2019, 1)
 
     """
 
