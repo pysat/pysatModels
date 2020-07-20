@@ -49,7 +49,7 @@ _test_download = {'': {'': False,
 # specify using xarray (not using pandas)
 pandas_format = False
 
-fname = 'sami2py_output_{year:04d}{month:02d}{day:02d}.nc'
+fname = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
 supported_tags = {'': {'': fname,
                        'test': fname}}
 list_files = functools.partial(mm_gen.list_files,
