@@ -21,10 +21,6 @@ Loads into xarray format.
 
 """
 
-# python 2/3 comptability
-from __future__ import print_function
-from __future__ import absolute_import
-
 import datetime as dt
 import warnings
 
