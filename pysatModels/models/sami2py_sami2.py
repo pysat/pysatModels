@@ -46,7 +46,7 @@ name = 'sami2'
 # dictionary of data 'tags' and corresponding description
 tags = {'': 'sami2py output file',
         'test': 'Standard output of sami2py for benchmarking'}
-sat_ids = {'': ['']}
+sat_ids = {'': ['', 'test']}
 _test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
 _test_download = {'': {'': False,
                        'test': True}}
