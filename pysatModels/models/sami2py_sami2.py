@@ -31,7 +31,6 @@ import os
 import requests
 import warnings
 
-import pandas as pds
 import xarray as xr
 
 import pysat
