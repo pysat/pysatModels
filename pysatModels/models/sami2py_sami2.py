@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Supports loading data from files generated using TIEGCM
-(Thermosphere Ionosphere Electrodynamics General Circulation Model) model.
-TIEGCM file is a netCDF file with multiple dimensions for some variables.
+Supports loading data from files generated using the sami2py model.
+sami2py file is a netCDF file with multiple dimensions for some variables.
 
 Parameters
 ----------
@@ -139,7 +138,7 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
 
 def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
              password=None, **kwargs):
-    """Placeholder for UCAR TIEGCM downloads. Doesn't do anything.
+    """Downloads sami2py data.  Currently only retrieves test data from github
 
     Parameters
     ----------
@@ -171,7 +170,7 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
     This routine is invoked by pysat and is not intended for direct use by
     the end user.
 
-    The test object generates the datetime requested by thte user, which may not
+    The test object generates the datetime requested by the user, which may not
     match the date of the model run.
 
     """
