@@ -704,6 +704,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         for mdat in del_list:
             del interp_data[mdat]
 
+    dim_warned = False
     for i, ii in enumerate(iind):
         # Cycle through each model data type, since it may not depend on
         # all the dimensions
@@ -726,6 +727,14 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             get_coords = True if len(points) > 0 else False
             idims = 0
 
+            if not get_coords and not dim_warned:
+                # Only warn the user once
+                ps_mod.logger.warning("".join(["model dimensions ",
+                                               "{:} don't match".format(dims),
+                                               " interpolation parameters ",
+                                               "{:}".format(mod_name)]))
+                dim_warned = True
+            
             while get_coords:
                 if inst.pandas_format:
                     # This data iterates only by time
@@ -803,6 +812,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
                 # Interpolate the desired value
                 try:
+                    print("TEST", points, values)
                     yi = interpolate.interpn(points, values, xi, method=method)
                 except ValueError as verr:
                     if str(verr).find("requested xi is out of bounds") > 0:
