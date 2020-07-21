@@ -32,6 +32,7 @@ import requests
 import warnings
 
 import xarray as xr
+
 import pysat
 from pysat.instruments.methods import general as mm_gen
 
@@ -44,7 +45,7 @@ name = 'sami2'
 # dictionary of data 'tags' and corresponding description
 tags = {'': 'sami2py output file',
         'test': 'Standard output of sami2py for benchmarking'}
-sat_ids = {'': ['']}
+sat_ids = {'': ['', 'test']}
 _test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
 _test_download = {'': {'': False,
                        'test': True}}
@@ -135,8 +136,10 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
 
     # load data
     data = xr.open_dataset(fnames[0])
-    # rename time variable to be pysat compatible
-    data = data.rename({'ut': 'time'})
+    # add time variable for pysat compatibilty
+    data['time'] = [dt.datetime(2019, 1, 1)
+                    + dt.timedelta(seconds=int(val * 3600.0))
+                    for val in data['ut'].values]
     # move attributes to the Meta object
     # these attributes will be trasnferred to the Instrument object
     # automatically by pysat
