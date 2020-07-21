@@ -812,7 +812,6 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
                 # Interpolate the desired value
                 try:
-                    print("TEST", points, values)
                     yi = interpolate.interpn(points, values, xi, method=method)
                 except ValueError as verr:
                     if str(verr).find("requested xi is out of bounds") > 0:
