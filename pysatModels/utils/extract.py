@@ -663,7 +663,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     mind = list()
     iind = list()
     del_sec = abs(mod_datetime
-                  - inst.index[:, np.newaxis]).astype(float) * 1.0e-9
+                  - inst.index.values[:, np.newaxis]).astype(float) * 1.0e-9
     for inst_ind, mod_ind in enumerate(del_sec.argmin(axis=1)):
         if del_sec[inst_ind, mod_ind] <= min_del:
             if mod_ind in mind and pair_method == 'closest':
@@ -734,7 +734,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                                                " interpolation parameters ",
                                                "{:}".format(mod_name)]))
                 dim_warned = True
-            
+
             while get_coords:
                 if inst.pandas_format:
                     # This data iterates only by time
