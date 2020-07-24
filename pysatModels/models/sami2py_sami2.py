@@ -3,20 +3,16 @@
 Supports loading data from files generated using the sami2py model.
 sami2py file is a netCDF file with multiple dimensions for some variables.
 
-Parameters
+Properties
 ----------
-platform : string
+platform
     'sami2py'
-name : string
+name
     'sami2'
-tag : string
+tag
     None supported
-sat_id : string
+sat_id
     None supported
-
-Notes
------
-Loads into xarray format.
 
 """
 
@@ -114,15 +110,14 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     metadata : pysat.Metadata
         Model run meta data
 
-    Notes
-    -----
+    Note
+    ----
     Any additional keyword arguments passed to pysat.Instrument
     upon instantiation are passed along to this routine.
 
     Examples
     --------
     ::
-
 
         inst = pysat.Instrument('sami2py', 'sami2')
         inst.load(2019, 1)
@@ -158,19 +153,18 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
     date_array : array-like
         list of datetimes to download data for. The sequence of dates need not
         be contiguous.
-    tag : string ('')
+    tag : string
         Tag identifier used for particular dataset. This input is provided by
-        pysat.
-    sat_id : string  ('')
+        pysat. (default='')
+    sat_id : string
         Satellite ID string identifier used for particular dataset. This input
-        is provided by pysat.
-    data_path : string (None)
-        Path to directory to download data to.
-    user : string (None)
+        is provided by pysat. (default='')
+    data_path : string
+        Path to directory to download data to. (default=None)
+    user : string
         User string input used for download. Provided by user and passed via
-        pysat. If an account
-        is required for dowloads this routine here must error if user not
-        supplied.
+        pysat. If an account is required for dowloads this routine here must
+        error if user not supplied. (default=None)
     password : string (None)
         Password for data download.
     **kwargs : dict
@@ -178,8 +172,8 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
         routine attached to a pysat.Instrument object are passed to this
         routine via kwargs.
 
-    Notes
-    -----
+    Note
+    ----
     This routine is invoked by pysat and is not intended for direct use by
     the end user.
 
