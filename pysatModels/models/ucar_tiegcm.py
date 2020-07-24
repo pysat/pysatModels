@@ -18,11 +18,13 @@ sat_id
 """
 
 import datetime as dt
+import functools
 import logging
 import warnings
 
 import xarray as xr
 import pysat
+from pysat.instruments.methods import general as mm_gen
 
 logger = logging.getLogger('pysat')
 
@@ -42,6 +44,11 @@ _test_download = {'': {'': False}}
 
 # specify using xarray (not using pandas)
 pandas_format = False
+
+fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
+supported_tags = {'': {'': fname}}
+list_files = functools.partial(mm_gen.list_files,
+                               supported_tags=supported_tags)
 
 ack = " ".join(["References and information about TIEGCM are available at",
                 "https://www.hao.ucar.edu/modeling/tgcm/index.php"])
@@ -178,61 +185,6 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     data = data.drop(['p0', 'p0_model', 'grav', 'mag', 'timestep'])
 
     return data, meta
-
-
-def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
-    """Produce a list of files corresponding to UCAR TIEGCM.
-
-    Parameters
-    ----------
-    tag : string ('')
-        tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    sat_id : string ('')
-        Satellite ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    data_path : string (None)
-        Full path to directory containing files to be loaded. This
-        is provided by pysat. The user may specify their own data path
-        at Instrument instantiation and it will appear here.
-    format_str : string (None)
-        String template used to parse the datasets filenames. If a user
-        supplies a template string at Instrument instantiation
-        then it will appear here, otherwise defaults to None.
-
-    Returns
-    -------
-    pandas.Series
-        Series of filename strings, including the path, indexed by datetime.
-
-    Notes
-    -----
-    This routine is invoked by pysat and is not intended for direct
-    use by the end user. Arguments are provided by pysat.
-
-    Multiple data levels may be supported via the 'tag' input string.
-
-    The returned Series should not have any duplicate datetimes. If there are
-    multiple versions of a file the most recent version should be kept and the
-    rest discarded. This routine uses the pysat.Files.from_os constructor, thus
-    the returned files are up to pysat specifications.
-
-    Examples
-    --------
-    ::
-
-
-        If a filename is SPORT_L2_IVM_2019-01-01_v01r0000.NC then the template
-        is 'SPORT_L2_IVM_{year:04d}-{month:02d}-{day:02d}_' +
-        'v{version:02d}r{revision:04d}.NC'
-
-    """
-
-    if format_str is None:
-        # default file naming
-        format_str = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
-
-    return pysat.Files.from_os(data_path=data_path, format_str=format_str)
 
 
 def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
