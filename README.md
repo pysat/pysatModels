@@ -4,11 +4,11 @@
 </div>
 
 # pysatModels
-[![Build Status](https://travis-ci.org/pysat/pysatModels.svg?branch=master)](https://travis-ci.org/pysat/pysatModels)
-[![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=master)](https://coveralls.io/github/pysat/pysatModels?branch=master)
+[![Build Status](https://travis-ci.org/pysat/pysatModels.svg?branch=main)](https://travis-ci.org/pysat/pysatModels)
+[![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=main)](https://coveralls.io/github/pysat/pysatModels?branch=master)
 
 This module handles model centric data loading through pysat and contains a
-variety of tools to perform model-data analysis, including model validation. 
+variety of tools to perform model-data analysis, including model validation.
 
 ## Getting started
 
@@ -45,4 +45,3 @@ the Space Physics community.  This module officially supports Python 3.6+.
 ## Examples
 
 Coming soon
-
