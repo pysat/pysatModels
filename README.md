@@ -5,7 +5,7 @@
 
 # pysatModels
 [![Build Status](https://travis-ci.org/pysat/pysatModels.svg?branch=main)](https://travis-ci.org/pysat/pysatModels)
-[![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=main)](https://coveralls.io/github/pysat/pysatModels?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=main)](https://coveralls.io/github/pysat/pysatModels?branch=main)
 
 This module handles model centric data loading through pysat and contains a
 variety of tools to perform model-data analysis, including model validation.
