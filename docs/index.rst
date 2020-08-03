@@ -1,4 +1,4 @@
-.. pysatModels documentation master file.  Rembemer that it should at least
+.. pysatModels documentation main file.  Remember that it should at least
    contain the root `toctree` directive.
 
 Welcome to the pysatModels documentation

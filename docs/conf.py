@@ -50,7 +50,7 @@ templates_path = ['.templates']
 # source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
 
-# The master toctree document.
+# The main toctree document (using required variable name).
 master_doc = 'index'
 
 # General information about the project.
