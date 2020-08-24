@@ -1,1 +1,4 @@
-from pysatModels import instruments  # noqa F401
+__all__ = ['pysat_dineof']
+
+for inst in __all__:
+    exec("from pysatModels.instruments import {x}".format(x=inst))
