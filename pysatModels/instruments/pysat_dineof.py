@@ -14,8 +14,11 @@ data gaps, and extract a series of basis functions that optimally reproduce
 the input data. The quality of the reconstruction is primarily determined
 by the quantity and quality of the input data.
 
-Add in references to originators of DINEOFs.
-
+References
+----------
+J.-M. Beckers and M. Rixen. EOF calculations and data filling from
+incomplete oceanographic data sets. Journal of Atmospheric and
+Oceanic Technology, 20(12):1839-­1856, 2003.
 
 Parameters
 ----------
@@ -79,6 +82,7 @@ _test_dates = {'': {'': None}}
 # Set to False to specify using xarray (not using pandas)
 pandas_format = False
 
+
 def init(self):
     """Initializes the Instrument object with instrument specific values.
 
@@ -89,15 +93,10 @@ def init(self):
     self : pysat.Instrument
         This object
 
-    Returns
-    --------
-    Void : (NoneType)
-        Object modified in place.
-
 
     """
 
-    logger.info(' '.join(("DINEOF export model produced by pysatDINEOF.")))
+    logger.info("DINEOF export models are produced by pysatDINEOF.")
     return
 
 
@@ -151,7 +150,7 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
 
 
 def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
-    """Produce a list of files corresponding to PLATFORM/NAME.
+    """Produce a list of files corresponding to pysatDINEOF models.
 
     This routine is invoked by pysat and is not intended for direct
     use by the end user. Arguments are provided by pysat.
@@ -208,7 +207,7 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
 
 def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
              **kwargs):
-    """Placeholder for PLATFORM/NAME downloads.
+    """Downloads are not supported.
 
     This routine is invoked by pysat and is not intended for direct use by the
     end user.
@@ -237,11 +236,6 @@ def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
         Additional keywords supplied by user when invoking the download
         routine attached to a pysat.Instrument object are passed to this
         routine via kwargs.
-
-    Returns
-    --------
-    Void : (NoneType)
-        Downloads data to disk.
 
     """
 
