@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Supports exported model data from pysatDINEOFs, a Python package
+Supports exported model data from pysatDINEOF, a Python package
 that interfaces with a version of Data Interpolation Empirical
 Orthogonal Functions (DINEOFs). This module couples into
 the systematic export pysatDINEOF format and thus should support
@@ -13,6 +13,8 @@ DINEOFs are a purely data based method that can analyze a data-set, with
 data gaps, and extract a series of basis functions that optimally reproduce
 the input data. The quality of the reconstruction is primarily determined
 by the quantity and quality of the input data.
+
+http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF
 
 References
 ----------
@@ -57,10 +59,7 @@ Authors
 from __future__ import print_function
 from __future__ import absolute_import
 
-import datetime as dt
 import logging
-import pandas as pds
-import xarray as xr
 import pysat
 
 logger = logging.getLogger(__name__)
@@ -100,7 +99,7 @@ def init(self):
     return
 
 
-def load(fnames, tag=None, sat_id=None, **kwargs):
+def load(fnames, tag=None, sat_id=None):
     """Loads PLATFORM data into (PANDAS/XARRAY).
 
     This routine is called as needed by pysat. It is not intended
@@ -119,10 +118,6 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     sat_id : string ('')
         Satellite ID used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
-    **kwargs : extra keywords
-        Passthrough for additional keyword arguments specified when
-        instantiating an Instrument object. These additional keywords
-        are passed through to this routine by pysat.
 
     Returns
     -------
