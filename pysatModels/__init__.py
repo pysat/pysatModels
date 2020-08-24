@@ -20,6 +20,7 @@ import os
 
 from pysatModels import (utils)
 from pysatModels import (models)
+from pysatModels import (instruments)
 
 # set the version
 here = os.path.abspath(os.path.dirname(__file__))
