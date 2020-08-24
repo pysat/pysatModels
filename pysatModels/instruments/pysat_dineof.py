@@ -101,28 +101,6 @@ def init(self):
     return
 
 
-def default(self):
-    """Default customization function.
-
-    This routine is automatically applied to the Instrument object
-    on every load by the pysat nanokernel (first in queue).
-
-    Parameters
-    ----------
-    self : pysat.Instrument
-        This object
-
-    Returns
-    --------
-    Void : (NoneType)
-        Object modified in place.
-
-
-    """
-
-    return
-
-
 def load(fnames, tag=None, sat_id=None, **kwargs):
     """Loads PLATFORM data into (PANDAS/XARRAY).
 
@@ -228,38 +206,6 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
     return pysat.Files.from_os(data_path=data_path, format_str=format_str)
 
 
-def list_remote_files(tag, sat_id, user=None, password=None):
-    """Return a Pandas Series of every file for chosen remote data.
-
-    This routine is intended to be used by pysat instrument modules supporting
-    a particular NASA CDAWeb dataset.
-
-    Parameters
-    -----------
-    tag : (string or NoneType)
-        Denotes type of file to load.  Accepted types are <tag strings>.
-        (default=None)
-    sat_id : (string or NoneType)
-        Specifies the satellite ID for a constellation.  Not used.
-        (default=None)
-    user : (string or NoneType)
-        Username to be passed along to resource with relevant data.
-        (default=None)
-    password : (string or NoneType)
-        User password to be passed along to resource with relevant data.
-        (default=None)
-
-    Returns
-    --------
-    pandas.Series
-        A Series formatted for the Files class (pysat._files.Files)
-        containing filenames and indexed by date and time
-
-    """
-
-    return pds.Series([])
-
-
 def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
              **kwargs):
     """Placeholder for PLATFORM/NAME downloads.
@@ -296,42 +242,6 @@ def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
     --------
     Void : (NoneType)
         Downloads data to disk.
-
-    """
-
-    return
-
-
-# code should be defined below as needed
-def clean(inst):
-    """Routine to return PLATFORM/NAME data cleaned to the specified level
-
-    Cleaning level is specified in inst.clean_level and pysat
-    will accept user input for several strings. The clean_level is
-    specified at instantiation of the Instrument object.
-
-    'clean' All parameters should be good, suitable for statistical and
-            case studies
-    'dusty' All paramers should generally be good though same may
-            not be great
-    'dirty' There are data areas that have issues, data should be used
-            with caution
-    'none'  No cleaning applied, routine not called in this case.
-
-
-    Parameters
-    -----------
-    inst : (pysat.Instrument)
-        Instrument class object, whose attribute clean_level is used to return
-        the desired level of data selectivity.
-
-    Returns
-    --------
-    Void : (NoneType)
-        data in inst is modified in-place.
-
-    Notes
-    -----
 
     """
 
