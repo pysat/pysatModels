@@ -6,10 +6,6 @@
 """
 Routines to align and work with pairs of modelled and observational data
 
-Routines
---------
-compare_model_and_inst
-
 """
 
 from __future__ import absolute_import
@@ -51,34 +47,34 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
     Statistics are calculated using PyForecastTools (imported as verify).
     See notes there for more details.
 
-    all - all statistics
-    all_bias - bias, meanPercentageError, medianLogAccuracy,
-               symmetricSignedBias
-    accuracy - returns dict with mean squared error, root mean squared error,
-               mean absolute error, and median absolute error
-    scaledAccuracy - returns dict with normaled root mean squared error, mean
-                     absolute scaled error, mean absolute percentage error,
-                     median absolute percentage error, median symmetric
-                     accuracy
-    bias - scale-dependent bias as measured by the mean error
-    meanPercentageError - mean percentage error
-    medianLogAccuracy - median of the log accuracy ratio
-    symmetricSignedBias - Symmetric signed bias, as a percentage
-    meanSquaredError - mean squared error
-    RMSE - root mean squared error
-    meanAbsError - mean absolute error
-    medAbsError - median absolute error
-    nRMSE - normaized root mean squared error
-    scaledError - scaled error (see PyForecastTools for references)
-    MASE - mean absolute scaled error
-    forecastError - forecast error (see PyForecastTools for references)
-    percError - percentage error
-    absPercError - absolute percentage error
-    logAccuracy - log accuracy ratio
-    medSymAccuracy - Scaled measure of accuracy
-    meanAPE - mean absolute percentage error
+    1. all: all statistics
+    2. all_bias: bias, meanPercentageError, medianLogAccuracy,
+       symmetricSignedBias
+    3. accuracy: returns dict with mean squared error, root mean squared error,
+       mean absolute error, and median absolute error
+    4. scaledAccuracy: returns dict with normaled root mean squared error, mean
+       absolute scaled error, mean absolute percentage error,  median absolute
+       percentage error, median symmetric accuracy
+    5. bias: scale-dependent bias as measured by the mean error
+    6. meanPercentageError: mean percentage error
+    7. medianLogAccuracy: median of the log accuracy ratio
+    8. symmetricSignedBias: Symmetric signed bias, as a percentage
+    9. meanSquaredError: mean squared error
+    10. RMSE: root mean squared error
+    11. meanAbsError: mean absolute error
+    12. medAbsError: median absolute error
+    13. nRMSE: normaized root mean squared error
+    14. scaledError: scaled error (see PyForecastTools for references)
+    15. MASE: mean absolute scaled error
+    16. forecastError: forecast error (see PyForecastTools for references)
+    17. percError: percentage error
+    18. absPercError: absolute percentage error
+    19. logAccuracy: log accuracy ratio
+    20. medSymAccuracy: Scaled measure of accuracy
+    21. meanAPE: mean absolute percentage error
 
     """
+
     method_rout = {"bias": verify.bias, "accuracy": verify.accuracy,
                    "meanPercentageError": verify.meanPercentageError,
                    "medianLogAccuracy": verify.medianLogAccuracy,
@@ -120,8 +116,8 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
         raise ValueError('must provide Dataset of paired observations')
 
     if len(inst_name) != len(mod_name):
-        raise ValueError('must provide equal number of instrument and model ' +
-                         'data names for comparison')
+        raise ValueError(''.join(['must provide equal number of instrument ',
+                                  'and model data names for comparison']))
 
     if not np.all([iname in pairs.data_vars.keys() for iname in inst_name]):
         raise ValueError('unknown instrument data value supplied')
@@ -134,9 +130,9 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
         known_methods.extend(list(grouped_methods.keys()))
         unknown_methods = [mm for mm in methods
                            if mm not in list(method_rout.keys())]
-        raise ValueError('unknown statistical method(s) requested:\n' +
-                         '{:}\nuse only:\n{:}'.format(unknown_methods,
-                                                      known_methods))
+        raise ValueError(''.join(['unknown statistical method(s) requested:\n',
+                                  '{:}\nuse only:\n'.format(unknown_methods),
+                                  '{:}'.format(unknown_methods)]))
 
     # Initialize the output
     stat_dict = {iname: dict() for iname in inst_name}
@@ -174,6 +170,6 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
                 # instead of stopping processing.  Only valid statistics will
                 # be included in output
                 ps_mod.logger.info("{:s} can't use {:s}: {:}".format(iname,
-                                                                       mm, err))
+                                                                     mm, err))
 
     return stat_dict, data_units

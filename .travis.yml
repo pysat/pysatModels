@@ -3,10 +3,12 @@ language: python
 dist: xenial
 jobs:
   include:
-    - python: 2.7
+    - name: Minimum NEP 029 versions
+      python: 3.6
+      env: NUMPY_VER=1.16
+    # Versions with latest numpy
     - python: 3.6
     - python: 3.7
-    - python: 3.8
 
 services: xvfb
 addons:
@@ -14,17 +16,34 @@ addons:
     packages:
     - gfortran
 
-before_install:
-  - pip install pytest-cov
-  - pip install coveralls
-  - pip install future
-  - pip install numpy
-  - pip install scipy
-  - pip install pandas
-  - pip install xarray
-  - pip install matplotlib
+install:
+  # Use the conda management under the install script, as separate scripts will revert to pip
+  - sudo apt-get update
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  - hash -r
+  - conda config --set always_yes True --set changeps1 False
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  # Create conda test environment
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy pandas xarray requests beautifulsoup4 lxml netCDF4 nose pytest-cov pytest-ordering future
+  - conda activate test-environment
+  # check for custom version of numpy
+  - if [ -z ${NUMPY_VER} ]; then
+      echo 'Using latest numpy';
+    else
+      conda install numpy==$NUMPY_VER;
+    fi
   # Install pysatCDF and dump output
   - pip install pysatCDF >/dev/null
+  # Install packages not on conda
+  - pip install pytest-flake8
+  # conda using old coveralls (1.5.2) which is not working on Travis CI
+  - pip install coveralls
   # Prepare pysat install from git
   - cd ..
   - git clone https://github.com/pysat/pysat.git >/dev/null
@@ -34,13 +53,13 @@ before_install:
   # install pysat
   - git checkout develop-3
   - python setup.py install >/dev/null
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)
+  # install pysatModels
   - cd ../pysatModels
-
-install:
   - python setup.py install
 
 script:
-  - pytest -vs --cov=pysatModels/
+  - pytest -vs --cov=pysatModels/  --flake8
 
 after_success:
-  - coveralls
+  - coveralls --rcfile=setup.cfg
