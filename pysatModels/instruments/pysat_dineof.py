@@ -7,7 +7,7 @@ the systematic export pysatDINEOF format and thus should support
 all exports from the package.
 
 Given the generality of the support, each model series is identified
-using the `sat_id` keyword, (`inst_id` in future versions).
+using the `tag` keyword.
 
 DINEOFs are a purely data based method that can analyze a data-set, with
 data gaps, and extract a series of basis functions that optimally reproduce
@@ -24,15 +24,21 @@ platform : string
 name : string
     dineof
 sat_id : string
-    [*]
-tag : string
     ['']
+tag : string
+    [*]
 
 Note
 ----
 ::
 
-    Notes
+    Specific tags are not listed here as this method is intended to support
+    all pysatDINEOF export models. Place the desired model (daily files)
+    at '{pysat_data_dir}/pysat/dineof/{tag}'. It is presumed the default
+    naming scheme of 'dineof_model_{year:04d}-{month:02d}-{day:02d}.nc'
+    has been retained. Use the file_format option for custom filenames.
+        imodule = pysatModels.instruments.pysat_dineof
+        model = pysat.Instrument(inst_module=imodule, tag=tag)
 
 Warnings
 --------
@@ -62,8 +68,8 @@ platform = 'pysat'
 name = 'dineof'
 
 # dictionary of data 'tags' and corresponding description
-tags = {'': 'Any pysatDINEOF model export data set.'}
-sat_ids = {'*': ['']}
+tags = {'*': 'Any pysatDINEOF model export data set.'}
+sat_ids = {'': ['*']}
 
 # Define good days to download data for when pysat undergoes testing.
 # format is outer dictionary has sat_id as the key
@@ -72,7 +78,6 @@ _test_dates = {'': {'': None}}
 
 # Set to False to specify using xarray (not using pandas)
 pandas_format = False
-
 
 def init(self):
     """Initializes the Instrument object with instrument specific values.
@@ -92,8 +97,7 @@ def init(self):
 
     """
 
-    logger.info(' '.join(("Mission acknowledgements and data restrictions will",
-                          "be printed here when available.")))
+    logger.info(' '.join(("DINEOF export model produced by pysatDINEOF.")))
     return
 
 
@@ -164,7 +168,8 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
 
     # netCDF4 files were produced by xarray
     # returning an xarray.Dataset
-    return pysat.utils.load_netcdf4(fnames, epoch_name='time', pandas=False)
+    return pysat.utils.load_netcdf4(fnames, epoch_name='time',
+                                    pandas_format=False)
 
 
 def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
