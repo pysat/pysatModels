@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Supports exported model data from pysatDINEOF, a Python package
+Supports exported model data from pyDINEOF, a Python package
 that interfaces with a version of Data Interpolation Empirical
 Orthogonal Functions (DINEOFs). This module couples into
-the systematic export pysatDINEOF format and thus should support
+the systematic export pyDINEOF format and thus should support
 all exports from the package.
 
 Given the generality of the support, each model series is identified
@@ -35,15 +35,14 @@ tag : string
 
 Note
 ----
+Specific tags are not listed here as this method is intended to support
+all pyDINEOF export models. Place the desired model (daily files)
+at '{pysat_data_dir}/utdcss/dineof/{tag}'. It is presumed the default
+naming scheme of 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
+has been retained. Use the file_format option for custom filenames.
 ::
-
-    Specific tags are not listed here as this method is intended to support
-    all pysatDINEOF export models. Place the desired model (daily files)
-    at '{pysat_data_dir}/pysat/dineof/{tag}'. It is presumed the default
-    naming scheme of 'dineof_model_{year:04d}-{month:02d}-{day:02d}.nc'
-    has been retained. Use the file_format option for custom filenames.
-        imodule = pysatModels.instruments.pysat_dineof
-        model = pysat.Instrument(inst_module=imodule, tag=tag)
+    imodule = pysatModels.instruments.utdcss_dineof
+    model = pysat.Instrument(inst_module=imodule, tag=tag)
 
 Warnings
 --------
@@ -66,11 +65,11 @@ logger = logging.getLogger(__name__)
 
 # the platform and name strings associated with this instrument
 # need to be defined at the top level
-platform = 'pysat'
+platform = 'utdcss'
 name = 'dineof'
 
 # dictionary of data 'tags' and corresponding description
-tags = {'*': 'Any pysatDINEOF model export data set.'}
+tags = {'*': 'Any pyDINEOF model export data set.'}
 sat_ids = {'': ['*']}
 
 # Define good days to download data for when pysat undergoes testing.
@@ -89,12 +88,12 @@ def init(self):
 
     """
 
-    logger.info("DINEOF export models are produced by pysatDINEOF.")
+    logger.info("DINEOF export models are produced by pyDINEOF.")
     return
 
 
 def load(fnames, tag=None, sat_id=None):
-    """Loads PLATFORM data into (PANDAS/XARRAY).
+    """Loads pyDINEOF data into xarray.
 
     This routine is called as needed by pysat. It is not intended
     for direct user interaction.
@@ -127,8 +126,9 @@ def load(fnames, tag=None, sat_id=None):
     Examples
     --------
     ::
-        inst = pysat.Instrument('ucar', 'tiegcm')
-        inst.load(2019,1)
+
+        inst = pysat.Instrument(inst_module=pysatModels.models.utdcss_dineof)
+        inst.load(2019, 1)
 
     """
 
@@ -139,7 +139,7 @@ def load(fnames, tag=None, sat_id=None):
 
 
 def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
-    """Produce a list of files corresponding to pysatDINEOF models.
+    """Produce a list of files corresponding to pyDINEOF models.
 
     This routine is invoked by pysat and is not intended for direct
     use by the end user. Arguments are provided by pysat.
@@ -169,9 +169,8 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
     Examples
     --------
     ::
-        If a filename is SPORT_L2_IVM_2019-01-01_v01r0000.NC then the template
-        is 'SPORT_L2_IVM_{year:04d}-{month:02d}-{day:02d}_' +
-        'v{version:02d}r{revision:04d}.NC'
+        If a filename is dineof_2009-01-01.nc then the template
+        is 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
 
     Note
     ----
@@ -189,6 +188,7 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
     if format_str is None:
         # default string
         format_str = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
+
     # use a pysat provided function to grab list of files from the
     # local file system that match the format defined above
     return pysat.Files.from_os(data_path=data_path, format_str=format_str)
