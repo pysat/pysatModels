@@ -37,11 +37,11 @@ Note
 ----
 Specific tags are not listed here as this method is intended to support
 all pyDINEOF export models. Place the desired model (daily files)
-at '{pysat_data_dir}/utdcss/dineof/{tag}'. It is presumed the default
+at '{pysat_data_dir}/pydineof/dineof/{tag}'. It is presumed the default
 naming scheme of 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
 has been retained. Use the file_format option for custom filenames.
 ::
-    imodule = pysatModels.instruments.utdcss_dineof
+    imodule = pysatModels.instruments.pydineof_dineof
     model = pysat.Instrument(inst_module=imodule, tag=tag)
 
 Warnings
@@ -59,13 +59,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import logging
+
 import pysat
 
 logger = logging.getLogger(__name__)
 
 # the platform and name strings associated with this instrument
 # need to be defined at the top level
-platform = 'utdcss'
+platform = 'pydineof'
 name = 'dineof'
 
 # dictionary of data 'tags' and corresponding description
@@ -127,7 +128,7 @@ def load(fnames, tag=None, sat_id=None):
     --------
     ::
 
-        inst = pysat.Instrument(inst_module=pysatModels.models.utdcss_dineof)
+        inst = pysat.Instrument(inst_module=pysatModels.models.pydineof_dineof)
         inst.load(2019, 1)
 
     """
@@ -227,5 +228,7 @@ def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
         routine via kwargs.
 
     """
+
+    logger.warning('Downloads are not supported by pydineof_dineof.')
 
     return
