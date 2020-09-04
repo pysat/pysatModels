@@ -87,12 +87,6 @@ def init(self):
 
     Runs once upon instantiation.
 
-    Parameters
-    ----------
-    self : pysat.Instrument
-        This object
-
-
     """
 
     logger.info("DINEOF export models are produced by pysatDINEOF.")
