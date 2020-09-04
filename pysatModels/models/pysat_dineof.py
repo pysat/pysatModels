@@ -188,7 +188,7 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
 
     if format_str is None:
         # default string
-        format_str = 'dineof_model_{year:04d}-{month:02d}-{day:02d}.nc'
+        format_str = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
     # use a pysat provided function to grab list of files from the
     # local file system that match the format defined above
     return pysat.Files.from_os(data_path=data_path, format_str=format_str)
