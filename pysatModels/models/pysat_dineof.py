@@ -22,7 +22,7 @@ J.-M. Beckers and M. Rixen. EOF calculations and data filling from
 incomplete oceanographic data sets. Journal of Atmospheric and
 Oceanic Technology, 20(12):1839-­1856, 2003.
 
-Parameters
+Properties
 ----------
 platform : string
     pysat
