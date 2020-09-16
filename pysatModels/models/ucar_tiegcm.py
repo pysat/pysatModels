@@ -109,9 +109,9 @@ def init(self):
 
     """
 
-    self.meta.acknowledgements = ack
-    self.meta.references = "\n".join((refs))
-    logger.info(self.meta.acknowledgements)
+    self.acknowledgements = ack
+    self.references = "\n".join((refs))
+    logger.info(self.acknowledgements)
     return
 
 
