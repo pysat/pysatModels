@@ -65,22 +65,22 @@ def init(self):
 
     """
 
-    self.meta.acknowledgments = " ".join(("This work uses the SAMI2 ionosphere",
-                                          "model written and developed by the",
-                                          "Naval Research Laboratory."))
-    self.meta.references = " ".join(("Huba, J.D., G. Joyce, and J.A. Fedder,",
-                                     "Sami2 is Another Model of the Ionosphere",
-                                     "(SAMI2): A new low‐latitude ionosphere",
-                                     "model, J. Geophys. Res., 105, Pages",
-                                     "23035-23053,",
-                                     "https://doi.org/10.1029/2000JA000035,",
-                                     "2000.\n",
-                                     "Klenzing, J., Jonathon Smith, Michael",
-                                     "Hirsch, & Angeline G. Burrell. (2020,",
-                                     "July 17). sami2py/sami2py: Version 0.2.2",
-                                     "(Version v0.2.2). Zenodo.",
-                                     "http://doi.org/10.5281/zenodo.3950564"))
-    logger.info(self.meta.acknowledgments)
+    self.acknowledgements = " ".join(("This work uses the SAMI2 ionosphere",
+                                      "model written and developed by the",
+                                      "Naval Research Laboratory."))
+    self.references = " ".join(("Huba, J.D., G. Joyce, and J.A. Fedder,",
+                                "Sami2 is Another Model of the Ionosphere",
+                                "(SAMI2): A new low‐latitude ionosphere",
+                                "model, J. Geophys. Res., 105, Pages",
+                                "23035-23053,",
+                                "https://doi.org/10.1029/2000JA000035,",
+                                "2000.\n",
+                                "Klenzing, J., Jonathon Smith, Michael",
+                                "Hirsch, & Angeline G. Burrell. (2020,",
+                                "July 17). sami2py/sami2py: Version 0.2.2",
+                                "(Version v0.2.2). Zenodo.",
+                                "http://doi.org/10.5281/zenodo.3950564"))
+    logger.info(self.acknowledgements)
 
 
 def load(fnames, tag=None, sat_id=None, **kwargs):
@@ -128,10 +128,12 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
 
     # load data
     data = xr.open_dataset(fnames[0])
+
     # add time variable for pysat compatibilty
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
+
     # move attributes to the Meta object
     # these attributes will be trasnferred to the Instrument object
     # automatically by pysat
@@ -190,8 +192,10 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
         date = date_array[0]
         remote_url = 'https://github.com/sami2py/sami2py/'
         remote_path = 'blob/main/sami2py/tests/test_data/'
+
         # Need to tell github to show the raw data, not the webpage version
         fname = 'sami2py_output.nc?raw=true'
+
         # Use pysat-compatible name
         format_str = supported_tags[sat_id][tag]
         saved_local_fname = os.path.join(data_path,
@@ -206,4 +210,5 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
 
     else:
         warnings.warn('Downloads currently only supported for test files.')
+
     return
