@@ -243,12 +243,12 @@ class TestUtilsMatchCollectInstModPairs:
 
             if mdata is not None:
                 if lout is None:
-                    glon = {'glon': (('time'),
-                                     np.linspace(*lin, mdata.dims['time']))}
+                    lin.append(mdata.dims['time'])
+                    glon = {'glon': (('time'), np.linspace(*lin))}
                     mdata = mdata.assign(glon)
                 else:
-                    mdata.coords['longitude'] = np.linspace(
-                        *lin, mdata.dims['longitude'])
+                    lin.append(mdata.dims['longitude'])
+                    mdata.coords['longitude'] = np.linspace(*lin)
             return mdata
 
         self.required_kwargs['model_load_rout'] = lon_model_load
