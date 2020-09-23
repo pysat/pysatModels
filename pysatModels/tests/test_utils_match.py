@@ -26,7 +26,7 @@ class TestUtilsMatchLoadModelXarray:
         self.filename = "%Y-%m-%d.nofile"
         self.model_kwargs = {'platform': str('pysat'),
                              'name': str('testing_xarray'),
-                             'sat_id': '12',
+                             'inst_id': '12',
                              'clean_level': 'clean'}
         self.model_inst = None
         self.xout = None
@@ -113,7 +113,7 @@ class TestUtilsMatchCollectInstModPairs:
                            dt.timedelta(days=1), self.inst]
         self.ref_col = 'dummy1'
         self.model = pysat.Instrument(platform=str('pysat'),
-                                      name=str('testmodel'), sat_id='10',
+                                      name=str('testmodel'), inst_id='10',
                                       clean_level='clean')
         self.required_kwargs = {"model_load_kwargs":
                                 {"model_inst": self.model},
