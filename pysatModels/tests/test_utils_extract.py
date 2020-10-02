@@ -21,10 +21,10 @@ class TestUtilsExtractObsViewModel:
         """ Runs before every method to create a clean testing setup."""
         self.args = [pysat.Instrument(platform=str('pysat'),
                                       name=str('testing'),
-                                      sat_id='12', clean_level='clean'),
+                                      inst_id='12', clean_level='clean'),
                      pysat.Instrument(platform=str('pysat'),
                                       name=str('testing'),
-                                      sat_id='6', clean_level='clean'),
+                                      inst_id='6', clean_level='clean'),
                      ['latitude', 'longitude'], ['dummy1', 'dummy2']]
 
     def teardown(self):
