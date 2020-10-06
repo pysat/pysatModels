@@ -12,7 +12,7 @@ name
     'tiegcm'
 tag
     None supported
-sat_id
+inst_id
     None supported
 
 """
@@ -34,11 +34,11 @@ name = 'tiegcm'
 
 # dictionary of data 'tags' and corresponding description
 tags = {'': 'UCAR TIE-GCM file'}
-# dictionary of satellite IDs, list of corresponding tags for each sat_ids
-sat_ids = {'': ['']}
+# dictionary of satellite IDs, list of corresponding tags for each inst_ids
+inst_ids = {'': ['']}
 # good day to download test data for. Downloads aren't currently supported!
-# format is outer dictionary has sat_id as the key
-# each sat_id has a dictionary of test dates keyed by tag string
+# format is outer dictionary has inst_id as the key
+# each inst_id has a dictionary of test dates keyed by tag string
 _test_dates = {'': {'': dt.datetime(2019, 1, 1)}}
 _test_download = {'': {'': False}}
 
@@ -115,7 +115,7 @@ def init(self):
     return
 
 
-def load(fnames, tag=None, sat_id=None, **kwargs):
+def load(fnames, tag=None, inst_id=None, **kwargs):
     """Loads TIEGCM data using xarray.
 
     This routine is called as needed by pysat. It is not intended
@@ -129,7 +129,7 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     tag : string ('')
         tag name used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
-    sat_id : string ('')
+    inst_id : string ('')
         Satellite ID used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
     **kwargs : extra keywords
@@ -187,7 +187,7 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     return data, meta
 
 
-def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
+def download(date_array, tag, inst_id, data_path=None, user=None, password=None,
              **kwargs):
     """Placeholder for UCAR TIEGCM downloads. Doesn't do anything.
 
@@ -199,7 +199,7 @@ def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
     tag : string
         Tag identifier used for particular dataset. This input is provided by
         pysat. (default='')
-    sat_id : string
+    inst_id : string
         Satellite ID string identifier used for particular dataset. This input
         is provided by pysat. (default='')
     data_path : string
