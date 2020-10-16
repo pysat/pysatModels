@@ -127,23 +127,12 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     """
 
     # load data
-    data = xr.open_dataset(fnames[0])
+    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
+
     # add time variable for pysat compatibilty
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
-    # move attributes to the Meta object
-    # these attributes will be trasnferred to the Instrument object
-    # automatically by pysat
-    meta = pysat.Meta()
-    for attr in data.attrs:
-        setattr(meta, attr[0], attr[1])
-    data.attrs = []
-
-    # fill Meta object with variable information
-    for key in data.variables.keys():
-        attrs = data.variables[key].attrs
-        meta[key] = attrs
 
     return data, meta
 
