@@ -28,7 +28,7 @@ platform : string
     pysat
 name : string
     dineof
-sat_id : string
+inst_id : string
     ['']
 tag : string
     [*]
@@ -44,19 +44,7 @@ has been retained. Use the file_format option for custom filenames.
     imodule = pysatModels.instruments.pydineof_dineof
     model = pysat.Instrument(inst_module=imodule, tag=tag)
 
-Warnings
---------
-
-
-Authors
--------
-
-
 """
-
-# python 2/3 comptability
-from __future__ import print_function
-from __future__ import absolute_import
 
 import logging
 
@@ -71,11 +59,11 @@ name = 'dineof'
 
 # dictionary of data 'tags' and corresponding description
 tags = {'*': 'Any pyDINEOF model export data set.'}
-sat_ids = {'': ['*']}
+inst_ids = {'': ['*']}
 
 # Define good days to download data for when pysat undergoes testing.
-# format is outer dictionary has sat_id as the key
-# each sat_id has a dictionary of test dates keyed by tag string
+# format is outer dictionary has inst_id as the key
+# each inst_id has a dictionary of test dates keyed by tag string
 _test_dates = {'': {'': None}}
 
 # Set to False to specify using xarray (not using pandas)
@@ -90,10 +78,20 @@ def init(self):
     """
 
     logger.info("DINEOF export models are produced by pyDINEOF.")
+    acks = ''.join(('The original DINEOF model code may be found at ',
+                    'http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF.',
+                    'pyDINEOFs is stored online in a private repository at ',
+                    'https://github.com/PhotonAudioLab/pyDINEOF'))
+    self.acknowledgements = acks
+    refs = ''.join(('J.-M. Beckers and M. Rixen. EOF calculations and data ',
+                    'filling from incomplete oceanographic data sets. ',
+                    'Journal of Atmospheric and Oceanic Technology, ',
+                    '20(12):1839-­1856, 2003'))
+    self.references = refs
     return
 
 
-def load(fnames, tag=None, sat_id=None):
+def load(fnames, tag=None, inst_id=None):
     """Loads pyDINEOF data into xarray.
 
     This routine is called as needed by pysat. It is not intended
@@ -109,8 +107,8 @@ def load(fnames, tag=None, sat_id=None):
         This input is nominally provided by pysat itself. While
         tag defaults to None here, pysat provides '' as the default
         tag unless specified by user at Instrument instantiation.
-    sat_id : string ('')
-        Satellite ID used to identify particular data set to be loaded.
+    inst_id : string ('')
+        Instrument ID used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
 
     Returns
@@ -139,7 +137,7 @@ def load(fnames, tag=None, sat_id=None):
                                     pandas_format=False)
 
 
-def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
+def list_files(tag=None, inst_id=None, data_path=None, format_str=None):
     """Produce a list of files corresponding to pyDINEOF models.
 
     This routine is invoked by pysat and is not intended for direct
@@ -150,8 +148,8 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
     tag : string ('')
         tag name used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
-    sat_id : string ('')
-        Satellite ID used to identify particular data set to be loaded.
+    inst_id : string ('')
+        Instrument ID used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
     data_path : string (None)
         Full path to directory containing files to be loaded. This
@@ -181,7 +179,7 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
     the returned files are up to pysat specifications.
 
     Multiple data levels may be supported via the 'tag' input string.
-    Multiple instruments via the sat_id string.
+    Multiple instruments via the inst_id string.
 
 
     """
@@ -195,8 +193,7 @@ def list_files(tag=None, sat_id=None, data_path=None, format_str=None):
     return pysat.Files.from_os(data_path=data_path, format_str=format_str)
 
 
-def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
-             **kwargs):
+def download(date_array, tag, inst_id, data_path=None, **kwargs):
     """Downloads are not supported.
 
     This routine is invoked by pysat and is not intended for direct use by the
@@ -210,18 +207,11 @@ def download(date_array, tag, sat_id, data_path=None, user=None, password=None,
     tag : string ('')
         Tag identifier used for particular dataset. This input is provided by
         pysat.
-    sat_id : string  ('')
-        Satellite ID string identifier used for particular dataset. This input
+    inst_id : string  ('')
+        Instrument ID string identifier used for particular dataset. This input
         is provided by pysat.
     data_path : string (None)
         Path to directory to download data to.
-    user : string (None)
-        User string input used for download. Provided by user and passed via
-        pysat. If an account
-        is required for dowloads this routine here must error if user not
-        supplied.
-    password : string (None)
-        Password for data download.
     **kwargs : dict
         Additional keywords supplied by user when invoking the download
         routine attached to a pysat.Instrument object are passed to this
