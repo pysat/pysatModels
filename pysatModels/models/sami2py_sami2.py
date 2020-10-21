@@ -66,8 +66,8 @@ def init(self):
     """
 
     self.acknowledgements = " ".join(("This work uses the SAMI2 ionosphere",
-                                     "model written and developed by the",
-                                     "Naval Research Laboratory."))
+                                      "model written and developed by the",
+                                      "Naval Research Laboratory."))
     self.references = " ".join(("Huba, J.D., G. Joyce, and J.A. Fedder,",
                                 "Sami2 is Another Model of the Ionosphere",
                                 "(SAMI2): A new low‐latitude ionosphere",
