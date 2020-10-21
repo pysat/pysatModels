@@ -1,11 +1,13 @@
 import pytest
+import tempfile
 
-import pysatModels
 from pysat.utils import generate_instrument_list
 from pysat.tests.instrument_test_class import InstTestClass
 
-instruments = generate_instrument_list(inst_loc=pysatModels.models)
+import pysatModels
 
+# Retrieve the lists of Model instruments and testing methods
+instruments = generate_instrument_list(inst_loc=pysatModels.models)
 method_list = [func for func in dir(InstTestClass)
                if callable(getattr(InstTestClass, func))]
 
@@ -32,12 +34,21 @@ for method in method_list:
 
 class TestModels(InstTestClass):
 
-    def setup(self):
-        """Runs before every method to create a clean testing setup
+    def setup_class(self):
+        """Runs once before the tests to initialize the testing setu
         """
+        # Make sure to use a temporary directory so that the user setup is not
+        # altered
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.saved_path = pysat.data_dir
+        pysat.utils.set_data_dir(self.tempdir.name, store=False)
+
+        # Assign the location of the model Instrument sub-modules
         self.inst_loc = pysatModels.models
 
-    def teardown(self):
+    def teardown_class(self):
         """Runs after every method to clean up previous testing
         """
-        del self.inst_loc
+        pysat.utils.set_data_dir(self.saved_path, store=False)
+        self.tempdir.cleanup()
+        del self.inst_loc, self.saved_path, self.tempdir
