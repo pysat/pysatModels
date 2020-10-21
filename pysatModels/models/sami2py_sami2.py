@@ -69,17 +69,17 @@ def init(self):
                                      "model written and developed by the",
                                      "Naval Research Laboratory."))
     self.references = " ".join(("Huba, J.D., G. Joyce, and J.A. Fedder,",
-                                     "Sami2 is Another Model of the Ionosphere",
-                                     "(SAMI2): A new low‐latitude ionosphere",
-                                     "model, J. Geophys. Res., 105, Pages",
-                                     "23035-23053,",
-                                     "https://doi.org/10.1029/2000JA000035,",
-                                     "2000.\n",
-                                     "Klenzing, J., Jonathon Smith, Michael",
-                                     "Hirsch, & Angeline G. Burrell. (2020,",
-                                     "July 17). sami2py/sami2py: Version 0.2.2",
-                                     "(Version v0.2.2). Zenodo.",
-                                     "http://doi.org/10.5281/zenodo.3950564"))
+                                "Sami2 is Another Model of the Ionosphere",
+                                "(SAMI2): A new low‐latitude ionosphere",
+                                "model, J. Geophys. Res., 105, Pages",
+                                "23035-23053,",
+                                "https://doi.org/10.1029/2000JA000035,",
+                                "2000.\n",
+                                "Klenzing, J., Jonathon Smith, Michael",
+                                "Hirsch, & Angeline G. Burrell. (2020,",
+                                "July 17). sami2py/sami2py: Version 0.2.2",
+                                "(Version v0.2.2). Zenodo.",
+                                "http://doi.org/10.5281/zenodo.3950564"))
     logger.info(self.acknowledgements)
 
     return
