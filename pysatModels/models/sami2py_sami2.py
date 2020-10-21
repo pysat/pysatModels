@@ -108,6 +108,7 @@ def clean(self):
     """
 
     logger.info('Cleaning not supported for SAMI')
+    
     return
 
 
