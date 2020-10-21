@@ -12,7 +12,7 @@ name
     'sami2'
 tag
     None supported
-sat_id
+inst_id
     None supported
 
 """
@@ -38,7 +38,7 @@ name = 'sami2'
 # dictionary of data 'tags' and corresponding description
 tags = {'': 'sami2py output file',
         'test': 'Standard output of sami2py for benchmarking'}
-sat_ids = {'': ['', 'test']}
+inst_ids = {'': ['', 'test']}
 _test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
 _test_download = {'': {'': False,
                        'test': True}}
@@ -65,10 +65,10 @@ def init(self):
 
     """
 
-    self.meta.acknowledgments = " ".join(("This work uses the SAMI2 ionosphere",
-                                          "model written and developed by the",
-                                          "Naval Research Laboratory."))
-    self.meta.references = " ".join(("Huba, J.D., G. Joyce, and J.A. Fedder,",
+    self.acknowledgements = " ".join(("This work uses the SAMI2 ionosphere",
+                                     "model written and developed by the",
+                                     "Naval Research Laboratory."))
+    self.references = " ".join(("Huba, J.D., G. Joyce, and J.A. Fedder,",
                                      "Sami2 is Another Model of the Ionosphere",
                                      "(SAMI2): A new low‐latitude ionosphere",
                                      "model, J. Geophys. Res., 105, Pages",
@@ -80,10 +80,38 @@ def init(self):
                                      "July 17). sami2py/sami2py: Version 0.2.2",
                                      "(Version v0.2.2). Zenodo.",
                                      "http://doi.org/10.5281/zenodo.3950564"))
-    logger.info(self.meta.acknowledgments)
+    logger.info(self.acknowledgements)
+
+    return
 
 
-def load(fnames, tag=None, sat_id=None, **kwargs):
+# Required method
+def clean(self):
+    """Method to return SAMI data cleaned to the specified level
+
+    Cleaning level is specified in inst.clean_level and pysat
+    will accept user input for several strings. The clean_level is
+    specified at instantiation of the Instrument object, though it may be
+    updated to a more stringent level and re-applied after instantiation.
+    The clean method is applied after default every time data is loaded.
+
+    Note
+    ----
+    'clean' All parameters should be good, suitable for statistical and
+            case studies
+    'dusty' All paramers should generally be good though same may
+            not be great
+    'dirty' There are data areas that have issues, data should be used
+            with caution
+    'none'  No cleaning applied, routine not called in this case.
+
+    """
+
+    logger.info('Cleaning not supported for SAMI')
+    return
+
+
+def load(fnames, tag=None, inst_id=None, **kwargs):
     """Loads sami2py data using xarray.
 
     This routine is called as needed by pysat. It is not intended
@@ -97,8 +125,8 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     tag : string ('')
         tag name used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
-    sat_id : string ('')
-        Satellite ID used to identify particular data set to be loaded.
+    inst_id : string ('')
+        Instrument ID used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
     **kwargs : extra keywords
         Passthrough for additional keyword arguments specified when
@@ -137,7 +165,7 @@ def load(fnames, tag=None, sat_id=None, **kwargs):
     return data, meta
 
 
-def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
+def download(date_array=None, tag=None, inst_id=None, data_path=None, user=None,
              password=None, **kwargs):
     """Downloads sami2py data.  Currently only retrieves test data from github
 
@@ -149,8 +177,8 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
     tag : string
         Tag identifier used for particular dataset. This input is provided by
         pysat. (default='')
-    sat_id : string
-        Satellite ID string identifier used for particular dataset. This input
+    inst_id : string
+        Instrument ID string identifier used for particular dataset. This input
         is provided by pysat. (default='')
     data_path : string
         Path to directory to download data to. (default=None)
@@ -182,7 +210,7 @@ def download(date_array=None, tag=None, sat_id=None, data_path=None, user=None,
         # Need to tell github to show the raw data, not the webpage version
         fname = 'sami2py_output.nc?raw=true'
         # Use pysat-compatible name
-        format_str = supported_tags[sat_id][tag]
+        format_str = supported_tags[inst_id][tag]
         saved_local_fname = os.path.join(data_path,
                                          format_str.format(year=date.year,
                                                            month=date.month,
