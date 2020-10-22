@@ -1,13 +1,13 @@
 import pytest
 import tempfile
 
-from pysat.utils import generate_instrument_list
+import pysat
 from pysat.tests.instrument_test_class import InstTestClass
 
 import pysatModels
 
 # Retrieve the lists of Model instruments and testing methods
-instruments = generate_instrument_list(inst_loc=pysatModels.models)
+instruments = pysat.utils.generate_instrument_list(inst_loc=pysatModels.models)
 method_list = [func for func in dir(InstTestClass)
                if callable(getattr(InstTestClass, func))]
 
