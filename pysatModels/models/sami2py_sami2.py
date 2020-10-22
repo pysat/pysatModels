@@ -32,25 +32,27 @@ from pysat.instruments.methods import general as mm_gen
 
 logger = logging.getLogger(__name__)
 
+# ----------------------------------------------------------------------------
+# Instrument attributes
+
 platform = 'sami2py'
 name = 'sami2'
-
-# dictionary of data 'tags' and corresponding description
 tags = {'': 'sami2py output file',
         'test': 'Standard output of sami2py for benchmarking'}
 inst_ids = {'': ['', 'test']}
-_test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
-_test_download = {'': {'': False,
-                       'test': True}}
 
 # specify using xarray (not using pandas)
 pandas_format = False
 
-fname = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
-supported_tags = {'': {'': fname,
-                       'test': fname}}
-list_files = functools.partial(mm_gen.list_files,
-                               supported_tags=supported_tags)
+# ----------------------------------------------------------------------------
+# Instrument test attributes
+
+_test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
+_test_download = {'': {'': False,
+                       'test': True}}
+
+# ----------------------------------------------------------------------------
+# Instrument methods
 
 
 def init(self):
@@ -81,6 +83,26 @@ def init(self):
                                 "(Version v0.2.2). Zenodo.",
                                 "http://doi.org/10.5281/zenodo.3950564"))
     logger.info(self.acknowledgements)
+    return
+
+
+def clean(self):
+    """Model data does not require cleaning
+
+    """
+    return
+
+
+# ----------------------------------------------------------------------------
+# Instrument functions
+#
+# Use local and default pysat methods
+
+# Set the list_files routine
+fname = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
+supported_tags = {'': {'': fname, 'test': fname}}
+list_files = functools.partial(mm_gen.list_files,
+                               supported_tags=supported_tags)
 
 
 def load(fnames, tag=None, inst_id=None, **kwargs):
@@ -127,11 +149,16 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     """
 
     # load data
-    data = xr.open_dataset(fnames[0])
+    if len(fnames) == 1:
+        data = xr.open_dataset(fnames[0])
+    else:
+        data = xr.open_mfdataset(fnames, combine='by_coords')
+
     # add time variable for pysat compatibilty
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
+
     # move attributes to the Meta object
     # these attributes will be trasnferred to the Instrument object
     # automatically by pysat
@@ -148,8 +175,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     return data, meta
 
 
-def download(date_array=None, tag=None, inst_id=None, data_path=None, user=None,
-             password=None, **kwargs):
+def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
     """Downloads sami2py data.  Currently only retrieves test data from github
 
     Parameters
@@ -165,12 +191,6 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, user=None,
         is provided by pysat. (default='')
     data_path : string
         Path to directory to download data to. (default=None)
-    user : string
-        User string input used for download. Provided by user and passed via
-        pysat. If an account is required for dowloads this routine here must
-        error if user not supplied. (default=None)
-    password : string (None)
-        Password for data download.
     **kwargs : dict
         Additional keywords supplied by user when invoking the download
         routine attached to a pysat.Instrument object are passed to this
@@ -190,8 +210,10 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, user=None,
         date = date_array[0]
         remote_url = 'https://github.com/sami2py/sami2py/'
         remote_path = 'blob/main/sami2py/tests/test_data/'
+
         # Need to tell github to show the raw data, not the webpage version
         fname = 'sami2py_output.nc?raw=true'
+
         # Use pysat-compatible name
         format_str = supported_tags[inst_id][tag]
         saved_local_fname = os.path.join(data_path,
@@ -206,4 +228,5 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, user=None,
 
     else:
         warnings.warn('Downloads currently only supported for test files.')
+
     return
