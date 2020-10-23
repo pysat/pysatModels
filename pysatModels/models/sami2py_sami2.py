@@ -24,8 +24,6 @@ import os
 import requests
 import warnings
 
-import xarray as xr
-
 import pysat
 from pysat.instruments.methods import general as mm_gen
 
@@ -86,25 +84,6 @@ def init(self):
     return
 
 
-def clean(self):
-    """Model data does not require cleaning
-
-    """
-    return
-
-
-# ----------------------------------------------------------------------------
-# Instrument functions
-#
-# Use local and default pysat methods
-
-# Set the list_files routine
-fname = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
-supported_tags = {'': {'': fname, 'test': fname}}
-list_files = functools.partial(mm_gen.list_files,
-                               supported_tags=supported_tags)
-
-
 # Required method
 def clean(self):
     """Method to return SAMI data cleaned to the specified level
@@ -130,6 +109,18 @@ def clean(self):
     logger.info('Cleaning not supported for SAMI')
 
     return
+
+
+# ----------------------------------------------------------------------------
+# Instrument functions
+#
+# Use local and default pysat methods
+
+# Set the list_files routine
+fname = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
+supported_tags = {'': {'': fname, 'test': fname}}
+list_files = functools.partial(mm_gen.list_files,
+                               supported_tags=supported_tags)
 
 
 def load(fnames, tag=None, inst_id=None, **kwargs):
