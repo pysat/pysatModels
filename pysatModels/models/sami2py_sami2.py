@@ -24,8 +24,6 @@ import os
 import requests
 import warnings
 
-import xarray as xr
-
 import pysat
 from pysat.instruments.methods import general as mm_gen
 
@@ -86,10 +84,30 @@ def init(self):
     return
 
 
+# Required method
 def clean(self):
-    """Model data does not require cleaning
+    """Method to return SAMI data cleaned to the specified level
+
+    Cleaning level is specified in inst.clean_level and pysat
+    will accept user input for several strings. The clean_level is
+    specified at instantiation of the Instrument object, though it may be
+    updated to a more stringent level and re-applied after instantiation.
+    The clean method is applied after default every time data is loaded.
+
+    Note
+    ----
+    'clean' All parameters should be good, suitable for statistical and
+            case studies
+    'dusty' All paramers should generally be good though same may
+            not be great
+    'dirty' There are data areas that have issues, data should be used
+            with caution
+    'none'  No cleaning applied, routine not called in this case.
 
     """
+
+    logger.info('Cleaning not supported for SAMI')
+
     return
 
 
@@ -120,7 +138,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
         tag name used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
     inst_id : string ('')
-        Satellite ID used to identify particular data set to be loaded.
+        Instrument ID used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
     **kwargs : extra keywords
         Passthrough for additional keyword arguments specified when
@@ -149,28 +167,12 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     """
 
     # load data
-    if len(fnames) == 1:
-        data = xr.open_dataset(fnames[0])
-    else:
-        data = xr.open_mfdataset(fnames, combine='by_coords')
+    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
 
     # add time variable for pysat compatibilty
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
-
-    # move attributes to the Meta object
-    # these attributes will be trasnferred to the Instrument object
-    # automatically by pysat
-    meta = pysat.Meta()
-    for attr in data.attrs:
-        setattr(meta, attr[0], attr[1])
-    data.attrs = []
-
-    # fill Meta object with variable information
-    for key in data.variables.keys():
-        attrs = data.variables[key].attrs
-        meta[key] = attrs
 
     return data, meta
 
@@ -187,7 +189,7 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
         Tag identifier used for particular dataset. This input is provided by
         pysat. (default='')
     inst_id : string
-        Satellite ID string identifier used for particular dataset. This input
+        Instrument ID string identifier used for particular dataset. This input
         is provided by pysat. (default='')
     data_path : string
         Path to directory to download data to. (default=None)
