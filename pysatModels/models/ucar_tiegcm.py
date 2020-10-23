@@ -22,7 +22,6 @@ import functools
 import logging
 import warnings
 
-import xarray as xr
 import pysat
 from pysat.instruments.methods import general as mm_gen
 
@@ -144,6 +143,7 @@ def clean(self):
 #
 # Use local and default pysat methods
 
+
 # Set the list_files routine
 fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
 supported_tags = {'': {'': fname}}
@@ -193,7 +193,6 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
         inst.load(2019, 1)
 
     """
-
 
     data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
 
