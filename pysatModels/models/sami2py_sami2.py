@@ -104,8 +104,6 @@ supported_tags = {'': {'': fname, 'test': fname}}
 list_files = functools.partial(mm_gen.list_files,
                                supported_tags=supported_tags)
 
-    return
-
 
 # Required method
 def clean(self):
