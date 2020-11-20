@@ -116,7 +116,7 @@ def clean(self):
 # Set the list_files routine
 fname = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
 supported_tags = {'': {'': fname, 'test': fname}}
-list_files = functools.partial(pysat.instruments.methods.list_files,
+list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
 

@@ -145,7 +145,7 @@ def clean(self):
 # Set the list_files routine
 fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
 supported_tags = {'': {'': fname}}
-list_files = functools.partial(pysat.instruments.methods.list_files,
+list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
 
