@@ -19,13 +19,11 @@ inst_id
 
 import datetime as dt
 import functools
-import logging
 import warnings
 
 import pysat
-from pysat.instruments.methods import general as mm_gen
 
-logger = logging.getLogger('pysat')
+logger = pysat.logger
 
 # ----------------------------------------------------------------------------
 # Instrument attributes
@@ -147,7 +145,7 @@ def clean(self):
 # Set the list_files routine
 fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
 supported_tags = {'': {'': fname}}
-list_files = functools.partial(mm_gen.list_files,
+list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
 
