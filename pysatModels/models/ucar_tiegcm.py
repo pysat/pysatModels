@@ -175,7 +175,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     -------
     data : xarray.Dataset
         pysat formatted xarray Dataset
-    metadata : pysat.Metadata
+    meta : pysat.Metadata
         Model run meta data
 
     Note
@@ -194,7 +194,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
 
-    # move misc parameters from xarray to the Instrument object via Meta
+    # Move misc parameters from xarray to the Instrument object via Meta
     # doing this after the meta ensures all metadata is still kept
     # even for moved variables
     meta.p0 = data['p0']
@@ -203,7 +203,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     meta.mag = data['mag']
     meta.timestep = data['timestep']
 
-    # remove these variables from xarray
+    # Remove these variables from xarray
     data = data.drop(['p0', 'p0_model', 'grav', 'mag', 'timestep'])
 
     return data, meta
