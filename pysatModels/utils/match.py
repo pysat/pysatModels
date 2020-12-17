@@ -310,9 +310,9 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     if matched_inst is not None:
         if inst.pandas_format:
             matched_inst.data = matched_inst.data.to_xarray()
-        for im in inst.meta.data.units.keys():
+        for im in inst.meta.keys():
             if im in matched_inst.data.data_vars.keys():
                 matched_inst.data.data_vars[im].attrs['units'] = \
-                    inst.meta.data.units[im]
+                    inst.meta[im, inst.meta.labels.units]
 
     return matched_inst
