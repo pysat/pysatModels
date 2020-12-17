@@ -3,12 +3,17 @@ language: python
 dist: xenial
 jobs:
   include:
-    - name: Minimum NEP 029 versions
-      python: 3.6
+    - name: "Minimum NEP 029 versions"
+      python: "3.6"
       env: NUMPY_VER=1.16
+      script: pytest --cov=pysatModels/
     # Versions with latest numpy
-    - python: 3.6
-    - python: 3.7
+    - name: "3.7 with flake8"
+      python: "3.7"
+      script: pytest --flake8 --cov=pysatModels/
+    - name: "3.8"
+      python: "3.8"
+      script: pytest --cov=pysatModels/
 
 services: xvfb
 addons:
@@ -39,7 +44,7 @@ install:
   # check for custom version of numpy
   - if [ -z ${NUMPY_VER} ]; then
       echo 'Using latest numpy';
-      conda install numpy
+      conda install numpy;
     else
       conda install numpy==$NUMPY_VER;
     fi
@@ -60,9 +65,6 @@ install:
   # install pysatModels
   - cd ../pysatModels
   - python setup.py install
-
-script:
-  - pytest -vs --cov=pysatModels/  --flake8
 
 after_success:
   - coveralls --rcfile=setup.cfg
