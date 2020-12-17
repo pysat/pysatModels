@@ -30,24 +30,28 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
   # Create conda test environment
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy pandas xarray requests beautifulsoup4 lxml netCDF4 nose pytest-cov pytest-ordering future
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - conda activate test-environment
+  # Once pysat 3.0 is released, remove the custom pysat install and change
+  # this to:
+  # - while read requirement; do conda install --yes $requirement; done < requirements.txt
+  - conda install --yes pandas scipy xarray
   # check for custom version of numpy
   - if [ -z ${NUMPY_VER} ]; then
       echo 'Using latest numpy';
+      conda install numpy
     else
       conda install numpy==$NUMPY_VER;
     fi
-  # Install pysatCDF and dump output
-  - pip install pysatCDF >/dev/null
   # Install packages not on conda
-  - pip install pytest-flake8
-  # conda using old coveralls (1.5.2) which is not working on Travis CI
-  - pip install coveralls
+  - pip install -r test_requirements.txt
+  - pip install pyForecastTools
   # Prepare pysat install from git
   - cd ..
   - git clone https://github.com/pysat/pysat.git >/dev/null
   - cd ./pysat
+  # Install the pysat requirements
+  - while read requirement; do conda install --yes $requirement; done < requirements.txt
   # set up data directory
   - mkdir /home/travis/build/pysatData
   # install pysat
