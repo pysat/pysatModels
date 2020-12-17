@@ -48,14 +48,13 @@ install:
   - pip install pyForecastTools
   # Prepare pysat install from git
   - cd ..
-  - git clone https://github.com/pysat/pysat.git >/dev/null
-  - cd ./pysat
+  - git clone --single-branch --branch develop-3 https://github.com/pysat/pysat.git
+  - cd pysat
   # Install the pysat requirements
   - while read requirement; do conda install --yes $requirement; done < requirements.txt
   # set up data directory
   - mkdir /home/travis/build/pysatData
   # install pysat
-  - git checkout develop-3
   - python setup.py install >/dev/null
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   # install pysatModels
