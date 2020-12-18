@@ -231,7 +231,6 @@ class TestUtilsMatchCollectInstModPairs:
         assert np.all(np.isfinite(
             self.out.data.data_vars[self.ref_col].values))
         assert self.out.index[0].date() == self.stime.date()
-        print(self.out.index[-1])
         assert self.out.index[-1] < self.stime + einc
 
     @pytest.mark.parametrize("lin, lout, test_out",
