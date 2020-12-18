@@ -19,12 +19,10 @@ class TestUtilsExtractObsViewModel:
     """ Unit tests for utils.extract.sat_view_through_model"""
     def setup(self):
         """ Runs before every method to create a clean testing setup."""
-        self.args = [pysat.Instrument(platform=str('pysat'),
-                                      name=str('testing'),
-                                      inst_id='12', clean_level='clean'),
-                     pysat.Instrument(platform=str('pysat'),
-                                      name=str('testing'),
-                                      inst_id='6', clean_level='clean'),
+        self.args = [pysat.Instrument(platform='pysat', name='testing',
+                                      num_samples=12),
+                     pysat.Instrument(platform='pysat', name='testing',
+                                      num_samples=6),
                      ['latitude', 'longitude'], ['dummy1', 'dummy2']]
 
     def teardown(self):
@@ -51,11 +49,10 @@ class TestUtilsExtractModObs:
 
     def setup(self):
         """Runs before every method to create a clean testing setup."""
-        self.inst = pysat.Instrument(platform=str('pysat'),
-                                     name=str('testing'), clean_level='clean')
+        self.inst = pysat.Instrument(platform='pysat', name='testing')
         self.model = pysat.Instrument(inst_module=pysat_testmodel)
-        self.inst.load(yr=2009, doy=1)
-        self.model.load(yr=2009, doy=1)
+        self.inst.load(date=pysat_testmodel._test_dates[''][''])
+        self.model.load(date=pysat_testmodel._test_dates[''][''])
         self.model_label = 'tmodel'
         self.input_args = [self.inst, self.model.data,
                            ["longitude", "latitude", "altitude"],

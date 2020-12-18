@@ -146,7 +146,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     -------
     data : xarray.Dataset
         pysat formatted xarray Dataset
-    metadata : pysat.Metadata
+    meta : pysat.Metadata
         Model run meta data
 
     Note
