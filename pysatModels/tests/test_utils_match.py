@@ -105,16 +105,14 @@ class TestUtilsMatchCollectInstModPairs:
     def setup(self):
         """Runs before every method to create a clean testing setup
         """
-        self.inst = pysat.Instrument(platform=str('pysat'),
-                                     name=str('testing'),
-                                     clean_level='clean')
-        self.inst.load(yr=2009, doy=1)
-        self.input_args = [dt.datetime(2009, 1, 1), dt.datetime(2009, 1, 2),
+        self.inst = pysat.Instrument(platform='pysat', name='testing')
+        self.stime = pysat.instruments.pysat_testing._test_dates['']['']
+        self.inst.load(date=self.stime)
+        self.input_args = [self.stime, self.stime + dt.timedelta(days=1),
                            dt.timedelta(days=1), self.inst]
         self.ref_col = 'dummy1'
-        self.model = pysat.Instrument(platform=str('pysat'),
-                                      name=str('testmodel'), inst_id='10',
-                                      clean_level='clean')
+        self.model = pysat.Instrument(platform='pysat', name='testmodel',
+                                      num_samples=10)
         self.required_kwargs = {"model_load_kwargs":
                                 {"model_inst": self.model},
                                 "inst_clean_rout": lambda x: True,
@@ -134,7 +132,7 @@ class TestUtilsMatchCollectInstModPairs:
         """Runs after every method to clean up previous testing
         """
         del self.input_args, self.required_kwargs, self.inst, self.model
-        del self.out, self.log_capture
+        del self.out, self.log_capture, self.stime
 
     @pytest.mark.parametrize("mkey,mout",
                              [("verr", None), ("ierr", None),
@@ -210,16 +208,19 @@ class TestUtilsMatchCollectInstModPairs:
         assert match.collect_inst_model_pairs(*self.input_args,
                                               **self.required_kwargs) is None
 
-    @pytest.mark.parametrize("tinc_val,num", [(dt.timedelta(days=1), 3),
-                                              (dt.timedelta(days=2), 3)])
-    def test_tinc_success(self, tinc_val, num):
+    @pytest.mark.parametrize("tinc_val, einc, num",
+                             [(dt.timedelta(days=1), dt.timedelta(days=1), 3),
+                              (dt.timedelta(days=2), dt.timedelta(days=1), 3),
+                              (dt.timedelta(days=1), dt.timedelta(days=2), 6)])
+    def test_tinc_success(self, tinc_val, einc, num):
         """ Test the match success with different time increments
         """
+        self.input_args[1] = self.stime + einc
         self.input_args[2] = tinc_val
         self.required_kwargs['model_label'] = 'tmodel'
         self.required_kwargs['sel_name'] = [self.ref_col]
-        self.ref_col = '{:s}_{:s}'.format(self.required_kwargs['model_label'],
-                                          self.ref_col)
+        self.ref_col = '_'.join([self.required_kwargs['model_label'],
+                                 self.ref_col])
 
         self.out = match.collect_inst_model_pairs(*self.input_args,
                                                   **self.required_kwargs)
@@ -229,8 +230,11 @@ class TestUtilsMatchCollectInstModPairs:
         assert len(self.out.data.data_vars[self.ref_col]) == num
         assert np.all(np.isfinite(
             self.out.data.data_vars[self.ref_col].values))
+        assert self.out.index[0].date() == self.stime.date()
+        print(self.out.index[-1])
+        assert self.out.index[-1] < self.stime + einc
 
-    @pytest.mark.parametrize("lin,lout,test_out",
+    @pytest.mark.parametrize("lin, lout, test_out",
                              [([-179.0, 179.0], [-180.0, 180.0], 3),
                               ([0.5, 359.0], [0.0, 360.0], 3),
                               ([-1.0, 210.0], None,
