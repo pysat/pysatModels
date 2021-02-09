@@ -40,8 +40,8 @@ class TestModels(InstTestClass):
         # Make sure to use a temporary directory so that the user setup is not
         # altered
         self.tempdir = tempfile.TemporaryDirectory()
-        self.saved_path = pysat.data_dir
-        pysat.utils.set_data_dir(self.tempdir.name, store=False)
+        self.saved_path = pysat.params['data_dirs']
+        pysat.params.data['data_dirs'] = [self.tempdir.name]
 
         # Assign the location of the model Instrument sub-modules
         self.inst_loc = pysatModels.models
@@ -49,6 +49,6 @@ class TestModels(InstTestClass):
     def teardown_class(self):
         """Runs after every method to clean up previous testing
         """
-        pysat.utils.set_data_dir(self.saved_path, store=False)
+        pysat.params.data['data_dirs'] = self.saved_path
         self.tempdir.cleanup()
         del self.inst_loc, self.saved_path, self.tempdir
