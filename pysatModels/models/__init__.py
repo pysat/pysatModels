@@ -18,4 +18,4 @@ from __future__ import unicode_literals
 from pysatModels.models import sami2py_sami2  # noqa: F401
 from pysatModels.models import ucar_tiegcm  # noqa: F401
 
-__all__ = ['sami2py_sami2', 'ucar_tiegcm']
+__all__ = ['pydineof_dineof', 'sami2py_sami2', 'ucar_tiegcm']
