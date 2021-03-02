@@ -113,13 +113,12 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
                                       '{:}'.format(iname)]))
         # altitude variable check
         if iname == inst_alt:
-            alt_scale = pyutils.scale_units(mod_alt_units,
-                                            inst.meta[iname, inst.units_label])
+            alt_scale = pyutils.scale_units(
+                mod_alt_units, inst.meta[iname, inst.meta.labels.units])
             inst_scale[i] = 1.
         else:
-            inst_scale[i] = pyutils.scale_units(mod_units[i],
-                                                inst.meta[iname,
-                                                          inst.units_label])
+            inst_scale[i] = pyutils.scale_units(
+                mod_units[i], inst.meta[iname, inst.meta.labels.units])
 
     # create initial fake regular grid index in inst
     inst_model_coord = inst[inst_name[0]] * 0
@@ -300,8 +299,8 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
-        inst_scale[i] = pyutils.scale_units(mod_units[i],
-                                            inst.meta[iname, inst.units_label])
+        inst_scale[i] = pyutils.scale_units(
+            mod_units[i], inst.meta[iname, inst.meta.labels.units])
 
     # create inst input based upon provided dimension names
     coords = [inst[coord_name] for coord_name in inst_name]
@@ -442,8 +441,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
 
-        inst_scale[i] = pyutils.scale_units(mod_units[i],
-                                            inst.meta[iname, inst.units_label])
+        inst_scale[i] = pyutils.scale_units(
+            mod_units[i], inst.meta[iname, inst.meta.labels.units])
 
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
@@ -626,8 +625,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:} '.format(iname),
                                       '(should not be epoch time)']))
-        inst_scale[i] = pyutils.scale_units(mod_units[i],
-                                            inst.meta.data.units[iname])
+        inst_scale[i] = pyutils.scale_units(
+            mod_units[i], inst.meta[iname, inst.meta.labels.units])
 
     # Determine the model time resolution
     if mod_datetime_name in model.data_vars:
@@ -830,7 +829,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         mod_units = "missing"
         if hasattr(model.data_vars[attr_name], model_units_attr):
             mod_units = getattr(model.data_vars[attr_name], model_units_attr)
-        inst.meta[mdat] = {inst.units_label: mod_units}
+        inst.meta[mdat] = {inst.meta.labels.units: mod_units}
 
         if inst.pandas_format:
             inst[mdat] = pds.Series(interp_data[mdat], index=inst.index)

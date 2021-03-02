@@ -238,10 +238,10 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                     lon_high = 180.0
 
                 # Set the range of the instrument longitude
-                inst.custom.attach(pysat.utils.coords.update_longitude,
-                                   'modify', kwargs={'low': lon_low,
-                                                     'lon_name': inst_lon_name,
-                                                     'high': lon_high})
+                inst.custom_attach(pysat.utils.coords.update_longitude,
+                                   kwargs={'low': lon_low,
+                                           'lon_name': inst_lon_name,
+                                           'high': lon_high})
                 inst.load(date=istart)
 
                 # Set flag to false now that the range has been set
@@ -284,13 +284,10 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
 
                     # Save the clean, matched data
                     if matched_inst is None:
-                        matched_inst = pysat.Instrument
-                        matched_inst.meta = inst.meta
+                        matched_inst = inst.copy()
                         matched_inst.data = inst[im]
                     else:
-                        idata = inst[im]
-                        matched_inst.data = inst.concat_data(
-                            [matched_inst.data, idata])
+                        matched_inst.concat_data(inst[im])
 
                     # Reset the clean flag
                     inst.clean_level = 'none'
@@ -309,10 +306,11 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     # Recast as xarray and add units
     if matched_inst is not None:
         if inst.pandas_format:
+            matched_inst.pandas_format = False
             matched_inst.data = matched_inst.data.to_xarray()
-        for im in inst.meta.data.units.keys():
+        for im in inst.meta.keys():
             if im in matched_inst.data.data_vars.keys():
                 matched_inst.data.data_vars[im].attrs['units'] = \
-                    inst.meta.data.units[im]
+                    inst.meta[im, inst.meta.labels.units]
 
     return matched_inst
