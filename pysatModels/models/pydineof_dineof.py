@@ -45,29 +45,36 @@ has been retained. Use the file_format option for custom filenames.
     model = pysat.Instrument(inst_module=imodule, tag=tag)
 
 """
-
-import logging
+import datetime as dt
+import functools
+import os
+import requests
 
 import pysat
 
-logger = logging.getLogger(__name__)
+logger = pysat.logger
 
-# the platform and name strings associated with this instrument
-# need to be defined at the top level
+# ----------------------------------------------------------------------------
+# Instrument attributes
+
 platform = 'pydineof'
 name = 'dineof'
+tags = {'': 'pydineof output file',
+        'test': 'Standard output of pydineof for benchmarking'}
+inst_ids = {'': ['', 'test']}
 
-# dictionary of data 'tags' and corresponding description
-tags = {'*': 'Any pyDINEOF model export data set.'}
-inst_ids = {'': ['*']}
-
-# Define good days to download data for when pysat undergoes testing.
-# format is outer dictionary has inst_id as the key
-# each inst_id has a dictionary of test dates keyed by tag string
-_test_dates = {'': {'': None}}
-
-# Set to False to specify using xarray (not using pandas)
+# specify using xarray (not using pandas)
 pandas_format = False
+
+# ----------------------------------------------------------------------------
+# Instrument test attributes
+
+_test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
+_test_download = {'': {'': False,
+                       'test': True}}
+
+# ----------------------------------------------------------------------------
+# Instrument methods
 
 
 def init(self):
@@ -75,24 +82,125 @@ def init(self):
 
     Runs once upon instantiation.
 
-    """
+    Parameters
+    ----------
+    self : pysat.Instrument
+        This object
 
-    logger.info("DINEOF export models are produced by pyDINEOF.")
+    """
     acks = ''.join(('The original DINEOF model code may be found at ',
                     'http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF.',
                     'pyDINEOFs is stored online in a private repository at ',
                     'https://github.com/PhotonAudioLab/pyDINEOF'))
     self.acknowledgements = acks
+
     refs = ''.join(('J.-M. Beckers and M. Rixen. EOF calculations and data ',
                     'filling from incomplete oceanographic data sets. ',
                     'Journal of Atmospheric and Oceanic Technology, ',
                     '20(12):1839-­1856, 2003'))
     self.references = refs
+    logger.info(self.acknowledgements)
     return
 
 
-def load(fnames, tag=None, inst_id=None):
-    """Loads pyDINEOF data into xarray.
+# Required method
+def clean(self):
+    """Method to return pydineof data cleaned to the specified level
+
+    Cleaning level is specified in inst.clean_level and pysat
+    will accept user input for several strings. The clean_level is
+    specified at instantiation of the Instrument object, though it may be
+    updated to a more stringent level and re-applied after instantiation.
+    The clean method is applied after default every time data is loaded.
+
+    Note
+    ----
+    'clean' All parameters should be good, suitable for statistical and
+            case studies
+    'dusty' All paramers should generally be good though same may
+            not be great
+    'dirty' There are data areas that have issues, data should be used
+            with caution
+    'none'  No cleaning applied, routine not called in this case.
+
+    """
+
+    logger.info('Cleaning not supported for DINEOFs')
+
+    return
+
+
+# ----------------------------------------------------------------------------
+# Instrument functions
+#
+# Use local and default pysat methods
+
+# Set the list_files routine
+# Set the list_files routine
+fname = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
+supported_tags = {'': {'': fname, 'test': fname}}
+list_files = functools.partial(pysat.instruments.methods.general.list_files,
+                               supported_tags=supported_tags)
+
+# def list_files(tag=None, inst_id=None, data_path=None, format_str=None):
+#     """Produce a list of files corresponding to pydineof analysis.
+#
+#     This routine is invoked by pysat and is not intended for direct
+#     use by the end user. Arguments are provided by pysat.
+#
+#     Parameters
+#     ----------
+#     tag : string
+#         tag name used to identify particular data set to be loaded.
+#         This input is nominally provided by pysat itself. (default='')
+#     inst_id : string
+#         Satellite ID used to identify particular data set to be loaded.
+#         This input is nominally provided by pysat itself. (default='')
+#     data_path : string
+#         Full path to directory containing files to be loaded. This
+#         is provided by pysat. The user may specify their own data path
+#         at Instrument instantiation and it will appear here. (default=None)
+#     format_str : string
+#         String template used to parse the datasets filenames. If a user
+#         supplies a template string at Instrument instantiation
+#         then it will appear here, otherwise defaults to None. (default=None)
+#
+#     Returns
+#     -------
+#     pandas.Series
+#         Series of filename strings, including the path, indexed by datetime.
+#
+#     Examples
+#     --------
+#     ::
+#
+#         If a filename is dineof_2009-01-01.nc then the template
+#         is 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
+#
+#
+#     Note
+#     ----
+#     The returned Series should not have any duplicate datetimes. If there are
+#     multiple versions of a file the most recent version should be kept and the
+#     rest discarded. This routine uses the pysat.Files.from_os constructor, thus
+#     the returned files are up to pysat specifications.
+#
+#     Multiple data levels may be supported via the 'tag' input string.
+#     Multiple instruments via the inst_id string.
+#
+#     """
+#
+#     if format_str is None:
+#         # default string
+#         format_str = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
+#
+#     # use a pysat provided function to grab list of files from the
+#     # local file system that match the format defined above
+#     return pysat.Files.from_os(data_path=data_path, format_str=format_str)
+
+
+def load(fnames, tag=None, inst_id=None, **kwargs):
+    """Loads pydineof data using xarray.
 
     This routine is called as needed by pysat. It is not intended
     for direct user interaction.
@@ -104,26 +212,27 @@ def load(fnames, tag=None, inst_id=None):
         This input is nominally provided by pysat itself.
     tag : string ('')
         tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. While
-        tag defaults to None here, pysat provides '' as the default
-        tag unless specified by user at Instrument instantiation.
+        This input is nominally provided by pysat itself.
     inst_id : string ('')
         Instrument ID used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself.
+    **kwargs : extra keywords
+        Passthrough for additional keyword arguments specified when
+        instantiating an Instrument object. These additional keywords
+        are passed through to this routine by pysat.
 
     Returns
     -------
-    data, metadata
-        Data and Metadata are formatted for pysat. Data is an xarray
-        DataSet while metadata is a pysat.Meta instance.
+    data : xarray.Dataset
+        pysat formatted xarray Dataset
+    meta : pysat.Metadata
+        Model run meta data
 
     Note
     ----
     Any additional keyword arguments passed to pysat.Instrument
     upon instantiation are passed along to this routine.
 
-    Examples
-    --------
     ::
 
         inst = pysat.Instrument(inst_module=pysatModels.models.pydineof_dineof)
@@ -137,88 +246,59 @@ def load(fnames, tag=None, inst_id=None):
                                     pandas_format=False)
 
 
-def list_files(tag=None, inst_id=None, data_path=None, format_str=None):
-    """Produce a list of files corresponding to pyDINEOF models.
-
-    This routine is invoked by pysat and is not intended for direct
-    use by the end user. Arguments are provided by pysat.
-
-    Parameters
-    ----------
-    tag : string ('')
-        tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    inst_id : string ('')
-        Instrument ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    data_path : string (None)
-        Full path to directory containing files to be loaded. This
-        is provided by pysat. The user may specify their own data path
-        at Instrument instantiation and it will appear here.
-    format_str : string (None)
-        String template used to parse the datasets filenames. If a user
-        supplies a template string at Instrument instantiation
-        then it will appear here, otherwise defaults to None.
-
-    Returns
-    -------
-    pandas.Series
-        Series of filename strings, including the path, indexed by datetime.
-
-    Examples
-    --------
-    ::
-        If a filename is dineof_2009-01-01.nc then the template
-        is 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
-
-    Note
-    ----
-    The returned Series should not have any duplicate datetimes. If there are
-    multiple versions of a file the most recent version should be kept and the
-    rest discarded. This routine uses the pysat.Files.from_os constructor, thus
-    the returned files are up to pysat specifications.
-
-    Multiple data levels may be supported via the 'tag' input string.
-    Multiple instruments via the inst_id string.
-
-
-    """
-
-    if format_str is None:
-        # default string
-        format_str = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
-
-    # use a pysat provided function to grab list of files from the
-    # local file system that match the format defined above
-    return pysat.Files.from_os(data_path=data_path, format_str=format_str)
-
-
-def download(date_array, tag, inst_id, data_path=None, **kwargs):
-    """Downloads are not supported.
-
-    This routine is invoked by pysat and is not intended for direct use by the
-    end user.
+def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
+    """Downloads dineof data.  Currently only retrieves test data from github
 
     Parameters
     ----------
     date_array : array-like
         list of datetimes to download data for. The sequence of dates need not
         be contiguous.
-    tag : string ('')
+    tag : string
         Tag identifier used for particular dataset. This input is provided by
-        pysat.
-    inst_id : string  ('')
+        pysat. (default='')
+    inst_id : string
         Instrument ID string identifier used for particular dataset. This input
-        is provided by pysat.
-    data_path : string (None)
-        Path to directory to download data to.
+        is provided by pysat. (default='')
+    data_path : string
+        Path to directory to download data to. (default=None)
     **kwargs : dict
         Additional keywords supplied by user when invoking the download
         routine attached to a pysat.Instrument object are passed to this
         routine via kwargs.
 
+    Note
+    ----
+    This routine is invoked by pysat and is not intended for direct use by
+    the end user.
+
+    The test object generates the datetime requested by the user, which may not
+    match the date of the model run.
+
     """
 
-    logger.warning('Downloads are not supported by pydineof_dineof.')
+    if tag == 'test':
+        date = date_array[0]
+        remote_url = 'https://github.com/pysat/pysatModels/'
+        remote_path = 'blob/main/pysatModels/tests/test_data/'
+
+        # Need to tell github to show the raw data, not the webpage version
+        fname = 'dineof-2009-01-01.nc?raw=true'
+
+        # Use pysat-compatible name
+        format_str = supported_tags[inst_id][tag]
+        saved_local_fname = os.path.join(data_path,
+                                         format_str.format(year=date.year,
+                                                           month=date.month,
+                                                           day=date.day))
+        remote_path = '/'.join((remote_url.strip('/'), remote_path.strip('/'),
+                                fname))
+        req = requests.get(remote_path)
+        if req.status_code != 404:
+            open(saved_local_fname, 'wb').write(req.content)
+
+    else:
+        # warnings.warn('Downloads currently only supported for test files.')
+        logger.warning('Downloads currently only supported for test files.')
 
     return
