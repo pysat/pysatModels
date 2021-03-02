@@ -49,6 +49,7 @@ import datetime as dt
 import functools
 import os
 import requests
+import warnings
 
 import pysat
 
@@ -224,7 +225,7 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
     if tag == 'test':
         date = date_array[0]
         remote_url = 'https://github.com/pysat/pysatModels/'
-        remote_path = 'blob/main/pysatModels/tests/test_data/'
+        remote_path = 'blob/pysatDINEOF_inst/pysatModels/tests/test_data/'
 
         # Need to tell github to show the raw data, not the webpage version
         fname = 'dineof-2009-01-01.nc?raw=true'
@@ -242,7 +243,6 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
             open(saved_local_fname, 'wb').write(req.content)
 
     else:
-        # warnings.warn('Downloads currently only supported for test files.')
-        logger.warning('Downloads currently only supported for test files.')
+        warnings.warn('Downloads currently only supported for test files.')
 
     return
