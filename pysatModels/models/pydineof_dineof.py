@@ -142,62 +142,6 @@ supported_tags = {'': {'': fname, 'test': fname}}
 list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
-# def list_files(tag=None, inst_id=None, data_path=None, format_str=None):
-#     """Produce a list of files corresponding to pydineof analysis.
-#
-#     This routine is invoked by pysat and is not intended for direct
-#     use by the end user. Arguments are provided by pysat.
-#
-#     Parameters
-#     ----------
-#     tag : string
-#         tag name used to identify particular data set to be loaded.
-#         This input is nominally provided by pysat itself. (default='')
-#     inst_id : string
-#         Satellite ID used to identify particular data set to be loaded.
-#         This input is nominally provided by pysat itself. (default='')
-#     data_path : string
-#         Full path to directory containing files to be loaded. This
-#         is provided by pysat. The user may specify their own data path
-#         at Instrument instantiation and it will appear here. (default=None)
-#     format_str : string
-#         String template used to parse the datasets filenames. If a user
-#         supplies a template string at Instrument instantiation
-#         then it will appear here, otherwise defaults to None. (default=None)
-#
-#     Returns
-#     -------
-#     pandas.Series
-#         Series of filename strings, including the path, indexed by datetime.
-#
-#     Examples
-#     --------
-#     ::
-#
-#         If a filename is dineof_2009-01-01.nc then the template
-#         is 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
-#
-#
-#     Note
-#     ----
-#     The returned Series should not have any duplicate datetimes. If there are
-#     multiple versions of a file the most recent version should be kept and the
-#     rest discarded. This routine uses the pysat.Files.from_os constructor, thus
-#     the returned files are up to pysat specifications.
-#
-#     Multiple data levels may be supported via the 'tag' input string.
-#     Multiple instruments via the inst_id string.
-#
-#     """
-#
-#     if format_str is None:
-#         # default string
-#         format_str = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
-#
-#     # use a pysat provided function to grab list of files from the
-#     # local file system that match the format defined above
-#     return pysat.Files.from_os(data_path=data_path, format_str=format_str)
-
 
 def load(fnames, tag=None, inst_id=None, **kwargs):
     """Loads pydineof data using xarray.
