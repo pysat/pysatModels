@@ -54,8 +54,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pysatModels'
-cr_line = u'2020, Angeline G Burrell, Russell Stoneback, Jeffery Klenzing'
-author = u'Angeline G Burrell, Russell Stoneback, Jeffery Klenzing'
+cr_line = u'2020, Angeline G Burrell, Russell Stoneback, Jeffrey Klenzing'
+author = u'Angeline G Burrell, Russell Stoneback, Jeffrey Klenzing'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
