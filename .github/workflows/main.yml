@@ -45,13 +45,13 @@ jobs:
         pip install --no-binary :numpy: numpy==${{ matrix.numpy_ver }};
 
     - name: Set up pysat Mac/Linux/Unix
-      if: ${{ matrix.numpy_ver != 'windows-latest'}}
+      if: ${{ matrix.os != 'windows-latest'}}
       run: |
         mkdir pysatData
         python -c "import pysat; pysat.params['data_dirs'] = './pysatData'"
 
     - name: Set up pysat Windows
-      if: ${{ matrix.numpy_ver == 'windows-latest'}}
+      if: ${{ matrix.os == 'windows-latest'}}
       run: |
         mkdir pysatData
         python -c "import pysat; pysat.params['data_dirs'] = '.\pysatData'"
