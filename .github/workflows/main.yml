@@ -10,7 +10,7 @@ on: [push, pull_request]
 jobs:
   build:
     name: Python ${{ matrix.python-version }} with numpy ${{ matrix.numpy_ver }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
