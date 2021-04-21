@@ -29,7 +29,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install latest dependencies
-      if: ${{ matrix.numpy_ver == "latest"}}
+      if: ${{ matrix.numpy_ver == 'latest'}}
       run: |
         python -m pip install --upgrade pip
         pip install -r test_requirements.txt
@@ -37,7 +37,7 @@ jobs:
         pip install numpy --upgrade;
 
     - name: Install NEP29 dependencies
-      if: ${{ matrix.numpy_ver != "latest"}}
+      if: ${{ matrix.numpy_ver != 'latest'}}
       run: |
         python -m pip install --upgrade pip
         pip install -r test_requirements.txt
