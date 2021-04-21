@@ -9,6 +9,16 @@ on: [push, pull_request]
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['ubuntu-latest']
+        python-version: ["3.8", "3.9"]
+        numpy_ver: [latest]
+        include:
+          - python-version: "3.7"
+            numpy_ver: "1.17"
+
     name: Python ${{ matrix.python-version }} with numpy ${{ matrix.numpy_ver }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -48,13 +58,3 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: coveralls --rcfile=setup.cfg --service=github
-
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ['ubuntu-latest']
-        python-version: ["3.8", "3.9"]
-        numpy_ver: [latest]
-        include:
-          - python-version: "3.7"
-            numpy_ver: "1.17"
