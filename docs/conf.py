@@ -55,7 +55,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pysatModels'
-author = u'Angeline G Burrell, Russell Stoneback, Jeffery Klenzing'
+author = u'Angeline G Burrell, Russell Stoneback, Jeffrey Klenzing'
 cr_line = u'{:d}, {:s}'.format(dt.datetime.utcnow().year, author)
 title = u'{:s} Documentation'.format(project)
 description = u'Tools for model-data analysis.'
