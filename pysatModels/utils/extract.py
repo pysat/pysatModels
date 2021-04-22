@@ -662,7 +662,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     mind = list()
     iind = list()
     del_sec = abs(mod_datetime
-                  - inst.index[:, np.newaxis]).astype(float) * 1.0e-9
+                  - inst.index.values[:, np.newaxis]).astype(float) * 1.0e-9
     for inst_ind, mod_ind in enumerate(del_sec.argmin(axis=1)):
         if del_sec[inst_ind, mod_ind] <= min_del:
             if mod_ind in mind and pair_method == 'closest':
@@ -703,6 +703,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         for mdat in del_list:
             del interp_data[mdat]
 
+    dim_warned = False
     for i, ii in enumerate(iind):
         # Cycle through each model data type, since it may not depend on
         # all the dimensions
@@ -724,6 +725,14 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             points = [model.coords[kk].data for kk in dims if kk in mod_name]
             get_coords = True if len(points) > 0 else False
             idims = 0
+
+            if not get_coords and not dim_warned:
+                # Only warn the user once
+                ps_mod.logger.warning("".join(["model dimensions ",
+                                               "{:} don't match".format(dims),
+                                               " interpolation parameters ",
+                                               "{:}".format(mod_name)]))
+                dim_warned = True
 
             while get_coords:
                 if inst.pandas_format:

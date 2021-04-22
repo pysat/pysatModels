@@ -4,6 +4,7 @@
 </div>
 
 # pysatModels
+[![Documentation Status](https://readthedocs.org/projects/pysatmodels/badge/?version=latest)](https://pysatmodels.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=main)](https://coveralls.io/github/pysat/pysatModels?branch=main)
 

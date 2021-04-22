@@ -40,26 +40,27 @@ Development
 
 To set up `pysatModels` for local development:
 
-1. Fork pysat on [GitHub](https://github.com/pysat/pysatModels/fork).
-2. Clone your fork locally::
+- Fork pysat on [GitHub](https://github.com/pysat/pysatModels/fork).
+
+- Clone your fork locally::
 
 
        git clone git@github.com:your_name_here/pysatModels.git
 
-3. Create a branch for local development::
+- Create a branch for local development::
 
 
        git checkout -b name-of-your-bugfix-or-feature
 
-   Now you can make your changes locally. Tests for new instruments are
-   performed automatically.  Tests for custom functions should be added to the
-   appropriately named file in ``pysatModels/tests``.  For example, the
-   averaging routines in avg.py are tested in
-   ``pysatModels/tests/test_avg.py``.  If no test file exists, then you should
-   create one.  This testing uses pytest, which will run tests on any python
-   file in the test directory that starts with ``test_``.
+Now you can make your changes locally. Tests for new instruments are
+performed automatically.  Tests for custom functions should be added to the
+appropriately named file in ``pysatModels/tests``.  For example, the
+averaging routines in avg.py are tested in
+``pysatModels/tests/test_avg.py``.  If no test file exists, then you should
+create one.  This testing uses pytest, which will run tests on any python
+file in the test directory that starts with ``test_``.
 
-4. When you're done making changes, run all the checks from the
+- When you're done making changes, run all the checks from the
    ``pysatModels/tests`` directory to ensure that nothing is broken on your
    local system.  You may need to install
    [pytest](https://docs.pytest.org/en/latest/) and
@@ -68,11 +69,11 @@ To set up `pysatModels` for local development:
 
        python -m pytest -vs --flake8
 
-5. Update or add documentation (in ``docs``), if relevant.  If you have added
+- Update or add documentation (in ``docs``), if relevant.  If you have added
    a new routine, you will need to add an example in the ``docs/examples``
    folder.
 
-6. Commit your changes and push your branch to GitHub.  Our commit statements
+- Commit your changes and push your branch to GitHub.  Our commit statements
    follow the basic rules in the
    [Numpy/SciPy workflow](https://docs.scipy.org/doc/numpy-1.15.1/dev/gitwash/development_workflow.html)::
 
@@ -81,7 +82,7 @@ To set up `pysatModels` for local development:
        git commit -m "TYPE: Brief description of your changes"
        git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website. Pull requests should be
+- Submit a pull request through the GitHub website. Pull requests should be
    made to the ``develop`` branch.
 
 Pull Request Guidelines
@@ -97,8 +98,8 @@ For merging, you should:
 3. Ensure that all checks passed (current checks include Scrutinizer, Travis-CI,
    and Coveralls).
 
-   If you don't have all the necessary Python versions available locally or
-   have trouble building all the testing environments, you can rely on
-   Travis to run the tests for each change you add in the pull request.
-   Because testing here will delay tests by other developers, please ensure
-   that the code passes all tests on your local system first.
+If you don't have all the necessary Python versions available locally or
+have trouble building all the testing environments, you can rely on
+Travis to run the tests for each change you add in the pull request.
+Because testing here will delay tests by other developers, please ensure
+that the code passes all tests on your local system first.

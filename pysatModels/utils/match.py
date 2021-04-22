@@ -73,11 +73,11 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                              model_load_rout=load_model_xarray,
                              model_load_kwargs={}, inst_clean_rout=None,
                              inst_lon_name=None, mod_lon_name=None,
-                             inst_name=[], mod_name=[], mod_datetime_name=None,
-                             mod_time_name=None, mod_units=[], sel_name=None,
-                             time_method='min', pair_method='closest',
-                             method='linear', model_label='model',
-                             comp_clean='clean'):
+                             lon_pos='end', inst_name=[], mod_name=[],
+                             mod_datetime_name=None, mod_time_name=None,
+                             mod_units=[], sel_name=None, time_method='min',
+                             pair_method='closest', method='linear',
+                             model_label='model', comp_clean='clean'):
     """Pair instrument and model data
 
     Parameters
@@ -106,6 +106,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
         variable name for instrument longitude
     mod_lon_name : string
         variable name for model longitude
+    lon_pos : string or int
+        Accepts zero-offset integer for list order or 'end' (default='end')
     inst_name : list of strings
         list of names of the data series to use for determing instrument
         location
