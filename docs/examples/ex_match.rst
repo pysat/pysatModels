@@ -12,48 +12,43 @@ can be found in the
 `utils.extract <../utils.html#module-pysatModels.utils.extract>`_ routine:
 ``extract_modelled_observations``.
 
-In the example below, we load SAMI2 files that were created for testing and
-pair them with DMSP IVM data from F18.  This is a regional example, rather than
-a global example (because SAMI2 runs along a single magnetic meridian).  This
-makes the input keyword arguments different and requires a custom function to
-only load the satellite data along the desired magnetic meridian.
+In the example below, we load a DINEOFs file created for testing purposes and
+pair it with C/NOFS IVM data.  This is a global example for a single time,
+since in this instance DINEOFs was used to create a day-specific emperical
+moodel.  Comparisons with output from a global circulation model would look
+different, as one would be more likely to desire the the closest observations
+to the modeel time rather than all observations within the model time.
 
 This example uses the external modules:
 
 - pysat
-- pysatMadrigal
+- pysatNASA
 
 ::
 
 
    import datetime as dt
+   from os import path
    import pysat
-   import pysatMadrigal
+   import pysatNASA
    import pysatModels as ps_mod
 
-   stime = dt.datetime(2019, 1, 1)
-   tinc = dt.timedelta(days=1) # Required input is not used in this example
+   stime = dt.datetime(2009, 1, 1)
+   tinc = dt.timedelta(days=1)  # Required input is not used in this example
    input_kwargs = dict()
 
    # Initialize the model input information, including the keyword arguements
    # needed to load the model Instrument into an xarray Dataset using
    # the match.load_model_xarray routine
-   sami2 = pysat.Instrument(inst_module=ps_mod.models.sami2py_sami2, tag='test')
-   sami2.download(stime, stime) # Optional, only needs to be done once
-   filename = sami2.files.files[stime]
-   input_kwargs["model_load_kwargs"] = {'model_inst': sami2, 'filename': filename}
+   dineofs = pysat.Instrument(inst_module=ps_mod.models.pydineof_dineof,
+                              tag='test')
+   if len(dineofs.files.files) == 0:
+       dineofs.download(stime, stime)
+   filename = dineofs.files.files[stime]
+   input_kwargs["model_load_kwargs"] = {'model_inst': dineofs,
+                                        'filename': filename}
 
-   # Define the custom function needed to limit the DMSP data
-   lon_min = sami2['glon'].values.min()
-   lon_max = sami2['glon'].values.max()
-   input_kwargs["lon_pos"] = 0 # Adjust lon range before other custom functions
-   def sami2_meridian(inst, lon_kwarg, min_long, max_long): 
-       good_mask = (inst[lon_kwarg] >= min_long) & (inst[lon_kwarg] <= max_long)
-       bad_index = inst.index[~good_mask]
-       good_data = inst.data.drop(index=bad_index)
-       inst.data = good_data
-       return
-
+   # Ended HERE
    # Initialize the DMSP IVM input, and ensure the best model interpolation
    # by extracting the clean model data after matching.
    dmsp_f18 = pysat.Instrument(inst_module=pysatMadrigal.instruments.dmsp_ivm, sat_id='f18', clean_level='none')
