@@ -12,20 +12,19 @@ and modelled data sets.
 
 """
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import logging
 import os
 
 # Import key modules and skip F401 testing in flake8
-from pysatModels import (utils)  # noqa: F401
-from pysatModels import (models)  # noqa: F401
+from pysatModels import utils  # noqa: F401
+from pysatModels import models  # noqa: F401
 
-# set the version
-here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, 'version.txt')) as version_file:
+# Set the version
+local_dir = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(local_dir, 'version.txt')) as version_file:
     __version__ = version_file.read().strip()
+
+del local_dir, version_file
 
 # Define a logger object to allow easier log handling
 logging.raiseExceptions = False
