@@ -1,22 +1,50 @@
 # -*- coding: utf-8 -*-
 """
-Supports loading data from files generated using the sami2py model.
-sami2py file is a netCDF file with multiple dimensions for some variables.
-The sami2py project is at https://www.github.com/sami2py/sami2py
+Supports exported model data from pyDINEOF, a Python package
+that interfaces with a version of Data Interpolation Empirical
+Orthogonal Functions (DINEOFs). This module couples into
+the systematic export pyDINEOF format and thus should support
+all exports from the package.
+
+Given the generality of the support, each model series is identified
+using the `tag` keyword.
+
+DINEOFs are a purely data based method that can analyze a data-set, with
+data gaps, and extract a series of basis functions that optimally reproduce
+the input data. The quality of the reconstruction is primarily determined
+by the quantity and quality of the input data.
+
+http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF
+
+References
+----------
+J.-M. Beckers and M. Rixen. EOF calculations and data filling from
+incomplete oceanographic data sets. Journal of Atmospheric and
+Oceanic Technology, 20(12):1839-­1856, 2003.
 
 Properties
 ----------
-platform
-    'sami2py'
-name
-    'sami2'
-tag
-    None supported
-inst_id
-    None supported
+platform : string
+    pysat
+name : string
+    dineof
+inst_id : string
+    ['']
+tag : string
+    [*]
+
+Note
+----
+Specific tags are not listed here as this method is intended to support
+all pyDINEOF export models. Place the desired model (daily files)
+at '{pysat_data_dir}/pydineof/dineof/{tag}'. It is presumed the default
+naming scheme of 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
+has been retained. Use the file_format option for custom filenames.
+::
+    imodule = pysatModels.instruments.pydineof_dineof
+    model = pysat.Instrument(inst_module=imodule, tag=tag)
 
 """
-
 import datetime as dt
 import functools
 import os
@@ -30,10 +58,10 @@ logger = pysat.logger
 # ----------------------------------------------------------------------------
 # Instrument attributes
 
-platform = 'sami2py'
-name = 'sami2'
-tags = {'': 'sami2py output file',
-        'test': 'Standard output of sami2py for benchmarking'}
+platform = 'pydineof'
+name = 'dineof'
+tags = {'': 'pydineof output file',
+        'test': 'Standard output of pydineof for benchmarking'}
 inst_ids = {'': ['', 'test']}
 
 # specify using xarray (not using pandas)
@@ -42,7 +70,7 @@ pandas_format = False
 # ----------------------------------------------------------------------------
 # Instrument test attributes
 
-_test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
+_test_dates = {'': {tag: dt.datetime(2009, 1, 1) for tag in tags.keys()}}
 _test_download = {'': {'': False,
                        'test': True}}
 
@@ -61,29 +89,24 @@ def init(self):
         This object
 
     """
+    acks = ''.join(('The original DINEOF model code may be found at ',
+                    'http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF.',
+                    'pyDINEOFs is stored online in a private repository at ',
+                    'https://github.com/PhotonAudioLab/pyDINEOF'))
+    self.acknowledgements = acks
 
-    self.acknowledgements = " ".join(("This work uses the SAMI2 ionosphere",
-                                      "model written and developed by the",
-                                      "Naval Research Laboratory."))
-    self.references = " ".join(("Huba, J.D., G. Joyce, and J.A. Fedder,",
-                                "Sami2 is Another Model of the Ionosphere",
-                                "(SAMI2): A new low‐latitude ionosphere",
-                                "model, J. Geophys. Res., 105, Pages",
-                                "23035-23053,",
-                                "https://doi.org/10.1029/2000JA000035,",
-                                "2000.\n",
-                                "Klenzing, J., Jonathon Smith, Michael",
-                                "Hirsch, & Angeline G. Burrell. (2020,",
-                                "July 17). sami2py/sami2py: Version 0.2.2",
-                                "(Version v0.2.2). Zenodo.",
-                                "http://doi.org/10.5281/zenodo.3950564"))
+    refs = ''.join(('J.-M. Beckers and M. Rixen. EOF calculations and data ',
+                    'filling from incomplete oceanographic data sets. ',
+                    'Journal of Atmospheric and Oceanic Technology, ',
+                    '20(12):1839-­1856, 2003'))
+    self.references = refs
     logger.info(self.acknowledgements)
     return
 
 
 # Required method
 def clean(self):
-    """Method to return SAMI data cleaned to the specified level
+    """Method to return pydineof data cleaned to the specified level
 
     Cleaning level is specified in inst.clean_level and pysat
     will accept user input for several strings. The clean_level is
@@ -103,7 +126,7 @@ def clean(self):
 
     """
 
-    logger.info('Cleaning not supported for SAMI')
+    logger.info('Cleaning not supported for DINEOFs')
 
     return
 
@@ -114,14 +137,15 @@ def clean(self):
 # Use local and default pysat methods
 
 # Set the list_files routine
-fname = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
+# Set the list_files routine
+fname = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
 supported_tags = {'': {'': fname, 'test': fname}}
 list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
 
 def load(fnames, tag=None, inst_id=None, **kwargs):
-    """Loads sami2py data using xarray.
+    """Loads pydineof data using xarray.
 
     This routine is called as needed by pysat. It is not intended
     for direct user interaction.
@@ -154,28 +178,21 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     Any additional keyword arguments passed to pysat.Instrument
     upon instantiation are passed along to this routine.
 
-    Examples
-    --------
     ::
 
-        inst = pysat.Instrument('sami2py', 'sami2')
+        inst = pysat.Instrument(inst_module=pysatModels.models.pydineof_dineof)
         inst.load(2019, 1)
 
     """
 
-    # load data
-    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
-
-    # add time variable for pysat compatibilty
-    data['time'] = [dt.datetime(2019, 1, 1)
-                    + dt.timedelta(seconds=int(val * 3600.0))
-                    for val in data['ut'].values]
-
-    return data, meta
+    # netCDF4 files were produced by xarray
+    # returning an xarray.Dataset
+    return pysat.utils.load_netcdf4(fnames, epoch_name='time',
+                                    pandas_format=False)
 
 
 def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
-    """Downloads sami2py data.  Currently only retrieves test data from github
+    """Downloads dineof data.  Currently only retrieves test data from github
 
     Parameters
     ----------
@@ -207,11 +224,11 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
 
     if tag == 'test':
         date = date_array[0]
-        remote_url = 'https://github.com/sami2py/sami2py/'
-        remote_path = 'blob/main/sami2py/tests/test_data/'
+        remote_url = 'https://github.com/pysat/pysatModels/'
+        remote_path = 'blob/main/pysatModels/tests/test_data/'
 
         # Need to tell github to show the raw data, not the webpage version
-        fname = 'sami2py_output.nc?raw=true'
+        fname = 'dineof-2009-01-01.nc?raw=true'
 
         # Use pysat-compatible name
         format_str = supported_tags[inst_id][tag]
