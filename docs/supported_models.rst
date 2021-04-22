@@ -10,7 +10,7 @@ as archives, loads and plots the resulting modeled values. SAMI2 is a model
 developed by the Naval Research Laboratory to simulate the motions of plasma
 in a 2D ionospheric environment along a dipole magnetic field
 [Huba et al, 2000].  Information about this model can be found at the
-`sami2py github page <https://github.com/sami2py/sami2py>`_
+`sami2py github page <https://github.com/sami2py/sami2py>`_,
 along with a list of the
 `SAMI2 principle papers <https://sami2py.readthedocs.io/en/latest/introduction.html#references>`_.
 
