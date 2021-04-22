@@ -4,7 +4,7 @@
 </div>
 
 # pysatModels
-[![Build Status](https://travis-ci.org/pysat/pysatModels.svg?branch=main)](https://travis-ci.org/pysat/pysatModels)
+[![Build Status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=main)](https://coveralls.io/github/pysat/pysatModels?branch=main)
 
 This module handles model centric data loading through pysat and contains a
