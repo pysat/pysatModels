@@ -17,7 +17,7 @@ pair it with C/NOFS IVM data.  This is a global example for a single time,
 since in this instance DINEOFs was used to create a day-specific emperical
 moodel.  Comparisons with output from a global circulation model would look
 different, as one would be more likely to desire the the closest observations
-to the modeel time rather than all observations within the model time.
+to the model time rather than all observations within the model time.
 
 This example uses the external modules:
 
