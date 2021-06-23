@@ -230,7 +230,7 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
         # Need to tell github to show the raw data, not the webpage version
         fname = 'dineof-2009-01-01.nc?raw=true'
 
-        # Use pysat-compatible name
+        # Use a pysat-compatible name
         format_str = supported_tags[inst_id][tag]
         saved_local_fname = os.path.join(data_path,
                                          format_str.format(year=date.year,
@@ -241,7 +241,8 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
         req = requests.get(remote_path)
         if req.status_code != 404:
             open(saved_local_fname, 'wb').write(req.content)
-
+        else:
+            warnings.warn('Unable to find remote file: {:}'.format(remote_path))
     else:
         warnings.warn('Downloads currently only supported for test files.')
 
