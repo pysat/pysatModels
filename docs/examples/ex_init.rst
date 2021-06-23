@@ -36,7 +36,7 @@ inconvenient to create a pysat Instrument object for a modelled data set.  Many
 of the pysatModels utilities allow :py:class:`xarray.Dataset` objects as input.
 For these routines or to retrieve an :py:class:`xarray.Dataset` for other
 purposes, you can use the :py:func:`load_model_xarray` routine in
-`utils.match <../utils.html#module-pysatModels.utils.match>`_.
+:ref:`utils-match`.
 
 In this example, the time is irrelevent because a full filename is provided:
 

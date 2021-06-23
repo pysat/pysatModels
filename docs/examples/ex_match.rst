@@ -5,13 +5,11 @@ Pair Modelled and Observed Data
 
 One common analytical need is to obtain a combined data set of modelled and
 observed observations at the same times and locations.  This can be done using
-the :py:func:`collect_inst_model_pairs` function in
-`utils.match <../utils.html#module-pysatModels.utils.match>`_.  This routine
-takes a date range as input, and then extracts modelled observations at the
-specified instrument location.  However, it does not interpolate in time.
+the :py:func:`collect_inst_model_pairs` function in :ref:`utils-match`.  This
+routine takes a date range as input, and then extracts modelled observations at
+the specified instrument location.  However, it does not interpolate in time.
 Details about the interpolation of modelled data onto the instrument location
-can be found in the
-`utils.extract <../utils.html#module-pysatModels.utils.extract>`_ routine:
+can be found in the :ref:`utils-extract` routine,
 :py:func:`extract_modelled_observations`.
 
 
