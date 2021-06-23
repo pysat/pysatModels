@@ -1,7 +1,12 @@
+.. _install:
+
 Installation
 ============
 
 The following instructions will allow you to install pysatModels.
+
+
+.. _install-prereq:
 
 Prerequisites
 -------------
@@ -24,6 +29,8 @@ the Space Physics community.  This module officially supports Python 3.6+.
   xarray              
  ============== =================
 
+
+.. _install-opt:
 
 Installation Options
 --------------------
