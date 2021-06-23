@@ -203,7 +203,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
 
     if model_load_kwargs is None:
         model_load_kwargs = {}
-    
+
     skip_download = False
     if "skip_download" in inst_download_kwargs.keys():
         skip_download = inst_download_kwargs['skip_download']
