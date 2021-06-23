@@ -9,7 +9,7 @@ load model data as pysat.Instrument objects and utilities to perform typical
 model-oriented analysis, such as model validation.
 
 .. toctree::
-   :maxdepth: -1
+   :maxdepth: 2
 
    overview.rst
    installation.rst
