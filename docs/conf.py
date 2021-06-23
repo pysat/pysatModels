@@ -42,7 +42,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.githubpages',
               'sphinx.ext.autosectionlabel',
               'numpydoc',
-              'm2r']
+              'm2r2']
 
 autosectionlabel_prefix_document = True
 autosectionlabel_maxdepth = 3
