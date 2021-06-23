@@ -142,8 +142,8 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     # Add time variable for pysat compatibilty
     data['time'] = [dt.datetime(2019, 1, 1)
-                    + dt.timedelta(seconds=int(val * 3600.0))
-                    for val in data['ut'].values]
+                    + dt.timedelta(seconds=int(val))
+                    for val in data['ut'].values.astype(int) * 1e-9]
 
     return data, meta
 
