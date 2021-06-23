@@ -23,14 +23,14 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
                                           mod_alt_units, scale=100.,
                                           inst_out_alt='model_altitude',
                                           inst_out_pres='model_pressure',
-                                          tol=1.):
+                                          tol=1.0):
     """Interpolates altitude values onto model pressure levels.
 
     Parameters
     ----------
-    inst : pysat.Instrument object
+    inst : pysat.Instrument
         Instrument object with observational data
-    model : xarray
+    model : xarray.Dataset
         Model data in xarray format
     inst_name : array-like
         List of variable names containing the observational data coordinates
@@ -39,27 +39,27 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     mod_name : array-like
         list of names of the data series to use for determing model locations
         in the same order as inst_name.  These must make up a regular grid.
-    mod_datetime_name : string
+    mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
-    mod_time_name : string
+    mod_time_name : str
         Name of the time coordinate in the model Dataset
-    mod_units : list of strings
+    mod_units : list
         units for each of the mod_name location attributes.  Currently
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
-    inst_alt : string
+    inst_alt : str
         String identifier used in inst for the altitude variable
-    mod_alt : string
+    mod_alt : str
         Variable identifier for altitude data in the model
         e.g. 'ZG' in standard TIEGCM files.
-    mod_alt_units : string
+    mod_alt_units : str
         units for the altitude variable. Currently
         supports: m, km, and cm
     scale : float
         Scalar used to roughly translate a change in altitude with a
         change in pressure level, the scale height. Same units as used by inst.
-    inst_out_alt : string
+    inst_out_alt : str
         Label assigned to the model altitude data when attached to inst
-    inst_out_alt : string
+    inst_out_alt : str
         Label assigned to the model pressure level when attached to inst
     tol : float
         Allowed difference between observed and modelled altitudes.
@@ -194,7 +194,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
 
     Parameters
     ----------
-    inst : pysat.Instrument object
+    inst : pysat.Instrument
         Instrument object with observational data
     model : xarray
         Modelled data
@@ -205,20 +205,20 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     mod_name : array-like
         list of names of the data series to use for determing model locations
         in the same order as inst_name.  These must make up a regular grid.
-    mod_datetime_name : string
+    mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
-    mod_time_name : string
+    mod_time_name : str
         Name of the time coordinate in the model Dataset
-    mod_units : list of strings
+    mod_units : list
         units for each of the mod_name location attributes.  Currently
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
     sel_name : array-like or NoneType
         list of names of modelled data indices to append to instrument object,
         or None to append all modelled data (default=None)
-    methods : string ['linear', 'nearest']
-        'linear' interpolation or 'nearest' neighbor options for
-        RegularGrid. Must supply an option for each variable.
-    model_label : string
+    methods : str
+        'linear' interpolation or 'nearest' neighbor options for RegularGrid.
+        Must supply an option for each variable. (default=['linear'])
+    model_label : str
         name of model, used to identify interpolated data values in instrument
         (default="model")
 
@@ -299,35 +299,41 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         inst_scale[i] = pyutils.scale_units(
             mod_units[i], inst.meta[iname, inst.meta.labels.units])
 
-    # create inst input based upon provided dimension names
+    # Create inst input based upon provided dimension names
     coords = [inst[coord_name] for coord_name in inst_name]
-    # time goes first
+
+    # Time goes first
     coords.insert(0, inst.index.values.astype(int))
-    # move from a list of lists [ [x1, x2, ...], [y1, y2, ...]]
+
+    # Move from a list of lists [ [x1, x2, ...], [y1, y2, ...]]
     # to a list of tuples
     # [(x1, y1, ...), (x2, y2, ...)]
     # required for regulargrid interpolator
     inst_pts = [inp for inp in zip(*coords)]
 
-    # perform the interpolation
+    # Perform the interpolation
     interp = {}
     output_names = []
     for label, method in zip(sel_name, methods):
         # Determine the unit scaling between model and instrument data
         inst_scale = np.ones(shape=len(inst_name), dtype=float)
-        # collect model grid points together
+
+        # Collect model grid points together
         points = []
-        # time dim first
+
+        # Time dim first
         points.append(model[mod_datetime_name].values.astype(int))
-        # now spatial
+
+        # Now spatial
         for iscale, var in zip(inst_scale, mod_name):
             points.append(model[var].values / iscale)
 
-        # create the interpolator
+        # Create the interpolator
         interp[label] = interpolate.RegularGridInterpolator(
             points, model[label].values, bounds_error=False, fill_value=None,
             method=method)
-        # apply it at observed locations and store result
+
+        # Apply it at observed locations and store result
         output_names.append('_'.join((model_label, label)))
         inst[output_names[-1]] = interp[label](inst_pts)
 
@@ -335,20 +341,19 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
 
 
 def instrument_view_irregular_model(inst, model, inst_name, mod_name,
-                                    mod_datetime_name,
-                                    mod_units, mod_reg_dim, mod_irreg_var,
-                                    sel_name=None,
+                                    mod_datetime_name, mod_units, mod_reg_dim,
+                                    mod_irreg_var, sel_name=None,
                                     inst_var_label='altitude',
-                                    inst_var_delta=20.,
-                                    model_label='model'):
+                                    inst_var_delta=20.0, model_label='model'):
     """Interpolate irregularly gridded model onto Insrument locations.
 
     Parameters
     ----------
-    inst : pysat.Instrument object
+    inst : pysat.Instrument
         pysat object that will receive interpolated data based upon position
-    model : pysat.Instrument object (xarray based)
-        Model object that will be interpolated onto Instrument locations
+    model : pysat.Instrument
+        Xarray pysat Instrument with model data that will be interpolated onto
+        the `inst` locations
     inst_name : array-like
         List of variable names containing the instrument data coordinates
         at which the model data will be interpolated. Do not include 'time',
@@ -356,9 +361,9 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     mod_name : array-like
         list of names of the data series to use for determing model locations
         in the same order as inst_name.  These must make up a regular grid.
-    mod_datetime_name : string
+    mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
-    mod_units : list of strings
+    mod_units : list
         units for each of the mod_name location attributes.  Currently
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
     mod_reg_dim : str
@@ -367,23 +372,23 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     mod_irreg_var : str
         Variable name in model for irregular grid values used to define
         locations along mod_reg_dim. Must have same coordinates as mod_name.
-    sel_name : list-like of strings
+    sel_name : list
         List of strings denoting model variable names that will be
         interpolated onto inst. The coordinate dimensions for these variables
         must correspond to those in mod_irreg_var.
-    inst_var_label : str ('altitude')
+    inst_var_label : str
         String label used within inst for the same kind of values identified
-        by mod_irreg_var in model
-    inst_var_delta : float (20.)
+        by mod_irreg_var in model (default='altitude')
+    inst_var_delta : float
         Range of values kept within method when performing interpolation
-        values - delta < val < values + delta
-    model_label : string
+        values - delta < val < values + delta (default=20.0)
+    model_label : str
         name of model, used to identify interpolated data values in instrument
         (default="model")
 
     Returns
     -------
-    interp_data.keys() : Keys
+    interp_data.keys() : dict_keys
         Keys of modelled data added to the instrument
 
     """
@@ -414,13 +419,13 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         raise ValueError(''.join(['Must provide units for each model location',
                                   ' attribute']))
 
-    # ensure coordinate dimensions match
+    # Ensure coordinate dimensions match
     for var in sel_name:
         if var.dims != model[mod_irreg_var].dims:
             estr = ' '.join(('Coordinate dimensions must match for',
                              '"mod_irreg_var" and', var.name))
             raise ValueError(estr)
-    # ensure mod_reg_dim in mod_irreg_var
+    # Ensure mod_reg_dim in mod_irreg_var
     if mod_reg_dim not in model[mod_irreg_var].dims:
         estr = 'mod_reg_dim must be a coordinate dimension for mod_irreg_var.'
         raise ValueError(estr)
@@ -444,58 +449,65 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
-    # time first
+
+    # Time first
     coords.insert(0, model[mod_datetime_name].values.astype(int))
 
-    # translate regular locations to equivalent irregular ones
+    # Translate regular locations to equivalent irregular ones
     # pull out irregular grid locations for variables that will be interpolated
     dvar = model[mod_irreg_var]
-    # make a mesh of data coordinate location values
-    # get total number of elements and find which dimension will be updated
+
+    # Make a mesh of data coordinate location values. Start by getting the
+    # total number of elements and find which dimension will be updated
     num_pts = 1
     update_dim = -1000
     for i, dim in enumerate(dvar.dims):
         num_pts *= len(dvar.coords[dim])
         if dim == mod_reg_dim:
             update_dim = i
-    # array to store irregular locations of measurements
+
+    # Array to store irregular locations of measurements
     points = np.zeros((num_pts, 4))
-    # create mesh corresponding to coordinate values and store
+
+    # Create mesh corresponding to coordinate values and store
     pts = np.meshgrid(*coords, indexing='ij')
     for i, pt in enumerate(pts):
         points[:, i] = np.ravel(pt)
-    # replace existing regular dimension with irregular data
+
+    # Replace existing regular dimension with irregular data
     points[:, update_dim] = np.ravel(dvar)
 
-    # downselect points to those in (altitude) range of instrument
-    # determine selection criteria, store limits
+    # Downselect points to those in (altitude) range of instrument. Determine
+    # the selection criteria and store the limits
     min_inst_alt = inst[inst_var_label].min()
     max_inst_alt = inst[inst_var_label].max()
     max_pts_alt = np.nanmax(points[:, update_dim])
-    # get downselection values
-    # min val
+
+    # Get downselection values using the minimum value
     if min_inst_alt < max_pts_alt:
         min_sel_val = inst[inst_var_label].min() - inst_var_delta
     else:
         min_sel_val = max_pts_alt - inst_var_delta
-    # max val
+
+    # Now get the maximum value
     if max_inst_alt < max_pts_alt:
         inst[inst_var_label].max() + inst_var_delta
     else:
         max_sel_val = max_pts_alt
-    # perform downselection
+
+    # Perform the downselection
     idx, = np.where((points[:, update_dim] >= min_sel_val)
                     & (points[:, update_dim] <= max_sel_val))
     points = points[idx, :]
     ps_mod.logger.debug('Remaining points after downselection {:d}'.format(
         len(idx)))
 
-    # create input array using inst time/position
+    # Create input array using inst time/position
     coords = [inst[coord] for coord in inst_name]
     coords.insert(0, inst.index.values.astype(int))
     sat_pts = [inp for inp in zip(*coords)]
 
-    # perform interpolation of user desired variables
+    # Perform interpolation of user desired variables
     output_names = []
     for var in sel_name:
         ps_mod.logger.debug('Creating interpolation object for ' + var)
@@ -519,9 +531,9 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     Parameters
     ----------
-    inst : pysat.Instrument instance
+    inst : pysat.Instrument
         instrument object for which modelled data will be extracted
-    model : xarray Dataset
+    model : xarray.Dataset
         modelled data set
     inst_name : array-like
         list of names of the data series to use for determing instrument
@@ -529,9 +541,9 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     mod_name : array-like
         list of names of the data series to use for determing model locations
         in the same order as inst_name.  These must make up a regular grid.
-    mod_datetime_name : string
+    mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
-    mod_time_name : string
+    mod_time_name : str
         Name of the time coordinate in the model Dataset
     mod_units : list of strings
         units for each of the mod_name location attributes.  Currently
@@ -539,25 +551,25 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     sel_name : array-like or NoneType
         list of names of modelled data indices to append to instrument object,
         or None to append all modelled data (default=None)
-    time_method : string
+    time_method : str
         Pair data using larger (max) or smaller (min) of the smallest
         instrument/model time increments (default='min')
-    pair_method : string
+    pair_method : str
         Find all relevent pairs ('all') or just the closest pairs ('closest').
         (default='closest')
-    method : string
+    method : str
         Interpolation method.  Supported are 'linear', 'nearest', and
         'splinef2d'.  The last is only supported for 2D data and is not
         recommended here.  (default='linear')
-    model_label : string
+    model_label : str
         name of model, used to identify interpolated data values in instrument
         (default="model")
-    model_units_attr : string
+    model_units_attr : str
         Attribute for model xarray values that contains units (default='units')
 
     Returns
     -------
-    interp_data.keys() : Keys
+    interp_data.keys() : dict_keys
         Keys of modelled data added to the instrument
 
     Raises
@@ -566,7 +578,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         For incorrect input arguments
 
     Notes
-    --------
+    -----
     For best results, select clean instrument data after alignment with model
 
     """
@@ -649,6 +661,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     # Casting as values creates an array of numpy.timedelta64 objects in ns
     dtime = inst.index.values[1:] - inst.index.values[:-1]
     ti_sec = np.inf if len(dtime) == 0 else dtime.min().astype(float) * 1.0e-9
+
     # This will still work if infinite, since it will cause all data to be
     # accepted as close enough.
     if time_method == 'max':

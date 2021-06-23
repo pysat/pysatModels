@@ -11,9 +11,9 @@ platform
 name
     'tiegcm'
 tag
-    None supported
+    ''
 inst_id
-    None supported
+    ''
 
 """
 
@@ -48,14 +48,6 @@ _test_download = {'': {'': False}}
 
 def init(self):
     """Initializes the Instrument object with instrument specific values.
-
-    Runs once upon instantiation.
-
-    Parameters
-    ----------
-    self : pysat.Instrument
-        This object
-
     """
     ack = " ".join(["References and information about TIEGCM are available at",
                     "https://www.hao.ucar.edu/modeling/tgcm/index.php"])
@@ -113,24 +105,7 @@ def init(self):
 
 # Required method
 def clean(self):
-    """Method to return UCER/TIEGCM data cleaned to the specified level
-
-    Cleaning level is specified in inst.clean_level and pysat
-    will accept user input for several strings. The clean_level is
-    specified at instantiation of the Instrument object, though it may be
-    updated to a more stringent level and re-applied after instantiation.
-    The clean method is applied after default every time data is loaded.
-
-    Note
-    ----
-    'clean' All parameters should be good, suitable for statistical and
-            case studies
-    'dusty' All paramers should generally be good though same may
-            not be great
-    'dirty' There are data areas that have issues, data should be used
-            with caution
-    'none'  No cleaning applied, routine not called in this case.
-
+    """Method to return UCER/TIE-GCM data cleaned to the specified level, unused
     """
 
     logger.info('Cleaning not supported or needed for TIEGCM')
@@ -150,23 +125,20 @@ list_files = functools.partial(pysat.instruments.methods.general.list_files,
 
 
 def load(fnames, tag=None, inst_id=None, **kwargs):
-    """Loads TIEGCM data using xarray.
-
-    This routine is called as needed by pysat. It is not intended
-    for direct user interaction.
+    """Loads TIE-GCM data using xarray.
 
     Parameters
     ----------
     fnames : array-like
         iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
-    tag : string ('')
+    tag : str or NoneType
         tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    inst_id : string ('')
+        This input is nominally provided by pysat itself. (default=None)
+    inst_id : str or NoneType
         Instrument ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    **kwargs : extra keywords
+        This input is nominally provided by pysat itself. (default=None)
+    **kwargs : dict
         Passthrough for additional keyword arguments specified when
         instantiating an Instrument object. These additional keywords
         are passed through to this routine by pysat.
@@ -210,20 +182,20 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
 
 def download(date_array, tag, inst_id, data_path=None, **kwargs):
-    """Placeholder for UCAR TIEGCM downloads. Doesn't do anything.
+    """Placeholder for UCAR TIE-GCM downloads. Doesn't do anything.
 
     Parameters
     ----------
     date_array : array-like
         list of datetimes to download data for. The sequence of dates need not
         be contiguous.
-    tag : string
+    tag : str
         Tag identifier used for particular dataset. This input is provided by
-        pysat. (default='')
-    inst_id : string
+        pysat.
+    inst_id : str
         Instrument ID string identifier used for particular dataset. This input
-        is provided by pysat. (default='')
-    data_path : string
+        is provided by pysat.
+    data_path : str or NoneType
         Path to directory to download data to. (default=None)
     **kwargs : dict
         Additional keywords supplied by user when invoking the download

@@ -24,14 +24,14 @@ Oceanic Technology, 20(12):1839-­1856, 2003.
 
 Properties
 ----------
-platform : string
-    pysat
-name : string
-    dineof
-inst_id : string
-    ['']
-tag : string
-    [*]
+platform
+    'pydineof'
+name
+    'dineof'
+tag
+    '', 'test'
+inst_id
+    ''
 
 Note
 ----
@@ -39,10 +39,7 @@ Specific tags are not listed here as this method is intended to support
 all pyDINEOF export models. Place the desired model (daily files)
 at '{pysat_data_dir}/pydineof/dineof/{tag}'. It is presumed the default
 naming scheme of 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
-has been retained. Use the file_format option for custom filenames.
-::
-    imodule = pysatModels.instruments.pydineof_dineof
-    model = pysat.Instrument(inst_module=imodule, tag=tag)
+has been retained. Use the `file_format` option for custom filenames.
 
 """
 import datetime as dt
@@ -62,9 +59,9 @@ platform = 'pydineof'
 name = 'dineof'
 tags = {'': 'pydineof output file',
         'test': 'Standard output of pydineof for benchmarking'}
-inst_ids = {'': ['', 'test']}
+inst_ids = {'': [tag for tag in tags.keys()]}
 
-# specify using xarray (not using pandas)
+# Specify the use of xarray instead of pandas
 pandas_format = False
 
 # ----------------------------------------------------------------------------
@@ -80,14 +77,6 @@ _test_download = {'': {'': False,
 
 def init(self):
     """Initializes the Instrument object with instrument specific values.
-
-    Runs once upon instantiation.
-
-    Parameters
-    ----------
-    self : pysat.Instrument
-        This object
-
     """
     acks = ''.join(('The original DINEOF model code may be found at ',
                     'http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF.',
@@ -104,26 +93,8 @@ def init(self):
     return
 
 
-# Required method
 def clean(self):
-    """Method to return pydineof data cleaned to the specified level
-
-    Cleaning level is specified in inst.clean_level and pysat
-    will accept user input for several strings. The clean_level is
-    specified at instantiation of the Instrument object, though it may be
-    updated to a more stringent level and re-applied after instantiation.
-    The clean method is applied after default every time data is loaded.
-
-    Note
-    ----
-    'clean' All parameters should be good, suitable for statistical and
-            case studies
-    'dusty' All paramers should generally be good though same may
-            not be great
-    'dirty' There are data areas that have issues, data should be used
-            with caution
-    'none'  No cleaning applied, routine not called in this case.
-
+    """Method to return pydineof data cleaned to the specified level, unused
     """
 
     logger.info('Cleaning not supported for DINEOFs')
@@ -147,22 +118,19 @@ list_files = functools.partial(pysat.instruments.methods.general.list_files,
 def load(fnames, tag=None, inst_id=None, **kwargs):
     """Loads pydineof data using xarray.
 
-    This routine is called as needed by pysat. It is not intended
-    for direct user interaction.
-
     Parameters
     ----------
     fnames : array-like
         iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
-    tag : string ('')
+    tag : str or NoneType
         tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    inst_id : string ('')
+        This input is nominally provided by pysat itself. (default=None)
+    inst_id : str or NoneType
         Instrument ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    **kwargs : extra keywords
-        Passthrough for additional keyword arguments specified when
+        This input is nominally provided by pysat itself. (default=None)
+    **kwargs : dict
+        Pass-through for additional keyword arguments specified when
         instantiating an Instrument object. These additional keywords
         are passed through to this routine by pysat.
 
@@ -178,6 +146,8 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     Any additional keyword arguments passed to pysat.Instrument
     upon instantiation are passed along to this routine.
 
+    Examples
+    --------
     ::
 
         inst = pysat.Instrument(inst_module=pysatModels.models.pydineof_dineof)
@@ -196,16 +166,16 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
 
     Parameters
     ----------
-    date_array : array-like
+    date_array : array-like or NoneType
         list of datetimes to download data for. The sequence of dates need not
-        be contiguous.
-    tag : string
+        be contiguous. (default=None)
+    tag : str or NoneType
         Tag identifier used for particular dataset. This input is provided by
-        pysat. (default='')
-    inst_id : string
+        pysat. (default=None)
+    inst_id : str or NoneType
         Instrument ID string identifier used for particular dataset. This input
-        is provided by pysat. (default='')
-    data_path : string
+        is provided by pysat. (default=None)
+    data_path : str or NoneType
         Path to directory to download data to. (default=None)
     **kwargs : dict
         Additional keywords supplied by user when invoking the download

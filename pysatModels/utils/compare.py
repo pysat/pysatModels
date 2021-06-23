@@ -8,9 +8,6 @@ Routines to align and work with pairs of modelled and observational data
 
 """
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import numpy as np
 
 import verify  # PyForecastTools
@@ -19,33 +16,42 @@ import pysat
 import pysatModels as ps_mod
 
 
-def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
-                           methods=['all']):
+def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all']):
     """Compare modelled and measured data
 
     Parameters
-    ------------
-    pairs : xarray.Dataset instance
+    ----------
+    pairs : xarray.Dataset
         Dataset containing only the desired observation-model data pairs
-    inst_name : list of strings
-        ordered list of instrument measurements to compare to modelled data
-    mod_name : list of strings
-        ordered list of modelled data to compare to instrument measurements
-    methods : list of strings
-        statistics to calculate.  See Notes for accecpted inputs
+    inst_name : list
+        Ordered list of strings indicating whicch instrument measurements to
+         compare to modelled data
+    mod_name : list
+        Ordered list of strings indicating which modelled data to compare to
+        instrument measurements
+    methods : list
+        Statistics to calculate. See Notes for accecpted inputs. (default="all")
 
     Returns
-    ----------
-    stat_dict : dict of dicts
-        Dictionary where the first layer of keys denotes the instrument data
+    -------
+    stat_dict : dict
+        Dict of dicts where the first layer of keys denotes the instrument data
         name and the second layer provides the desired statistics
     data_units : dict
-        Dictionary containing the units for the data
+        Dict containing the units for the data
+
+    Raises
+    ------
+    ValueError
+        If input parameters are improperly formatted
+
+    See Also
+    --------
+    PyForecastTools
 
     Notes
     -----
     Statistics are calculated using PyForecastTools (imported as verify).
-    See notes there for more details.
 
     1. all: all statistics
     2. all_bias: bias, meanPercentageError, medianLogAccuracy,
