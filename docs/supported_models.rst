@@ -1,5 +1,24 @@
+.. _models:
+
 Supported Models
 ================
+
+
+.. _models-dineof:
+
+DINEOF
+------
+
+Supports the pyDINEOF model output.  pyDINEOF is a Python implementation of the
+Data INtrepolating Emperical Orthogonal Function method. Information about this
+package can obtained by contacting
+`Russell Stoneback <https://github.com/rstoneback>`_.
+
+.. automodule:: pysatModels.models.pydineof_dineof
+   :members:
+
+
+.. _models-sami2:
 
 SAMI2
 -----
@@ -17,6 +36,8 @@ along with a list of the
 .. automodule:: pysatModels.models.sami2py_sami2
    :members:
 
+
+.. _models-tiegcm:
 
 TIE-GCM
 -------
