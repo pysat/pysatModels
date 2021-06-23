@@ -8,9 +8,6 @@ Routines to match modelled and observational data
 
 """
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import datetime as dt
 import numpy as np
 from os import path
@@ -144,7 +141,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     Returns
     -------
     matched_inst : pysat.Instrument instance
-        instrument object and paired modelled data
+        Instrument object with observational data from `inst` and paired
+         modelled data.
 
     Raises
     ------
@@ -304,15 +302,5 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                 istart += dt.timedelta(days=1)
             if istart >= start + tinc:
                 start += tinc
-
-    # Recast as xarray and add units
-    if matched_inst is not None:
-        if inst.pandas_format:
-            matched_inst.pandas_format = False
-            matched_inst.data = matched_inst.data.to_xarray()
-        for im in inst.meta.keys():
-            if im in matched_inst.data.data_vars.keys():
-                matched_inst.data.data_vars[im].attrs['units'] = \
-                    inst.meta[im, inst.meta.labels.units]
 
     return matched_inst
