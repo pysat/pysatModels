@@ -8,9 +8,6 @@ Routines to extract observational-style data from model output
 
 """
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import numpy as np
 import scipy.interpolate as interpolate
 
@@ -581,6 +578,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         sel_name = np.asarray(list(model.data_vars.keys()))
     else:
         sel_name = np.asarray(sel_name)
+        if sel_name.shape == ():
+            sel_name = np.asarray([sel_name])
 
     # Ensure the method flags are all lower-case for easy testing
     time_method = time_method.lower()
