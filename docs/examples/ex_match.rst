@@ -29,14 +29,14 @@ to the model time rather than all observations within the model time.
 
 This example uses the external modules:
 
-- pysat
-- pysatNASA
+#. pysat
+#. pysatNASA
 
 Load a test model file from pyDINEOFs. It can be downloaded from the GitHub
 repository using the standard :py:meth:`pysat.Instrument.download` method. We
 will also set the model-data input keyword arguements that are determined by
 the model being used.  The DINEOFs test data applies for an entire day, so the
-:py:data:`pair_method` is ``"all"`` and the :py:data:`time_method` is ``"max"``.
+:py:data:`pair_method` is ``'all'`` and the :py:data:`time_method` is ``'max'``.
 
 ::
 
@@ -111,6 +111,7 @@ use different conventions, as the :py:func:`collect_inst_model_pairs` function
 will check for compatibility and adjust the range as needed.
 
 ::
+   
    matched_inst = ps_mod.utils.match.collect_inst_model_pairs(
        stime, stime + tinc, tinc, cindi, **input_kwargs)
 
@@ -135,9 +136,11 @@ This produces the output line: ``['dineof_model_equator_model_data']``.
 
 To see what the matched data looks like, let's create a plot that shows the
 locations and magnitudes of the modelled and measured meridional **E** x **B**
-drifts.
+drifts.  We aren't directly comparing the values, since the test file is filled
+with randomly generated values that aren't realistic.
 
 ::
+   
    import matplotlib as mpl
 
    # Initialize the figure
@@ -151,7 +154,7 @@ drifts.
    con = ax.scatter(matched_inst['slt'], matched_inst['glon'],
                     c=matched_inst[ckey], s=matched_inst[dkey].abs() * 10 + 10,
                     marker='|', vmin=-vmax, vmax=vmax, lw=1,
-		    cmap=mpl.cm.get_cmap('Spectral_r'))
+                    cmap=mpl.cm.get_cmap('Spectral_r'))
    cb = mpl.pyplot.colorbar(con, ax=ax)
 
    # Format the figure
@@ -161,13 +164,13 @@ drifts.
    ax.set_ylabel(matched_inst.meta['glon', matched_inst.meta.labels.desc])
    ax.set_xlim(0, 24)
    ax.set_ylim(-180, 180)
-   cb.set_label("{:s} ({:s})".format(
-                    matched_inst.meta[ckey, matched_inst.meta.labels.name],
-		    matched_inst.meta[vkey, matched_inst.meta.labels.units]))
+   cb_label = "{:s} ({:s})".format(
+       matched_inst.meta[ckey, matched_inst.meta.labels.name],
+       matched_inst.meta[vkey, matched_inst.meta.labels.units])
+   cb.set_label(cb_label)
 
 
 .. image:: ../images/ex_match_dineof.png
-    :width: 150px
     :align: right
     :alt: Scatter plot with color indicating CINDI ExB drift value and size the DINEOFs ExB drift magnitude
 

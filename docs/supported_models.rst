@@ -1,10 +1,10 @@
-.. _models:
+.. _supmodels:
 
 Supported Models
 ================
 
 
-.. _models-dineof:
+.. _supmodels-dineof:
 
 DINEOF
 ------
@@ -18,7 +18,7 @@ package can obtained by contacting
    :members:
 
 
-.. _models-sami2:
+.. _supmodels-sami2:
 
 SAMI2
 -----
@@ -37,7 +37,7 @@ along with a list of the
    :members:
 
 
-.. _models-tiegcm:
+.. _supmodels-tiegcm:
 
 TIE-GCM
 -------
