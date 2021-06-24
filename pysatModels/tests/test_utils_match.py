@@ -1,7 +1,5 @@
 # Author: Angeline Burrell, NRL, 2019
 
-from __future__ import absolute_import, unicode_literals
-
 import datetime as dt
 import logging
 from io import StringIO
@@ -16,7 +14,7 @@ import pysatModels as ps_mod
 import pysatModels.utils.match as match
 
 
-class TestUtilsMatchLoadModelXarray:
+class TestUtilsMatchLoadModelXarray():
     """ Unit tests for utils.match.load_model_xarray
     """
     def setup(self):
@@ -99,7 +97,7 @@ class TestUtilsMatchLoadModelXarray:
         assert self.xout is None
 
 
-class TestUtilsMatchCollectInstModPairs:
+class TestUtilsMatchCollectInstModPairs():
     """ Unit tests for utils.match.collect_inst_model_pairs
     """
     def setup(self):
@@ -171,8 +169,8 @@ class TestUtilsMatchCollectInstModPairs:
                                "Need longitude name for model"),
                               ("inst_name",
                                "Must provide instrument location"),
-                              ("mod_name", "Must provide the same number"),
-                              ("mod_units", "Must provide units for each "),
+                              ("mod_name", "Must provide model location attr"),
+                              ("mod_units", "Must provide model units as a "),
                               ("mod_datetime_name",
                                "Need datetime coordinate"),
                               ("mod_time_name", "Need time coordinate"),
@@ -225,11 +223,9 @@ class TestUtilsMatchCollectInstModPairs:
         self.out = match.collect_inst_model_pairs(*self.input_args,
                                                   **self.required_kwargs)
 
-        assert isinstance(self.out.data, xr.Dataset)
-        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()]
-        assert len(self.out.data.data_vars[self.ref_col]) == num
-        assert np.all(np.isfinite(
-            self.out.data.data_vars[self.ref_col].values))
+        assert self.ref_col in [kk for kk in self.out.variables]
+        assert len(self.out[self.ref_col]) == num
+        assert np.all(np.isfinite(self.out[self.ref_col].values))
         assert self.out.index[0].date() == self.stime.date()
         assert self.out.index[-1] < self.stime + einc
 
@@ -275,14 +271,11 @@ class TestUtilsMatchCollectInstModPairs:
             self.out = match.collect_inst_model_pairs(*self.input_args,
                                                       **self.required_kwargs)
 
-            assert isinstance(self.out.data, xr.Dataset)
-            assert self.ref_col in [kk for kk
-                                    in self.out.data.data_vars.keys()]
-            assert len(self.out.data.data_vars[self.ref_col]) == test_out
-            assert np.all(np.isfinite(
-                self.out.data.data_vars[self.ref_col].values))
-            assert self.out.data.data_vars['longitude'].min() >= lout[0]
-            assert self.out.data.data_vars['longitude'].max() <= lout[1]
+            assert self.ref_col in [kk for kk in self.out.variables]
+            assert len(self.out[self.ref_col]) == test_out
+            assert np.all(np.isfinite(self.out[self.ref_col].values))
+            assert self.out['longitude'].min() >= lout[0]
+            assert self.out['longitude'].max() <= lout[1]
 
     def test_success_skip_download(self):
         """ Test the match success with skip_download key
@@ -296,9 +289,8 @@ class TestUtilsMatchCollectInstModPairs:
         self.out = match.collect_inst_model_pairs(*self.input_args,
                                                   **self.required_kwargs)
 
-        assert isinstance(self.out.data, xr.Dataset)
-        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()]
-        assert len(self.out.data.data_vars[self.ref_col]) > 0
+        assert self.ref_col in [kk for kk in self.out.variables]
+        assert len(self.out[self.ref_col]) > 0
 
     def test__inst_download_missing(self):
         """ Test the download data loop, which will fail to download anything

@@ -1,3 +1,5 @@
+.. _citing:
+
 Citation Guidelines
 ===================
 

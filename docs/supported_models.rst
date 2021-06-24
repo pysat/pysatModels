@@ -1,5 +1,24 @@
+.. _supmodels:
+
 Supported Models
 ================
+
+
+.. _supmodels-dineof:
+
+DINEOF
+------
+
+Supports the pyDINEOF model output.  pyDINEOF is a Python implementation of the
+Data INtrepolating Emperical Orthogonal Function method. Information about this
+package can obtained by contacting
+`Russell Stoneback <https://github.com/rstoneback>`_.
+
+.. automodule:: pysatModels.models.pydineof_dineof
+   :members:
+
+
+.. _supmodels-sami2:
 
 SAMI2
 -----
@@ -18,6 +37,8 @@ along with a list of the
    :members:
 
 
+.. _supmodels-tiegcm:
+
 TIE-GCM
 -------
 
@@ -25,8 +46,7 @@ Supports the UCAR (University Corporation for Atmospheric Research) model,
 Thermosphere-Ionosphere-Electrodynamics General Circulation Model (TIE-GCM).
 Information about this model can be found at the
 `UCAR TIE-GCM website <https://www.hao.ucar.edu/modeling/tgcm/tie.php>`_,
-along with a list of the
-`TIE-GCM principle papers <https://www.hao.ucar.edu/modeling/tgcm/TgcmPrincipalPapers.pdf>`_.
+along with a list of the principle papers and references.
 
 .. automodule:: pysatModels.models.ucar_tiegcm
    :members:

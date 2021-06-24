@@ -17,8 +17,10 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import datetime as dt
+import json
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ------------------------------------------------
@@ -33,6 +35,7 @@ sys.path.insert(0, os.path.abspath('..'))
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx',
               'sphinx.ext.todo',
+              'sphinx.ext.napoleon',
               'sphinx.ext.coverage',
               'sphinx.ext.mathjax',
               'sphinx.ext.ifconfig',
@@ -40,7 +43,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.githubpages',
               'sphinx.ext.autosectionlabel',
               'numpydoc',
-              'm2r']
+              'm2r2']
 
 autosectionlabel_prefix_document = True
 autosectionlabel_maxdepth = 3
@@ -58,11 +61,12 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pysatModels'
-author = u'Angeline G Burrell, Russell Stoneback, Jeffrey Klenzing'
-cr_line = u'{:d}, {:s}'.format(dt.datetime.utcnow().year, author)
-title = u'{:s} Documentation'.format(project)
-description = u'Tools for model-data analysis.'
+zenodo = json.loads(open('../.zenodo.json').read())
+project = 'pysatModels'
+author = '; '.join([zauth['name'] for zauth in zenodo['creators']])
+copyright = '{:d}, {:s}'.format(dt.datetime.utcnow().year, author)
+title = '{:s} Documentation'.format(project)
+description = 'Tools for model-data analysis.'
 category = 'Space Physics'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -101,14 +105,10 @@ todo_include_todos = True
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-html_theme = 'alabaster'
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
-# html_theme_options = {}
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = ["_themes", ]
+html_logo = os.path.join(os.path.abspath('.'), 'images', 'pysatModels.png')
+html_theme_options = {'logo_only': True}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -166,7 +166,7 @@ texinfo_documents = [(master_doc, project, title, author, project, description,
 epub_title = project
 epub_author = author
 epub_publisher = author
-epub_copyright = cr_line
+epub_copyright = copyright
 
 # The unique identifier of the text. This can be a ISBN number
 # or the project homepage.

@@ -11,9 +11,9 @@ platform
 name
     'sami2'
 tag
-    None supported
+    ''
 inst_id
-    None supported
+    ''
 
 """
 
@@ -52,14 +52,6 @@ _test_download = {'': {'': False,
 
 def init(self):
     """Initializes the Instrument object with instrument specific values.
-
-    Runs once upon instantiation.
-
-    Parameters
-    ----------
-    self : pysat.Instrument
-        This object
-
     """
 
     self.acknowledgements = " ".join(("This work uses the SAMI2 ionosphere",
@@ -81,26 +73,8 @@ def init(self):
     return
 
 
-# Required method
 def clean(self):
-    """Method to return SAMI data cleaned to the specified level
-
-    Cleaning level is specified in inst.clean_level and pysat
-    will accept user input for several strings. The clean_level is
-    specified at instantiation of the Instrument object, though it may be
-    updated to a more stringent level and re-applied after instantiation.
-    The clean method is applied after default every time data is loaded.
-
-    Note
-    ----
-    'clean' All parameters should be good, suitable for statistical and
-            case studies
-    'dusty' All paramers should generally be good though same may
-            not be great
-    'dirty' There are data areas that have issues, data should be used
-            with caution
-    'none'  No cleaning applied, routine not called in this case.
-
+    """Method to return SAMI data cleaned to the specified level, unused
     """
 
     logger.info('Cleaning not supported for SAMI')
@@ -131,13 +105,13 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     fnames : array-like
         iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
-    tag : string ('')
+    tag : str or NoneType
         tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    inst_id : string ('')
+        This input is nominally provided by pysat itself. (default=None)
+    inst_id : str or NoneType
         Instrument ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself.
-    **kwargs : extra keywords
+        This input is nominally provided by pysat itself. (default=None)
+    **kwargs : dict
         Passthrough for additional keyword arguments specified when
         instantiating an Instrument object. These additional keywords
         are passed through to this routine by pysat.
@@ -163,10 +137,10 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     """
 
-    # load data
+    # Load data
     data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
 
-    # add time variable for pysat compatibilty
+    # Add time variable for pysat compatibilty
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
@@ -179,16 +153,16 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
 
     Parameters
     ----------
-    date_array : array-like
+    date_array : array-like or NoneType
         list of datetimes to download data for. The sequence of dates need not
-        be contiguous.
-    tag : string
+        be contiguous. (default=None)
+    tag : str or NoneType
         Tag identifier used for particular dataset. This input is provided by
-        pysat. (default='')
-    inst_id : string
+        pysat. (default=None)
+    inst_id : str or NoneType
         Instrument ID string identifier used for particular dataset. This input
-        is provided by pysat. (default='')
-    data_path : string
+        is provided by pysat.  (default=None)
+    data_path : str or NoneType
         Path to directory to download data to. (default=None)
     **kwargs : dict
         Additional keywords supplied by user when invoking the download
@@ -224,6 +198,8 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
         req = requests.get(remote_path)
         if req.status_code != 404:
             open(saved_local_fname, 'wb').write(req.content)
+        else:
+            warnings.warn('Unable to find remote file: {:}'.format(remote_path))
 
     else:
         warnings.warn('Downloads currently only supported for test files.')

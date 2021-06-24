@@ -1,5 +1,10 @@
+.. _ex-init:
+
 Loading Model Data
 ==================
+
+
+.. _ex-init-loadinst:
 
 Load Model Data into a pysat Instrument
 ---------------------------------------
@@ -21,15 +26,17 @@ TIE-GCM data file from `UCAR <https://www.hao.ucar.edu/modeling/tgcm/tie.php>`_.
    tiegcm.load(fname=filename)
 
 
+.. _ex-init-loadxr:
+
 Load Model Data into an xarray Dataset
 --------------------------------------
 
 There are situations (such as when developing a new model) when it may be
 inconvenient to create a pysat Instrument object for a modelled data set.  Many
-of the pysatModels utilities allow xarray Datasets as input.  For these routines
-or to retrieve an xarray Dataset for other purposes, you can use the
-``load_model_xarray`` routine in
-`utils.match <../utils.html#module-pysatModels.utils.match>`_.
+of the pysatModels utilities allow :py:class:`xarray.Dataset` objects as input.
+For these routines or to retrieve an :py:class:`xarray.Dataset` for other
+purposes, you can use the :py:func:`load_model_xarray` routine in
+:ref:`utils-match`.
 
 In this example, the time is irrelevent because a full filename is provided:
 
@@ -63,8 +70,8 @@ within the loading function by the input time:
 
 
 In this example, the routine takes advantage of the pysat file organization
-system, and will return a ``NoneType`` object if no files are found for the
-specified time:
+system, and will return a :py:class:`NoneType` object if no files are found for
+the specified time:
 
    
 ::
