@@ -78,6 +78,7 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all']):
     19. logAccuracy: log accuracy ratio
     20. medSymAccuracy: Scaled measure of accuracy
     21. meanAPE: mean absolute percentage error
+    22. medAPE: median absolute perceentage error
 
     """
 
@@ -97,7 +98,7 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all']):
                    "medSymAccuracy": verify.medSymAccuracy}
 
     replace_keys = {'MSE': 'meanSquaredError', 'MAE': 'meanAbsError',
-                    'MdAE': 'medAbsError', 'MAPE': 'meanAPE',
+                    'MdAE': 'medAbsError', 'MAPE': 'meanAPE', 'MdAPE': 'medAPE',
                     'MdSymAcc': 'medSymAccuracy'}
 
     # Grouped methods for things that don't have convenience functions
@@ -111,6 +112,7 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all']):
                if mm in list(grouped_methods.keys())]:
         # Extend the methods list to include all the grouped methods
         methods.extend(grouped_methods[gg[1]])
+
         # Remove the grouped method key
         methods.pop(gg[0])
 
@@ -136,9 +138,9 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all']):
         known_methods.extend(list(grouped_methods.keys()))
         unknown_methods = [mm for mm in methods
                            if mm not in list(method_rout.keys())]
-        raise ValueError(''.join(['unknown statistical method(s) requested:\n',
-                                  '{:}\nuse only:\n'.format(unknown_methods),
-                                  '{:}'.format(unknown_methods)]))
+        raise ValueError(''.join(['unknown statistical method(s) requested: ',
+                                  '{:}\nuse only: '.format(unknown_methods),
+                                  '{:}'.format(known_methods)]))
 
     # Initialize the output
     stat_dict = {iname: dict() for iname in inst_name}
@@ -174,7 +176,9 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all']):
             except (ValueError, NotImplementedError, ZeroDivisionError) as err:
                 # Not all data types can use all statistics.  Inform the user
                 # instead of stopping processing.  Only valid statistics will
-                # be included in output
+                # be included in output.
+                # New version of pyForecastTools doesn't trigger this, using
+                # Inf or masked output instead
                 ps_mod.logger.info("{:s} can't use {:s}: {:}".format(iname,
                                                                      mm, err))
 
