@@ -208,11 +208,12 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
                                                            day=date.day))
         remote_path = '/'.join((remote_url.strip('/'), remote_path.strip('/'),
                                 fname))
-        with requests.get(remote_path) as req:
-            if req.status_code != 404:
-                open(saved_local_fname, 'wb').write(req.content).close()
-            else:
-                warnings.warn('Unable to find remote file: {:}'.format(remote_path))
+        req = requests.get(remote_path)
+        if req.status_code != 404:
+            with open(saved_local_fname, 'wb') as open_f:
+                open_f.write(req.content)
+        else:
+            warnings.warn('Unable to find remote file: {:}'.format(remote_path))
     else:
         warnings.warn('Downloads currently only supported for test files.')
 
