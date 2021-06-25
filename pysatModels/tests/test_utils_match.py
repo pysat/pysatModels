@@ -24,7 +24,7 @@ class TestUtilsMatchLoadModelXarray():
         self.filename = "%Y-%m-%d.nofile"
         self.model_kwargs = {'platform': str('pysat'),
                              'name': str('testing_xarray'),
-                             'inst_id': '12',
+                             'num_samples': '12',
                              'clean_level': 'clean'}
         self.model_inst = None
         self.xout = None
