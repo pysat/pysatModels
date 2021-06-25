@@ -53,7 +53,6 @@ jobs:
         pip install --no-binary :numpy: numpy==${{ matrix.numpy_ver }}
 
     - name: Set up pysat
-      if: ${{ matrix.os != 'windows-latest'}}
       run: |
         mkdir pysatData
         python -c "import pysat; pysat.params['data_dirs'] = 'pysatData'"
