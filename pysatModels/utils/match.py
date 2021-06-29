@@ -10,60 +10,13 @@ Routines to match modelled and observational data
 
 import datetime as dt
 import numpy as np
-from os import path
 import pandas as pds
 
 import pysat
 
 import pysatModels
 from pysatModels.utils import extract
-
-
-def load_model_xarray(ftime, model_inst=None, filename=None):
-    """ Load and extract data from a model Instrument at the specified time
-
-    Parameters
-    ----------
-    ftime : dt.datetime
-        Desired time for model Instrument input
-    model_inst : pysat.Instrument
-        Model instrument object
-    filename : str or NoneType
-        Model filename, if the file is not include in the Instrument filelist.
-        or a filename that requires time specification from ftime
-        (default=None)
-
-    Returns
-    -------
-    model_xarray : xarray.Dataset or NoneType
-        Dataset from pysat Instrument object or None if there is no data
-
-    """
-    # Test the input
-    if not hasattr(model_inst, 'load'):
-        raise ValueError('must provide a pysat.Instrument object')
-
-    # Format the filename, if needed
-    if hasattr(ftime, 'strftime') and filename is not None:
-        fname = ftime.strftime(filename)
-    else:
-        fname = filename
-
-    # Load the model data, using the file if it exists
-    if fname is not None and path.isfile(fname):
-        model_inst.load(fname=fname)
-    else:
-        model_inst.load(date=ftime)
-
-    # Extract the xarray Dataset, returning None if there is no data
-    if model_inst.empty:
-        model_xarray = None
-    elif model_inst.pandas_format:
-        model_xarray = model_inst.data.to_xarray()
-    else:
-        model_xarray = model_inst.data
-
-    return model_xarray
+from pysatModels.utils.convert import load_model_xarray
 
 
 def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
