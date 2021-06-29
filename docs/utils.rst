@@ -4,6 +4,14 @@ Utilities
 =========
 
 
+.. _utils-convert:
+
+Convert
+-------
+.. automodule:: pysatModels.utils.convert
+   :members:
+
+
 .. _utils-match:
 
 Match
