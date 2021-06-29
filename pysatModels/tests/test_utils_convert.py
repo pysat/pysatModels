@@ -131,7 +131,7 @@ class TestUtilsConvertLoadModelXarray():
 
 
 class TestUtilsConvertPysatXarray():
-    """ Unit tests for utils.convert.load_model_xarray
+    """ Unit tests for utils.convert.convert_pydat_to_xarray
     """
     def setup(self):
         """ Runs before every method to create a clean testing setup
