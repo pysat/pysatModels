@@ -1,6 +1,5 @@
 numpy
 pandas
 pyForecastTools
-pysat >= 3.0.0
 scipy
 xarray
