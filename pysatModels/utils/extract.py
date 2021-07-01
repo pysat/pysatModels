@@ -250,20 +250,25 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     """
 
     # Ensure the coordinate and data variable names are array-like
-    inst_name = np.asarray(inst_name)
-    mod_name = np.asarray(mod_name)
-    method = np.asarray(methods)
+    inst_name = pyutils.listify(inst_name)
+    mod_name = pyutils.listify(mod_name)
+    methods = pyutils.listify(methods)
 
     # interp over all vars if None provided
     if sel_name is None:
-        sel_name = np.asarray(list(model.data_vars.keys()))
+        sel_name = pyutils.listify(model.data_vars.keys())
     else:
-        sel_name = np.asarray(sel_name)
+        sel_name = pyutils.listify(sel_name)
 
     if len(methods) != len(sel_name):
         estr = ' '.join(('Must provide interpolation selection',
                         'for each variable via methods keyword.'))
         raise ValueError(estr)
+
+    for method in methods:
+        if method not in ['linear', 'nearest']:
+            estr = 'Methods only supports "linear" or "nearest".'
+            raise ValueError(estr)
 
     # Test input
     if len(inst_name) == 0:
@@ -290,8 +295,17 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
 
+    if mod_datetime_name in model.data_vars:
+        mod_datetime = model.data_vars[mod_datetime_name]
+        mod_datetime = mod_datetime.values.astype(np.int64)
+    elif mod_datetime_name in model.coords:
+        mod_datetime = model.coords[mod_datetime_name].values.astype(np.int64)
+    else:
+        raise ValueError("".join(["unknown model name for datetime: ",
+                                  mod_datetime_name]))
+
     # Determine the scaling between model and instrument data
-    inst_scale = np.ones(shape=len(inst_name), dtype=float)
+    inst_scale = np.ones(shape=len(inst_name), dtype=np.float64)
     for i, iname in enumerate(inst_name):
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
@@ -303,7 +317,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     coords = [inst[coord_name] for coord_name in inst_name]
 
     # Time goes first
-    coords.insert(0, inst.index.values.astype(int))
+    coords.insert(0, inst.index.values.astype(np.int64))
 
     # Move from a list of lists [ [x1, x2, ...], [y1, y2, ...]]
     # to a list of tuples
@@ -322,7 +336,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         points = []
 
         # Time dim first
-        points.append(model[mod_datetime_name].values.astype(int))
+        points.append(mod_datetime)
 
         # Now spatial
         for iscale, var in zip(inst_scale, mod_name):

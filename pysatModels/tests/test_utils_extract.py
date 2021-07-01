@@ -186,3 +186,85 @@ class TestUtilsExtractModObs:
                         == self.inst.data[tcol].shape)
                 assert len(self.inst.data[tcol][
                     ~np.isnan(self.inst.data[tcol])]) > 0
+
+class TestUtilsExtractInstModView:
+    """ Unit tests for utils.extract.instrument_view_through_model """
+
+    def setup(self):
+        """Runs before every method to create a clean testing setup."""
+        self.inst = pysat.Instrument(platform='pysat', name='testing')
+        self.model = pysat.Instrument(inst_module=pysat_testmodel)
+        self.inst.load(date=pysat_testmodel._test_dates[''][''])
+        self.model.load(date=pysat_testmodel._test_dates[''][''])
+        self.model_label = 'tmodel'
+        self.input_args = [self.inst, self.model.data,
+                           ["latitude", "longitude", "altitude"],
+                           ["latitude", "longitude", "altitude"],
+                           "time", "time", ["deg", "deg", "km"]]
+        self.input_kwargs = {"sel_name":
+                             [kk for kk in self.model.data.data_vars
+                              if len([dd for dd
+                                      in self.model.data.data_vars[kk].dims
+                                      if dd in self.input_args[3]])
+                              and (len(self.model.data.data_vars[kk].dims)
+                                   == len(self.input_args[3]) + 1)]}
+        self.input_kwargs['methods'] = ['linear'] * len(
+            self.input_kwargs['sel_name'])
+        self.out = []
+        self.log_capture = StringIO()
+        ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
+        ps_mod.logger.setLevel(logging.INFO)
+
+    def teardown(self):
+        """Runs after every method to clean up previous testing."""
+        del self.inst, self.model, self.input_args, self.out, self.model_label
+        del self.input_kwargs, self.log_capture
+
+    def test_standard_call(self):
+        """Test for successful interpolation"""
+
+        self.out = extract.instrument_view_through_model(*self.input_args,
+                                                         **self.input_kwargs)
+        for name in self.input_kwargs['sel_name']:
+            assert ''.join(('model_', name)) in self.inst.data
+
+        for name in self.out:
+            assert name in self.inst.data
+
+    @pytest.mark.parametrize("bad_index,bad_input,err_msg",
+                             [(2, [], 'Must provide inst_name as a list'),
+                              (3, [], 'Must provide mod_name as a list'),
+                              (2, ['glon', 'latitude', 'altitude'],
+                               "Unknown instrument location index"),
+                              (3, ['hi'], "Must provide the same number"),
+                              (6, [], "Must provide units for each "),
+                              (4, "naname", "unknown model name for datetime"),
+                              (5, "naname", "Unknown model time coordinate")])
+    def test_bad_arg_input(self, bad_index, bad_input, err_msg):
+        """ Test for expected failure with bad input arguments
+        """
+        self.input_args[bad_index] = bad_input
+
+        with pytest.raises(ValueError) as verr:
+            extract.instrument_view_through_model(*self.input_args,
+                                                  **self.input_kwargs)
+
+        assert str(verr.value.args[0]).find(err_msg) >= 0
+
+    @pytest.mark.parametrize("bad_key,bad_val,err_msg",
+                             [("sel_name", ["unknown_variable"],
+                               "No model data keys to interpolate"),
+                              ("methods", ["not_a_method"],
+                               'Methods only supports "linear" or "nearest".'),
+                              ("methods", "['linear', 'linear']",
+                               "Must provide interpolation selection"),
+                              ("model_label", 1, "Unknown format code ")])
+    def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
+        """ Test for expected failure with bad kwarg input """
+        self.input_kwargs[bad_key] = bad_val
+
+        with pytest.raises(ValueError) as err:
+            extract.instrument_view_through_model(*self.input_args,
+                                                  **self.input_kwargs)
+
+        assert str(err.value.args[0]).find(err_msg) >= 0
