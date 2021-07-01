@@ -261,8 +261,8 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         sel_name = np.asarray(sel_name)
 
     if len(methods) != len(sel_name):
-        estr = ' '.join('Must provide interpolation selection',
-                        'for each variable via methods keyword.')
+        estr = ' '.join(('Must provide interpolation selection',
+                        'for each variable via methods keyword.'))
         raise ValueError(estr)
 
     # Test input
