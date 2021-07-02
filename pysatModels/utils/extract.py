@@ -203,7 +203,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates.
     mod_name : array-like
-        list of names of the data series to use for determing model locations
+        list of names of the data series to use for determining model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
@@ -267,7 +267,8 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
 
     for method in methods:
         if method not in ['linear', 'nearest']:
-            estr = 'Methods only supports "linear" or "nearest".'
+            estr = ''.join(('Methods only supports "linear" or "nearest".',
+                            ' Not ', method))
             raise ValueError(estr)
 
     # Test input
@@ -294,6 +295,11 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
 
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
+
+    for name in sel_name:
+        if name not in model:
+            estr = ''.join((name, ' is not a valid model variable.'))
+            raise ValueError(estr)
 
     if mod_datetime_name in model.data_vars:
         mod_datetime = model.data_vars[mod_datetime_name]

@@ -253,17 +253,17 @@ class TestUtilsExtractInstModView:
 
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
                              [("sel_name", ["unknown_variable"],
-                               "No model data keys to interpolate"),
+                               "unknown_variable is not a valid model variabl"),
                               ("methods", ["not_a_method"],
                                'Methods only supports "linear" or "nearest".'),
-                              ("methods", "['linear', 'linear']",
+                              ("methods", ['linear', 'linear', 'linear'],
                                "Must provide interpolation selection"),
-                              ("model_label", 1, "Unknown format code ")])
+                              ("model_label", 1, "expected str instance")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
         """ Test for expected failure with bad kwarg input """
         self.input_kwargs[bad_key] = bad_val
 
-        with pytest.raises(ValueError) as err:
+        with pytest.raises((ValueError, TypeError)) as err:
             extract.instrument_view_through_model(*self.input_args,
                                                   **self.input_kwargs)
 
