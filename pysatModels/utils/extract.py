@@ -322,9 +322,10 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     del_list = list()
     keep_list = list()
     for mdat in sel_name:
-        if mdat in inst.data.keys():
+        mname = '_'.join((model_label, mdat))
+        if mname in inst.data.keys():
             ps_mod.logger.warning("".join(["model data already interpolated:",
-                                           " {:}".format(mdat)]))
+                                           " {:}".format(mname)]))
             del_list.append(mdat)
         else:
             keep_list.append(mdat)

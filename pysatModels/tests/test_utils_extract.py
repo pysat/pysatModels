@@ -268,3 +268,53 @@ class TestUtilsExtractInstModView:
                                                   **self.input_kwargs)
 
         assert str(err.value.args[0]).find(err_msg) >= 0
+
+    def test_failure_for_already_ran_data(self):
+        """ Test the failure for all model variables already extracted """
+
+        self.input_kwargs["model_label"] = self.model_label
+
+        # Run everything successfully once
+        extract.instrument_view_through_model(*self.input_args,
+                                              **self.input_kwargs)
+
+        # Run everything again, raising a value error
+        with pytest.raises(ValueError) as err:
+            extract.instrument_view_through_model(*self.input_args,
+                                                  **self.input_kwargs)
+
+            self.out = self.log_capture.getvalue()
+            assert self.out.find('model data already interpolated') >= 0
+
+        assert str(err.value.args[0]).find(
+            'instrument object already contains all model data') >= 0
+
+    def test_success_for_some_already_ran_data(self):
+        """ Test the success for some model variables already extracted """
+
+        all_sel = list(self.input_kwargs['sel_name'])
+        all_sel.append('dummy72')
+        self.input_kwargs['model_label'] = self.model_label
+
+        self.model['dummy72'] = self.model['dummy2']
+
+        # Run through twice
+        for i, selected in enumerate([all_sel[1:], all_sel]):
+            self.input_kwargs['sel_name'] = selected
+            self.input_kwargs['methods'] = ['linear'] * len(selected)
+            self.out = extract.instrument_view_through_model(*self.input_args,
+                                                             **self.input_kwargs)
+
+            lout = self.log_capture.getvalue()
+
+        assert lout.find('model data already interpolated') >= 0
+
+        for label in all_sel:
+            if label not in self.input_args[3]:
+                # Test each of the extracted model data columns
+                tcol = "{:s}_{:s}".format(self.model_label, label)
+                assert tcol in self.inst.data.columns
+                assert (self.inst.data[self.input_args[2][0]].shape
+                        == self.inst.data[tcol].shape)
+                assert len(self.inst.data[tcol][
+                    ~np.isnan(self.inst.data[tcol])]) > 0
