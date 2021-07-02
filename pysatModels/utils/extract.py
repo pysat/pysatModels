@@ -319,6 +319,21 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         inst_scale[i] = pyutils.scale_units(
             mod_units[i], inst.meta[iname, inst.meta.labels.units])
 
+    del_list = list()
+    keep_list = list()
+    for mdat in sel_name:
+        if mdat in inst.data.keys():
+            ps_mod.logger.warning("".join(["model data already interpolated:",
+                                           " {:}".format(mdat)]))
+            del_list.append(mdat)
+        else:
+            keep_list.append(mdat)
+
+    if len(sel_name) == len(del_list):
+        raise ValueError("instrument object already contains all model data")
+    elif len(del_list) > 0:
+        sel_name = keep_list
+
     # Create inst input based upon provided dimension names
     coords = [inst[coord_name] for coord_name in inst_name]
 
