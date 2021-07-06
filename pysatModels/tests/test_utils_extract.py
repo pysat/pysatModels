@@ -187,6 +187,7 @@ class TestUtilsExtractModObs:
                 assert len(self.inst.data[tcol][
                     ~np.isnan(self.inst.data[tcol])]) > 0
 
+
 class TestUtilsExtractInstModView:
     """ Unit tests for utils.extract.instrument_view_through_model """
 
