@@ -217,6 +217,10 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
                 warnings.warn('Unable to find remote file: {:}'.format(
                     remote_path))
     else:
+        saved_local_fname = os.path.join(data_path, 'empty_file.txt')
+        with open(saved_local_fname, 'w') as open_f:
+            open_f.write(' ')
+
         warnings.warn('Downloads currently only supported for test files.')
 
     return
