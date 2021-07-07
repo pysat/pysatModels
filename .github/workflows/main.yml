@@ -5,7 +5,7 @@
 
 name: Pytest with Flake8
 
-on: [push, pull_request]
+on: [pull_request, push]
 
 jobs:
   build:
