@@ -210,8 +210,9 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
                                 fname))
         with requests.get(remote_path) as req:
             if req.status_code != 404:
-                with open(saved_local_fname, 'wb') as open_f:
-                    open_f.write(req.content)
+                if not os.path.isfile(saved_local_fname):
+                    with open(saved_local_fname, 'wb') as open_f:
+                        open_f.write(req.content)
             else:
                 warnings.warn('Unable to find remote file: {:}'.format(
                     remote_path))
