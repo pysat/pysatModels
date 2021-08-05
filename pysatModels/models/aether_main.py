@@ -35,7 +35,8 @@ platform = 'aether'
 name = 'main'
 tags = {'': 'aether output file for unnamed run',
         'test': 'Standard output of Aether for benchmarking'}
-inst_ids = {inst_id: list(tags.keys()) for inst_id in ['3DALL', '3DNEU']}
+inst_ids = {inst_id: list(tags.keys())
+            for inst_id in ['3Dall', '3Dneu', '3dion']}
 
 pandas_format = False
 multi_file_day = True
@@ -47,6 +48,8 @@ fname = '_'.join(['{inst_id:s}', '{{year:04d}}{{month:02d}}{{day:02d}}',
 supported_tags = {inst_id: {tag: fname.format(inst_id=inst_id.upper())
                             for tag in tags.keys()}
                   for inst_id in inst_ids.keys()}
+
+aether_epoch = dt.datetime(1965, 1, 1)
 
 # ----------------------------------------------------------------------------
 # Instrument test attributes
@@ -131,7 +134,10 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     # Load data
     data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=pandas_format)
-
+    data['Time'] = [aether_epoch + dt.timedelta(seconds=etime * 1.0e-9)
+                    for etime in data['Time'].values.astype(int)]
+    data = data.rename({'Time': 'time'})
+    
     return data, meta
 
 
@@ -168,18 +174,22 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
 
     if tag == 'test':
         date = date_array[0]
-        #remote_url = 'https://github.com/sami2py/sami2py/'
-        #remote_path = 'blob/main/sami2py/tests/test_data/'
+        remote_url = 'https://github.com/AetherModel/TestData/'
+        remote_path = 'blob/main/tests/test1/'
 
         # Need to tell github to show the raw data, not the webpage version
-        #fname = 'sami2py_output.nc?raw=true'
+        local_name = '{:s}.nc?raw=true'.format(
+            fname.format(inst_id=inst_id.upper()))
 
         # Use pysat-compatible name
         format_str = supported_tags[inst_id][tag]
         saved_local_fname = os.path.join(data_path,
                                          format_str.format(year=date.year,
                                                            month=date.month,
-                                                           day=date.day))
+                                                           day=date.day,
+                                                           hour=date.hour,
+                                                           minute=date.minute,
+                                                           second=date.second))
         remote_path = '/'.join((remote_url.strip('/'), remote_path.strip('/'),
                                 fname))
         req = requests.get(remote_path)
@@ -187,7 +197,6 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
             open(saved_local_fname, 'wb').write(req.content)
         else:
             warnings.warn('Unable to find remote file: {:}'.format(remote_path))
-
     else:
         warnings.warn('Downloads currently only supported for test files.')
 
