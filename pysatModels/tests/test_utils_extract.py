@@ -53,7 +53,7 @@ class TestUtilsExtractObsViewModel:
 
 
 class TestUtilsExtractModObs:
-    """ Unit tests for utils.extract.extract_modelled_observations """
+    """Unit tests for `utils.extract.extract_modelled_observations`."""
 
     def setup(self):
         """Runs before every method to create a clean testing setup."""
@@ -79,7 +79,7 @@ class TestUtilsExtractModObs:
         return
 
     def teardown(self):
-        """Runs after every method to clean up previous testing."""
+        """Run after every method to clean up previous testing."""
         del self.inst, self.model, self.input_args, self.out, self.model_label
         del self.input_kwargs, self.log_capture
 
@@ -216,7 +216,7 @@ class TestUtilsExtractInstModView:
     """Unit tests for `utils.extract.instrument_view_through_model`."""
 
     def setup(self):
-        """Runs before every method to create a clean testing setup."""
+        """Run before every method to create a clean testing setup."""
         self.inst = pysat.Instrument(platform='pysat', name='testing')
         self.model = pysat.Instrument(inst_module=pysat_testmodel)
         self.inst.load(date=pysat_testmodel._test_dates[''][''])
@@ -243,7 +243,7 @@ class TestUtilsExtractInstModView:
         return
 
     def teardown(self):
-        """Runs after every method to clean up previous testing."""
+        """Run after every method to clean up previous testing."""
         del self.inst, self.model, self.input_args, self.out, self.model_label
         del self.input_kwargs, self.log_capture
 
