@@ -61,6 +61,7 @@ class TestModels(InstTestClass):
 
         # Assign the location of the model Instrument sub-modules
         self.inst_loc = pysatModels.models
+        return
 
     def teardown_class(self):
         """Clean up downloaded files and parameters from tests."""
@@ -68,3 +69,4 @@ class TestModels(InstTestClass):
         pysat.params.data['data_dirs'] = self.saved_path
         self.tempdir.cleanup()
         del self.inst_loc, self.saved_path, self.tempdir
+        return

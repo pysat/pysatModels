@@ -25,11 +25,13 @@ class TestUtilsCompare():
                                                 {"units": self.units})},
                                 coords=coords)
         self.input_args = [self.pairs, [self.dat_key], [self.mod_key], ["all"]]
+        return
 
     def teardown(self):
         """Clean up the unit test environment after each method."""
 
         del self.dat_key, self.mod_key, self.units, self.pairs, self.input_args
+        return
 
     @pytest.mark.parametrize("input_ind,input_val,err_tst",
                              [(0, None, "must provide Dataset of paired"),

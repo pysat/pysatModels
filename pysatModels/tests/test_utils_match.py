@@ -30,6 +30,7 @@ class TestUtilsMatchLoadModelXarray():
         self.model_inst = None
         self.xout = None
         self.temp_file = 'None'
+        return
 
     def teardown(self):
         """Clean up the unit test environment after each method."""
@@ -39,6 +40,7 @@ class TestUtilsMatchLoadModelXarray():
 
         del self.ftime, self.model_kwargs, self.xout, self.filename
         del self.temp_file, self.model_inst
+        return
 
     def test_no_inst(self):
         """Test failure when no instrument object is provided."""
@@ -47,6 +49,7 @@ class TestUtilsMatchLoadModelXarray():
             match.load_model_xarray(self.ftime)
 
         assert verr.value.args[0].find("must provide a pysat.Instrument") >= 0
+        return
 
     @pytest.mark.parametrize("fname", [(None), ('filename')])
     def test_load_filename(self, fname):
@@ -73,6 +76,7 @@ class TestUtilsMatchLoadModelXarray():
             assert kk in self.xout.data_vars
 
         assert self.model_inst.index.name in self.xout.coords
+        return
 
     def test_load_pandas_inst(self):
         """Test success when loading a panads pysat Instrument."""
@@ -88,6 +92,7 @@ class TestUtilsMatchLoadModelXarray():
             assert kk in self.xout.data_vars
 
         assert self.model_inst.index.name in self.xout.coords
+        return
 
     def test_load_empty_inst(self):
         """Test return value of None with empty instrument load."""
@@ -98,6 +103,7 @@ class TestUtilsMatchLoadModelXarray():
         self.xout = match.load_model_xarray(self.ftime, self.model_inst)
 
         assert self.xout is None
+        return
 
 
 class TestUtilsMatchCollectInstModPairs():
@@ -128,12 +134,14 @@ class TestUtilsMatchCollectInstModPairs():
         ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
         ps_mod.logger.setLevel(logging.INFO)
         self.out = None
+        return
 
     def teardown(self):
         """Clean up the unit test environment after each method."""
 
         del self.input_args, self.required_kwargs, self.inst, self.model
         del self.out, self.log_capture, self.stime
+        return
 
     @pytest.mark.parametrize("mkey,mout",
                              [("verr", None), ("ierr", None),
@@ -164,6 +172,7 @@ class TestUtilsMatchCollectInstModPairs():
             with pytest.raises(TypeError, match=mout):
                 match.collect_inst_model_pairs(*self.input_args,
                                                **self.required_kwargs)
+        return
 
     @pytest.mark.parametrize("del_key,err_msg",
                              [("inst_lon_name",
@@ -200,6 +209,7 @@ class TestUtilsMatchCollectInstModPairs():
         with pytest.raises(ValueError, match=err_msg):
             match.collect_inst_model_pairs(*self.input_args,
                                            **self.required_kwargs)
+        return
 
     def test_bad_time(self):
         """Test the match routine the times prevent any data from loading."""
@@ -208,6 +218,7 @@ class TestUtilsMatchCollectInstModPairs():
 
         assert match.collect_inst_model_pairs(*self.input_args,
                                               **self.required_kwargs) is None
+        return
 
     @pytest.mark.parametrize("tinc_val, einc, num",
                              [(dt.timedelta(days=1), dt.timedelta(days=1), 3),
@@ -231,6 +242,7 @@ class TestUtilsMatchCollectInstModPairs():
         assert np.all(np.isfinite(self.out[self.ref_col].values))
         assert self.out.index[0].date() == self.stime.date()
         assert self.out.index[-1] < self.stime + einc
+        return
 
     @pytest.mark.parametrize("lin, lout, test_out",
                              [([-179.0, 179.0], [-180.0, 180.0], 3),
@@ -279,6 +291,7 @@ class TestUtilsMatchCollectInstModPairs():
             assert np.all(np.isfinite(self.out[self.ref_col].values))
             assert self.out['longitude'].min() >= lout[0]
             assert self.out['longitude'].max() <= lout[1]
+        return
 
     def test_success_skip_download(self):
         """Test the match success with skip_download key."""
@@ -294,6 +307,7 @@ class TestUtilsMatchCollectInstModPairs():
 
         assert self.ref_col in [kk for kk in self.out.variables]
         assert len(self.out[self.ref_col]) > 0
+        return
 
     def test__inst_download_missing(self):
         """Test the download data loop, which will fail to download anything."""
@@ -306,3 +320,4 @@ class TestUtilsMatchCollectInstModPairs():
                                                   **self.required_kwargs)
 
         assert self.out is None
+        return
