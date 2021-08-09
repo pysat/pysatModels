@@ -1,3 +1,11 @@
+"""Unit and Integration Tests for each instrument module.
+
+Note
+----
+Imports test methods from pysat.tests.instrument_test_class
+
+"""
+
 import pytest
 import tempfile
 
@@ -33,10 +41,18 @@ for method in method_list:
 
 
 class TestModels(InstTestClass):
+    """Main class for instrument tests.
+
+    Note
+    ----
+    Uses class level setup and teardown so that all tests use the same
+    temporary directory. We do not want to geneate a new tempdir for each test,
+    as the load tests need to be the same as the download tests.
+
+    """
 
     def setup_class(self):
-        """Runs once before the tests to initialize the testing setu
-        """
+        """Initialize the testing setup once before all tests are run."""
         # Make sure to use a temporary directory so that the user setup is not
         # altered
         self.tempdir = tempfile.TemporaryDirectory()
@@ -47,8 +63,8 @@ class TestModels(InstTestClass):
         self.inst_loc = pysatModels.models
 
     def teardown_class(self):
-        """Runs after every method to clean up previous testing
-        """
+        """Clean up downloaded files and parameters from tests."""
+
         pysat.params.data['data_dirs'] = self.saved_path
         self.tempdir.cleanup()
         del self.inst_loc, self.saved_path, self.tempdir

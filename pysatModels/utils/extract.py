@@ -3,10 +3,7 @@
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
-"""
-Routines to extract observational-style data from model output
-
-"""
+"""Routines to extract observational-style data from model output."""
 
 import numpy as np
 import scipy.interpolate as interpolate
@@ -527,7 +524,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                                   pair_method='closest', method='linear',
                                   model_label='model',
                                   model_units_attr='units'):
-    """Extracts instrument-aligned data from a modelled data set
+    """Extract instrument-aligned data from a modelled data set.
 
     Parameters
     ----------

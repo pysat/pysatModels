@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-Supports exported model data from pyDINEOF, a Python package
-that interfaces with a version of Data Interpolation Empirical
-Orthogonal Functions (DINEOFs). This module couples into
-the systematic export pyDINEOF format and thus should support
+"""Supports exported model data from pyDINEOF.
+
+pyDINEOF is a Python package that interfaces with a version of Data
+Interpolation Empirical Orthogonal Functions (DINEOFs). This module couples
+into the systematic export pyDINEOF format and thus should support
 all exports from the package.
 
 Given the generality of the support, each model series is identified
@@ -76,8 +76,8 @@ _test_download = {'': {'': False,
 
 
 def init(self):
-    """Initializes the Instrument object with instrument specific values.
-    """
+    """Initialize the Instrument object with instrument specific values."""
+
     acks = ''.join(('The original DINEOF model code may be found at ',
                     'http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF.',
                     'pyDINEOFs is stored online in a private repository at ',
@@ -94,8 +94,7 @@ def init(self):
 
 
 def clean(self):
-    """Method to return pydineof data cleaned to the specified level, unused
-    """
+    """Return pydineof data cleaned to the specified level, unused."""
 
     logger.info('Cleaning not supported for DINEOFs')
 
@@ -116,7 +115,7 @@ list_files = functools.partial(pysat.instruments.methods.general.list_files,
 
 
 def load(fnames, tag=None, inst_id=None, **kwargs):
-    """Loads pydineof data using xarray.
+    """Load pydineof data using xarray.
 
     Parameters
     ----------
@@ -162,7 +161,11 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
 
 def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
-    """Downloads dineof data.  Currently only retrieves test data from github
+    """Download dineof data.
+
+    Note
+    ----
+    Currently only retrieves test data from github
 
     Parameters
     ----------

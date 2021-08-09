@@ -3,9 +3,7 @@
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
-"""
-pysatModels
-===========
+"""Core library for pysatModels.
 
 Model utilities designed to facilitate studies that integrate observational
 and modelled data sets.
