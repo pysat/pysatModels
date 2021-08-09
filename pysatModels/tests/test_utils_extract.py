@@ -25,8 +25,12 @@ class TestUtilsExtractObsViewModel:
                                       num_samples=6),
                      ['latitude', 'longitude'], ['dummy1', 'dummy2']]
 
+        return
+
     def teardown(self):
         del self.args
+
+        return
 
     def test_str_coords(self):
         """ Test string coordinate input"""
@@ -36,12 +40,16 @@ class TestUtilsExtractObsViewModel:
         for label in self.args[3]:
             assert "model_{:s}".format(label) in self.args[1].data.columns
 
+        return
+
     def test_str_obs(self):
         """ Test string model observation input"""
         self.args[3] = self.args[3][0]
         extract.instrument_view_through_model(*self.args)
 
         assert "model_{:s}".format(self.args[3]) in self.args[1].data.columns
+
+        return
 
 
 class TestUtilsExtractModObs:
@@ -68,10 +76,14 @@ class TestUtilsExtractModObs:
         ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
         ps_mod.logger.setLevel(logging.INFO)
 
+        return
+
     def teardown(self):
         """Runs after every method to clean up previous testing."""
         del self.inst, self.model, self.input_args, self.out, self.model_label
         del self.input_kwargs, self.log_capture
+
+        return
 
     @pytest.mark.parametrize("bad_index,bad_input,err_msg",
                              [(2, [], "Must provide instrument location"),
@@ -90,6 +102,8 @@ class TestUtilsExtractModObs:
             extract.extract_modelled_observations(*self.input_args)
 
         assert str(verr.value.args[0]).find(err_msg) >= 0
+
+        return
 
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
                              [("sel_name", ["altitude"],
@@ -110,6 +124,8 @@ class TestUtilsExtractModObs:
 
         assert str(err.value.args[0]).find(err_msg) >= 0
 
+        return
+
     @pytest.mark.parametrize("sel_val", [["dummy1", "dummy2"], ["dummy1"]])
     def test_good_sel_name(self, sel_val):
         """ Test for success with different good selection name inputs"""
@@ -120,6 +136,8 @@ class TestUtilsExtractModObs:
         for label in sel_val:
             assert "{:s}_{:s}".format(self.model_label, label) in self.out
         assert len(self.out) == len(np.asarray(sel_val))
+
+        return
 
     def test_success_w_out_of_bounds(self):
         """ Test the extraction success for all variables without UT dependence
@@ -142,6 +160,8 @@ class TestUtilsExtractModObs:
                 assert len(self.inst.data[tcol][
                     ~np.isnan(self.inst.data[tcol])]) > 0
 
+        return
+
     def test_failure_for_already_ran_data(self):
         """ Test the failure for all model variables already extracted """
 
@@ -161,6 +181,8 @@ class TestUtilsExtractModObs:
 
         assert str(err.value.args[0]).find(
             'instrument object already contains all model data') >= 0
+
+        return
 
     def test_success_for_some_already_ran_data(self):
         """ Test the success for some model variables already extracted """
@@ -186,6 +208,8 @@ class TestUtilsExtractModObs:
                         == self.inst.data[tcol].shape)
                 assert len(self.inst.data[tcol][
                     ~np.isnan(self.inst.data[tcol])]) > 0
+
+        return
 
 
 class TestUtilsExtractInstModView:
@@ -216,10 +240,14 @@ class TestUtilsExtractInstModView:
         ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
         ps_mod.logger.setLevel(logging.INFO)
 
+        return
+
     def teardown(self):
         """Runs after every method to clean up previous testing."""
         del self.inst, self.model, self.input_args, self.out, self.model_label
         del self.input_kwargs, self.log_capture
+
+        return
 
     def test_standard_call(self):
         """Test for successful interpolation."""
@@ -231,6 +259,8 @@ class TestUtilsExtractInstModView:
 
         for name in self.out:
             assert name in self.inst.data
+
+        return
 
     @pytest.mark.parametrize("bad_index,bad_input,err_msg",
                              [(2, [], 'Must provide inst_name as a list'),
@@ -251,6 +281,8 @@ class TestUtilsExtractInstModView:
 
         assert str(verr.value.args[0]).find(err_msg) >= 0
 
+        return
+
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
                              [("sel_name", ["unknown_variable"],
                                "unknown_variable is not a valid model variabl"),
@@ -268,6 +300,8 @@ class TestUtilsExtractInstModView:
                                                   **self.input_kwargs)
 
         assert str(err.value.args[0]).find(err_msg) >= 0
+
+        return
 
     def test_failure_for_already_ran_data(self):
         """Test the failure for all model variables already extracted."""
@@ -288,6 +322,8 @@ class TestUtilsExtractInstModView:
 
         assert str(err.value.args[0]).find(
             'instrument object already contains all model data') >= 0
+
+        return
 
     def test_success_for_some_already_ran_data(self):
         """Test the success for some model variables already extracted."""
@@ -318,3 +354,5 @@ class TestUtilsExtractInstModView:
                         == self.inst.data[tcol].shape)
                 assert len(self.inst.data[tcol][
                     ~np.isnan(self.inst.data[tcol])]) > 0
+
+        return
