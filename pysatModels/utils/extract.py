@@ -254,7 +254,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     mod_name = pyutils.listify(mod_name)
     methods = pyutils.listify(methods)
 
-    # interp over all vars if None provided
+    # Interpolate over all variables if None provided
     if sel_name is None:
         sel_name = pyutils.listify(model.data_vars.keys())
     else:

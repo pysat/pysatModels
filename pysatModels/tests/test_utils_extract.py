@@ -189,7 +189,7 @@ class TestUtilsExtractModObs:
 
 
 class TestUtilsExtractInstModView:
-    """ Unit tests for utils.extract.instrument_view_through_model """
+    """Unit tests for `utils.extract.instrument_view_through_model`."""
 
     def setup(self):
         """Runs before every method to create a clean testing setup."""
@@ -222,7 +222,7 @@ class TestUtilsExtractInstModView:
         del self.input_kwargs, self.log_capture
 
     def test_standard_call(self):
-        """Test for successful interpolation"""
+        """Test for successful interpolation."""
 
         self.out = extract.instrument_view_through_model(*self.input_args,
                                                          **self.input_kwargs)
@@ -242,8 +242,7 @@ class TestUtilsExtractInstModView:
                               (4, "naname", "unknown model name for datetime"),
                               (5, "naname", "Unknown model time coordinate")])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
-        """ Test for expected failure with bad input arguments
-        """
+        """Test for expected failure with bad input arguments."""
         self.input_args[bad_index] = bad_input
 
         with pytest.raises(ValueError) as verr:
@@ -261,7 +260,7 @@ class TestUtilsExtractInstModView:
                                "Must provide interpolation selection"),
                               ("model_label", 1, "expected str instance")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
-        """ Test for expected failure with bad kwarg input """
+        """Test for expected failure with bad kwarg input."""
         self.input_kwargs[bad_key] = bad_val
 
         with pytest.raises((ValueError, TypeError)) as err:
@@ -271,7 +270,7 @@ class TestUtilsExtractInstModView:
         assert str(err.value.args[0]).find(err_msg) >= 0
 
     def test_failure_for_already_ran_data(self):
-        """ Test the failure for all model variables already extracted """
+        """Test the failure for all model variables already extracted."""
 
         self.input_kwargs["model_label"] = self.model_label
 
@@ -291,7 +290,7 @@ class TestUtilsExtractInstModView:
             'instrument object already contains all model data') >= 0
 
     def test_success_for_some_already_ran_data(self):
-        """ Test the success for some model variables already extracted """
+        """Test the success for some model variables already extracted."""
 
         all_sel = list(self.input_kwargs['sel_name'])
         all_sel.append('dummy72')
