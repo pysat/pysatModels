@@ -302,9 +302,8 @@ class TestUtilsExtractInstModView:
         for i, selected in enumerate([all_sel[1:], all_sel]):
             self.input_kwargs['sel_name'] = selected
             self.input_kwargs['methods'] = ['linear'] * len(selected)
-            self.out = \
-                extract.instrument_view_through_model(*self.input_args,
-                                                      **self.input_kwargs)
+            self.out = extract.instrument_view_through_model(
+                *self.input_args, **self.input_kwargs)
 
             lout = self.log_capture.getvalue()
 
