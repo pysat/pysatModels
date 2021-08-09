@@ -16,9 +16,9 @@ import pysatModels.utils.extract as extract
 
 @pytest.mark.skip("input requires a regular grid for the model")
 class TestUtilsExtractObsViewModel:
-    """ Unit tests for utils.extract.sat_view_through_model"""
+    """ Unit tests for `utils.extract.sat_view_through_model`."""
     def setup(self):
-        """ Runs before every method to create a clean testing setup."""
+        """Run before every method to create a clean testing setup."""
         self.args = [pysat.Instrument(platform='pysat', name='testing',
                                       num_samples=12),
                      pysat.Instrument(platform='pysat', name='testing',
@@ -28,12 +28,13 @@ class TestUtilsExtractObsViewModel:
         return
 
     def teardown(self):
+        """Run after every method to clean up previous testing."""
         del self.args
 
         return
 
     def test_str_coords(self):
-        """ Test string coordinate input"""
+        """Test string coordinate input."""
         self.args[2] = self.args[2][0]
         extract.instrument_view_through_model(*self.args)
 
@@ -43,7 +44,7 @@ class TestUtilsExtractObsViewModel:
         return
 
     def test_str_obs(self):
-        """ Test string model observation input"""
+        """Test model observation string input."""
         self.args[3] = self.args[3][0]
         extract.instrument_view_through_model(*self.args)
 
@@ -56,7 +57,7 @@ class TestUtilsExtractModObs:
     """Unit tests for `utils.extract.extract_modelled_observations`."""
 
     def setup(self):
-        """Runs before every method to create a clean testing setup."""
+        """Run before every method to create a clean testing setup."""
         self.inst = pysat.Instrument(platform='pysat', name='testing')
         self.model = pysat.Instrument(inst_module=pysat_testmodel)
         self.inst.load(date=pysat_testmodel._test_dates[''][''])
@@ -94,8 +95,7 @@ class TestUtilsExtractModObs:
                               (4, "naname", "unknown model name for datetime"),
                               (5, "naname", "Unknown model time coordinate")])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
-        """ Test for expected failure with bad input arguments
-        """
+        """Test for expected failure with bad input arguments."""
         self.input_args[bad_index] = bad_input
 
         with pytest.raises(ValueError) as verr:
@@ -115,7 +115,7 @@ class TestUtilsExtractModObs:
                               ("pair_method", "fun",
                                "unknown pairing method")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
-        """ Test for expected failure with bad kwarg input """
+        """Test for expected failure with bad kwarg input."""
         self.input_kwargs[bad_key] = bad_val
 
         with pytest.raises(Exception) as err:
@@ -128,7 +128,7 @@ class TestUtilsExtractModObs:
 
     @pytest.mark.parametrize("sel_val", [["dummy1", "dummy2"], ["dummy1"]])
     def test_good_sel_name(self, sel_val):
-        """ Test for success with different good selection name inputs"""
+        """Test for success with different good selection name inputs."""
         self.input_kwargs = {"sel_name": sel_val,
                              "model_label": self.model_label}
         self.out = extract.extract_modelled_observations(*self.input_args,
@@ -140,7 +140,7 @@ class TestUtilsExtractModObs:
         return
 
     def test_success_w_out_of_bounds(self):
-        """ Test the extraction success for all variables without UT dependence
+        """Test the extraction success for all variables without UT dependence.
         """
         self.input_kwargs["model_label"] = self.model_label
         self.out = extract.extract_modelled_observations(*self.input_args,
@@ -163,7 +163,7 @@ class TestUtilsExtractModObs:
         return
 
     def test_failure_for_already_ran_data(self):
-        """ Test the failure for all model variables already extracted """
+        """Test the failure for all model variables already extracted."""
 
         self.input_kwargs["model_label"] = self.model_label
 
@@ -185,7 +185,7 @@ class TestUtilsExtractModObs:
         return
 
     def test_success_for_some_already_ran_data(self):
-        """ Test the success for some model variables already extracted """
+        """Test the success for some model variables already extracted."""
 
         all_sel = list(self.input_kwargs['sel_name'])
         self.input_kwargs['model_label'] = self.model_label
