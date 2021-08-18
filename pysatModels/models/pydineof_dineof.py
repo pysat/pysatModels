@@ -76,8 +76,7 @@ _test_download = {'': {'': False,
 
 
 def init(self):
-    """Initialize the Instrument object with instrument specific values.
-    """
+    """Initialize the Instrument object with instrument specific values."""
     acks = ''.join(('The original DINEOF model code may be found at ',
                     'http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF.',
                     'pyDINEOFs is stored online in a private repository at ',
