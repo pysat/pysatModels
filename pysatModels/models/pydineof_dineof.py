@@ -1,26 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Support exported model data from pyDINEOF, a Python package
-that interfaces with a version of Data Interpolation Empirical
-Orthogonal Functions (DINEOFs). This module couples into
-the systematic export pyDINEOF format and thus should support
-all exports from the package.
-
-Given the generality of the support, each model series is identified
-using the `tag` keyword.
-
-DINEOFs are a purely data based method that can analyze a data-set, with
-data gaps, and extract a series of basis functions that optimally reproduce
-the input data. The quality of the reconstruction is primarily determined
-by the quantity and quality of the input data.
-
-http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF
-
-References
-----------
-J.-M. Beckers and M. Rixen. EOF calculations and data filling from
-incomplete oceanographic data sets. Journal of Atmospheric and
-Oceanic Technology, 20(12):1839-­1856, 2003.
+Support exported model data from pyDINEOF.
 
 Properties
 ----------
@@ -35,11 +15,30 @@ inst_id
 
 Note
 ----
+pyDINEOFs is a Python package that interfaces with a version of
+Data Interpolation Empirical Orthogonal Functions (DINEOFs).
+This module couples into the systematic export pyDINEOF format and thus
+should support all exports from the package.
+
 Specific tags are not listed here as this method is intended to support
 all pyDINEOF export models. Place the desired model (daily files)
-at '{pysat_data_dir}/pydineof/dineof/{tag}'. It is presumed the default
+at '{pysat_data_dir}/pydineof/dineof/{tag}'. Each model series is identified
+using the `tag` keyword. It is presumed the default
 naming scheme of 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
 has been retained. Use the `file_format` option for custom filenames.
+
+DINEOFs are a purely data based method that can analyze a data-set, with
+data gaps, and extract a series of basis functions that optimally reproduce
+the input data. The quality of the reconstruction is primarily determined
+by the quantity and quality of the input data.
+
+http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF
+
+References
+----------
+J.-M. Beckers and M. Rixen. EOF calculations and data filling from
+incomplete oceanographic data sets. Journal of Atmospheric and
+Oceanic Technology, 20(12):1839-­1856, 2003.
 
 """
 import datetime as dt
