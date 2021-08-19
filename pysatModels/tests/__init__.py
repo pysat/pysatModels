@@ -2,5 +2,5 @@
 
 Note
 ----
-This file must remain emtpy of code for pytest to function.
+This file must remain empty of code for pytest to function.
 """
