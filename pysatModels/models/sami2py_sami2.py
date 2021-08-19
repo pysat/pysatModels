@@ -200,7 +200,6 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
             if not os.path.isfile(saved_local_fname):
                 with open(saved_local_fname, 'wb') as open_f:
                     open_f.write(req.content)
-                open_f.close()
         else:
             warnings.warn('Unable to find remote file: {:}'.format(remote_path))
 
