@@ -200,7 +200,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates.
     mod_name : array-like
-        list of names of the data series to use for determing model locations
+        list of names of the data series to use for determining model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
@@ -247,20 +247,26 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     """
 
     # Ensure the coordinate and data variable names are array-like
-    inst_name = np.asarray(inst_name)
-    mod_name = np.asarray(mod_name)
-    method = np.asarray(methods)
+    inst_name = pyutils.listify(inst_name)
+    mod_name = pyutils.listify(mod_name)
+    methods = pyutils.listify(methods)
 
-    # interp over all vars if None provided
+    # Interpolate over all variables if None provided
     if sel_name is None:
-        sel_name = np.asarray(list(model.data_vars.keys()))
+        sel_name = pyutils.listify(model.data_vars.keys())
     else:
-        sel_name = np.asarray(sel_name)
+        sel_name = pyutils.listify(sel_name)
 
     if len(methods) != len(sel_name):
-        estr = ' '.join('Must provide interpolation selection',
-                        'for each variable via methods keyword.')
+        estr = ' '.join(('Must provide interpolation selection',
+                        'for each variable via methods keyword.'))
         raise ValueError(estr)
+
+    for method in methods:
+        if method not in ['linear', 'nearest']:
+            estr = ''.join(('Methods only supports "linear" or "nearest".',
+                            ' Not ', method))
+            raise ValueError(estr)
 
     # Test input
     if len(inst_name) == 0:
@@ -287,8 +293,22 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
 
+    for name in sel_name:
+        if name not in model:
+            estr = ''.join((name, ' is not a valid model variable.'))
+            raise ValueError(estr)
+
+    if mod_datetime_name in model.data_vars:
+        mod_datetime = model.data_vars[mod_datetime_name]
+        mod_datetime = mod_datetime.values.astype(np.int64)
+    elif mod_datetime_name in model.coords:
+        mod_datetime = model.coords[mod_datetime_name].values.astype(np.int64)
+    else:
+        raise ValueError("".join(["unknown model name for datetime: ",
+                                  mod_datetime_name]))
+
     # Determine the scaling between model and instrument data
-    inst_scale = np.ones(shape=len(inst_name), dtype=float)
+    inst_scale = np.ones(shape=len(inst_name), dtype=np.float64)
     for i, iname in enumerate(inst_name):
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
@@ -296,11 +316,27 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         inst_scale[i] = pyutils.scale_units(
             mod_units[i], inst.meta[iname, inst.meta.labels.units])
 
+    del_list = list()
+    keep_list = list()
+    for mdat in sel_name:
+        mname = '_'.join((model_label, mdat))
+        if mname in inst.data.keys():
+            ps_mod.logger.warning("".join(["model data already interpolated:",
+                                           " {:}".format(mname)]))
+            del_list.append(mdat)
+        else:
+            keep_list.append(mdat)
+
+    if len(sel_name) == len(del_list):
+        raise ValueError("instrument object already contains all model data")
+    elif len(del_list) > 0:
+        sel_name = keep_list
+
     # Create inst input based upon provided dimension names
     coords = [inst[coord_name] for coord_name in inst_name]
 
     # Time goes first
-    coords.insert(0, inst.index.values.astype(int))
+    coords.insert(0, inst.index.values.astype(np.int64))
 
     # Move from a list of lists [ [x1, x2, ...], [y1, y2, ...]]
     # to a list of tuples
@@ -319,7 +355,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         points = []
 
         # Time dim first
-        points.append(model[mod_datetime_name].values.astype(int))
+        points.append(mod_datetime)
 
         # Now spatial
         for iscale, var in zip(inst_scale, mod_name):
