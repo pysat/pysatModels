@@ -14,7 +14,7 @@ import pysatModels.utils.extract as extract
 
 
 @pytest.mark.skip("input requires a regular grid for the model")
-class TestUtilsExtractObsViewModel():
+class TestUtilsExtractObsViewModel(object):
     """Unit tests for utils.extract.sat_view_through_model."""
 
     def setup(self):
@@ -53,8 +53,8 @@ class TestUtilsExtractObsViewModel():
         return
 
 
-class TestUtilsExtractModObs():
-    """Unit tests for utils.extract.extract_modelled_observations."""
+class TestUtilsExtractModObs(object):
+    """Unit tests for `utils.extract.extract_modelled_observations`."""
 
     def setup(self):
         """Set up the unit test environment for each method."""

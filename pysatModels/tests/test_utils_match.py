@@ -15,7 +15,7 @@ import pysatModels as ps_mod
 import pysatModels.utils.match as match
 
 
-class TestUtilsMatchLoadModelXarray():
+class TestUtilsMatchLoadModelXarray(object):
     """Unit tests for utils.match.load_model_xarray."""
 
     def setup(self):
@@ -106,7 +106,7 @@ class TestUtilsMatchLoadModelXarray():
         return
 
 
-class TestUtilsMatchCollectInstModPairs():
+class TestUtilsMatchCollectInstModPairs(object):
     """Unit tests for utils.match.collect_inst_model_pairs."""
 
     def setup(self):

@@ -8,7 +8,7 @@ import xarray as xr
 import pysatModels.utils.compare as compare
 
 
-class TestUtilsCompare():
+class TestUtilsCompare(object):
     """Unit tests for utils.compare."""
 
     def setup(self):
