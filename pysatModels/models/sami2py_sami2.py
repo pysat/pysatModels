@@ -201,7 +201,7 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
                     open_f.write(req.content)
             else:
                 warnings.warn(' '.join(('Unable to find remote file:',
-                                        remote_path))))
+                                        remote_path)))
 
     else:
         warnings.warn('Downloads currently only supported for test files.')
