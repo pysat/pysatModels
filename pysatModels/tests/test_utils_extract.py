@@ -210,11 +210,12 @@ class TestUtilsExtractModObs(object):
         return
 
 
-class TestUtilsExtractInstModView:
+class TestUtilsExtractInstModView(object):
     """Unit tests for `utils.extract.instrument_view_through_model`."""
 
     def setup(self):
         """Run before every method to create a clean testing setup."""
+
         self.inst = pysat.Instrument(platform='pysat', name='testing')
         self.model = pysat.Instrument(inst_module=pysat_testmodel)
         self.inst.load(date=pysat_testmodel._test_dates[''][''])
@@ -242,6 +243,7 @@ class TestUtilsExtractInstModView:
 
     def teardown(self):
         """Run after every method to clean up previous testing."""
+
         del self.inst, self.model, self.input_args, self.out, self.model_label
         del self.input_kwargs, self.log_capture
 
@@ -271,6 +273,7 @@ class TestUtilsExtractInstModView:
                               (5, "naname", "Unknown model time coordinate")])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
         """Test for expected failure with bad input arguments."""
+
         self.input_args[bad_index] = bad_input
 
         with pytest.raises(ValueError) as verr:
@@ -291,6 +294,7 @@ class TestUtilsExtractInstModView:
                               ("model_label", 1, "expected str instance")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
         """Test for expected failure with bad kwarg input."""
+
         self.input_kwargs[bad_key] = bad_val
 
         with pytest.raises((ValueError, TypeError)) as err:
