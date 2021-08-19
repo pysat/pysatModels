@@ -144,6 +144,8 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
+    # Manually close link to file
+    data.close()
 
     return data, meta
 
