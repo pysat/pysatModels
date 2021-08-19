@@ -1,8 +1,8 @@
 # Author: Angeline Burrell, NRL, 2019
 """Unit tests for `pysatModels.utils.extract`."""
 
-import logging
 from io import StringIO
+import logging
 import numpy as np
 import pytest
 

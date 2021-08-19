@@ -7,8 +7,8 @@
 
 import numpy as np
 
-import verify  # PyForecastTools
 import pysat
+import verify  # PyForecastTools
 
 import pysatModels as ps_mod
 

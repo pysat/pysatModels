@@ -2,8 +2,8 @@
 """Unit tests for `pysatModels.utils.match`."""
 
 import datetime as dt
-import logging
 from io import StringIO
+import logging
 import numpy as np
 import os
 import pytest
