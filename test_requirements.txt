@@ -1,5 +1,7 @@
 coveralls
 flake8
+flake8-docstrings
+hacking
 m2r2
 numpydoc
 pytest-cov
