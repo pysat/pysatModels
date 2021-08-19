@@ -140,8 +140,8 @@ class TestUtilsExtractModObs(object):
         return
 
     def test_success_w_out_of_bounds(self):
-        """Test the extraction success for all variables without UT dependence.
-        """
+        """Test extraction success for all variables without UT dependence."""
+
         self.input_kwargs["model_label"] = self.model_label
         self.out = extract.extract_modelled_observations(*self.input_args,
                                                          **self.input_kwargs)
