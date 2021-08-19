@@ -6,6 +6,9 @@ from pysat.tests.instrument_test_class import InstTestClass
 
 import pysatModels
 
+# Test code - remove methods
+del InstTestClass.test_load
+
 # Retrieve the lists of Model instruments and testing methods
 instruments = pysat.utils.generate_instrument_list(inst_loc=pysatModels.models)
 method_list = [func for func in dir(InstTestClass)
