@@ -157,8 +157,9 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     # netCDF4 files were produced by xarray
     # returning an xarray.Dataset
-    return pysat.utils.load_netcdf4(fnames, epoch_name='time',
-                                    pandas_format=False)
+    data, meta = pysat.utils.load_netcdf4(fnames, epoch_name='time',
+                                          pandas_format=False)
+    return data, meta
 
 
 def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
