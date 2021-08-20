@@ -92,8 +92,7 @@ def init(self):
 
 
 def clean(self):
-    """Clean pydineof data to the specified level, unused
-    """
+    """Clean pydineof data to the specified level, unused."""
 
     logger.info('Cleaning not supported for DINEOFs')
 
