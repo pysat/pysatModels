@@ -105,7 +105,7 @@ def init(self):
 
 # Required method
 def clean(self):
-    """Return UCER/TIE-GCM data cleaned to the specified level, unused."""
+    """Return UCAR/TIE-GCM data cleaned to the specified level, unused."""
 
     logger.info('Cleaning not supported or needed for TIEGCM')
     return
