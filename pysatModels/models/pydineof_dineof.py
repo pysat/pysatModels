@@ -60,7 +60,7 @@ tags = {'': 'pydineof output file',
         'test': 'Standard output of pydineof for benchmarking'}
 inst_ids = {'': [tag for tag in tags.keys()]}
 
-# Specify the use of xarray instead of pandas
+# Specify the use of xarray instead of pandas.
 pandas_format = False
 
 # ----------------------------------------------------------------------------
@@ -104,7 +104,6 @@ def clean(self):
 #
 # Use local and default pysat methods
 
-# Set the list_files routine
 # Set the list_files routine
 fname = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
 supported_tags = {'': {'': fname, 'test': fname}}
@@ -152,8 +151,8 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     """
 
-    # netCDF4 files were produced by xarray
-    # returning an xarray.Dataset
+    # netCDF4 files were produced by xarray.
+    # Returning an xarray.Dataset.
     return pysat.utils.load_netcdf4(fnames, epoch_name='time',
                                     pandas_format=False)
 
@@ -194,10 +193,10 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
         remote_url = 'https://github.com/pysat/pysatModels/'
         remote_path = 'blob/main/pysatModels/tests/test_data/'
 
-        # Need to tell github to show the raw data, not the webpage version
+        # Need to tell github to show the raw data, not the webpage version.
         fname = 'dineof-2009-01-01.nc?raw=true'
 
-        # Use a pysat-compatible name
+        # Use a pysat-compatible name.
         format_str = supported_tags[inst_id][tag]
         saved_local_fname = os.path.join(data_path,
                                          format_str.format(year=date.year,
