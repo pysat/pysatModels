@@ -186,7 +186,7 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
     Note
     ----
     This routine is invoked by pysat and is not intended for direct use by
-    the end user. Currently only retrieves test data from github
+    the end user. Currently only retrieves test data from github.
 
     The test object generates the datetime requested by the user, which may not
     match the date of the model run.
