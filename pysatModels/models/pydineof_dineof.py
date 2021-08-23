@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Support exported model data from pyDINEOF.
+"""Support exported model data from pyDINEOF.
 
 Properties
 ----------
