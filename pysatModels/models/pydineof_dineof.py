@@ -157,8 +157,12 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     # netCDF4 files were produced by xarray
     # returning an xarray.Dataset
-    return pysat.utils.load_netcdf4(fnames, epoch_name='time',
-                                    pandas_format=False)
+    data, meta = pysat.utils.load_netcdf4(fnames, epoch_name='time',
+                                          pandas_format=False)
+    # Manually close link to file.
+    data.close()
+
+    return data, meta
 
 
 def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
@@ -214,13 +218,9 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
                     with open(saved_local_fname, 'wb') as open_f:
                         open_f.write(req.content)
             else:
-                warnings.warn('Unable to find remote file: {:}'.format(
-                    remote_path))
+                warnings.warn(' '.join(('Unable to find remote file:',
+                                        remote_path)))
     else:
-        saved_local_fname = os.path.join(data_path, 'empty_file.txt')
-        with open(saved_local_fname, 'w') as open_f:
-            open_f.write(' ')
-
         warnings.warn('Downloads currently only supported for test files.')
 
     return

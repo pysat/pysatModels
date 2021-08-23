@@ -144,6 +144,8 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
+    # Manually close link to file
+    data.close()
 
     return data, meta
 
@@ -195,11 +197,13 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
                                                            day=date.day))
         remote_path = '/'.join((remote_url.strip('/'), remote_path.strip('/'),
                                 fname))
-        req = requests.get(remote_path)
-        if req.status_code != 404:
-            open(saved_local_fname, 'wb').write(req.content)
-        else:
-            warnings.warn('Unable to find remote file: {:}'.format(remote_path))
+        with requests.get(remote_path) as req:
+            if req.status_code != 404:
+                with open(saved_local_fname, 'wb') as open_f:
+                    open_f.write(req.content)
+            else:
+                warnings.warn(' '.join(('Unable to find remote file:',
+                                        remote_path)))
 
     else:
         warnings.warn('Downloads currently only supported for test files.')
