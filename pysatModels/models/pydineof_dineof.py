@@ -159,7 +159,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     # returning an xarray.Dataset
     data, meta = pysat.utils.load_netcdf4(fnames, epoch_name='time',
                                           pandas_format=False)
-    # Manually close link to file
+    # Manually close link to file.
     data.close()
 
     return data, meta
