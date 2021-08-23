@@ -1,9 +1,8 @@
 # Author: Angeline Burrell, NRL, 2019
+"""Unit tests for `pysatModels.utils.extract`."""
 
-from __future__ import absolute_import, unicode_literals
-
-import logging
 from io import StringIO
+import logging
 import numpy as np
 import pytest
 
@@ -15,49 +14,51 @@ import pysatModels.utils.extract as extract
 
 
 @pytest.mark.skip("input requires a regular grid for the model")
-class TestUtilsExtractObsViewModel:
-    """ Unit tests for `utils.extract.sat_view_through_model`."""
+class TestUtilsExtractObsViewModel(object):
+    """Unit tests for utils.extract.sat_view_through_model."""
+
     def setup(self):
-        """Run before every method to create a clean testing setup."""
+        """Set up the unit test environment for each method."""
+
         self.args = [pysat.Instrument(platform='pysat', name='testing',
                                       num_samples=12),
                      pysat.Instrument(platform='pysat', name='testing',
                                       num_samples=6),
                      ['latitude', 'longitude'], ['dummy1', 'dummy2']]
-
         return
 
     def teardown(self):
-        """Run after every method to clean up previous testing."""
-        del self.args
+        """Clean up the unit test environment after each method."""
 
+        del self.args
         return
 
     def test_str_coords(self):
         """Test string coordinate input."""
+
         self.args[2] = self.args[2][0]
         extract.instrument_view_through_model(*self.args)
 
         for label in self.args[3]:
             assert "model_{:s}".format(label) in self.args[1].data.columns
-
         return
 
     def test_str_obs(self):
-        """Test model observation string input."""
+        """Test string model observation input."""
+
         self.args[3] = self.args[3][0]
         extract.instrument_view_through_model(*self.args)
 
         assert "model_{:s}".format(self.args[3]) in self.args[1].data.columns
-
         return
 
 
-class TestUtilsExtractModObs:
+class TestUtilsExtractModObs(object):
     """Unit tests for `utils.extract.extract_modelled_observations`."""
 
     def setup(self):
-        """Run before every method to create a clean testing setup."""
+        """Set up the unit test environment for each method."""
+
         self.inst = pysat.Instrument(platform='pysat', name='testing')
         self.model = pysat.Instrument(inst_module=pysat_testmodel)
         self.inst.load(date=pysat_testmodel._test_dates[''][''])
@@ -76,14 +77,13 @@ class TestUtilsExtractModObs:
         self.log_capture = StringIO()
         ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
         ps_mod.logger.setLevel(logging.INFO)
-
         return
 
     def teardown(self):
-        """Run after every method to clean up previous testing."""
+        """Clean up the unit test environment after each method."""
+
         del self.inst, self.model, self.input_args, self.out, self.model_label
         del self.input_kwargs, self.log_capture
-
         return
 
     @pytest.mark.parametrize("bad_index,bad_input,err_msg",
@@ -96,13 +96,13 @@ class TestUtilsExtractModObs:
                               (5, "naname", "Unknown model time coordinate")])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
         """Test for expected failure with bad input arguments."""
+
         self.input_args[bad_index] = bad_input
 
         with pytest.raises(ValueError) as verr:
             extract.extract_modelled_observations(*self.input_args)
 
         assert str(verr.value.args[0]).find(err_msg) >= 0
-
         return
 
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
@@ -116,6 +116,7 @@ class TestUtilsExtractModObs:
                                "unknown pairing method")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
         """Test for expected failure with bad kwarg input."""
+
         self.input_kwargs[bad_key] = bad_val
 
         with pytest.raises(Exception) as err:
@@ -123,12 +124,12 @@ class TestUtilsExtractModObs:
                                                   **self.input_kwargs)
 
         assert str(err.value.args[0]).find(err_msg) >= 0
-
         return
 
     @pytest.mark.parametrize("sel_val", [["dummy1", "dummy2"], ["dummy1"]])
     def test_good_sel_name(self, sel_val):
         """Test for success with different good selection name inputs."""
+
         self.input_kwargs = {"sel_name": sel_val,
                              "model_label": self.model_label}
         self.out = extract.extract_modelled_observations(*self.input_args,
@@ -136,12 +137,11 @@ class TestUtilsExtractModObs:
         for label in sel_val:
             assert "{:s}_{:s}".format(self.model_label, label) in self.out
         assert len(self.out) == len(np.asarray(sel_val))
-
         return
 
     def test_success_w_out_of_bounds(self):
-        """Test the extraction success for all variables without UT dependence.
-        """
+        """Test extraction success for all variables without UT dependence."""
+
         self.input_kwargs["model_label"] = self.model_label
         self.out = extract.extract_modelled_observations(*self.input_args,
                                                          **self.input_kwargs)
@@ -159,7 +159,6 @@ class TestUtilsExtractModObs:
                         == self.inst.data[tcol].shape)
                 assert len(self.inst.data[tcol][
                     ~np.isnan(self.inst.data[tcol])]) > 0
-
         return
 
     def test_failure_for_already_ran_data(self):
@@ -181,7 +180,6 @@ class TestUtilsExtractModObs:
 
         assert str(err.value.args[0]).find(
             'instrument object already contains all model data') >= 0
-
         return
 
     def test_success_for_some_already_ran_data(self):
@@ -212,11 +210,12 @@ class TestUtilsExtractModObs:
         return
 
 
-class TestUtilsExtractInstModView:
+class TestUtilsExtractInstModView(object):
     """Unit tests for `utils.extract.instrument_view_through_model`."""
 
     def setup(self):
         """Run before every method to create a clean testing setup."""
+
         self.inst = pysat.Instrument(platform='pysat', name='testing')
         self.model = pysat.Instrument(inst_module=pysat_testmodel)
         self.inst.load(date=pysat_testmodel._test_dates[''][''])
@@ -244,6 +243,7 @@ class TestUtilsExtractInstModView:
 
     def teardown(self):
         """Run after every method to clean up previous testing."""
+
         del self.inst, self.model, self.input_args, self.out, self.model_label
         del self.input_kwargs, self.log_capture
 
@@ -273,6 +273,7 @@ class TestUtilsExtractInstModView:
                               (5, "naname", "Unknown model time coordinate")])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
         """Test for expected failure with bad input arguments."""
+
         self.input_args[bad_index] = bad_input
 
         with pytest.raises(ValueError) as verr:
@@ -293,6 +294,7 @@ class TestUtilsExtractInstModView:
                               ("model_label", 1, "expected str instance")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
         """Test for expected failure with bad kwarg input."""
+
         self.input_kwargs[bad_key] = bad_val
 
         with pytest.raises((ValueError, TypeError)) as err:
@@ -354,5 +356,4 @@ class TestUtilsExtractInstModView:
                         == self.inst.data[tcol].shape)
                 assert len(self.inst.data[tcol][
                     ~np.isnan(self.inst.data[tcol])]) > 0
-
         return

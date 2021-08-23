@@ -1,4 +1,5 @@
 # Author: Angeline Burrell, NRL, 2019
+"""Unit tests for `pysatModels.utils.compare`."""
 
 import numpy as np
 import pytest
@@ -7,12 +8,12 @@ import xarray as xr
 import pysatModels.utils.compare as compare
 
 
-class TestUtilsCompare():
-    """ Unit tests for utils.compare
-    """
+class TestUtilsCompare(object):
+    """Unit tests for utils.compare."""
+
     def setup(self):
-        """ Runs before every method to create a clean testing setup.
-        """
+        """Set up the unit test environment for each method."""
+
         coords = {"lat": np.arange(-90, 90, 10), "alt": np.arange(200, 800, 10)}
         temp = np.zeros(shape=(len(coords['lat']), len(coords['alt'])))
         self.dat_key = 'sat_Ti'
@@ -24,11 +25,13 @@ class TestUtilsCompare():
                                                 {"units": self.units})},
                                 coords=coords)
         self.input_args = [self.pairs, [self.dat_key], [self.mod_key], ["all"]]
+        return
 
     def teardown(self):
-        """ Runs after every method to create a clean testing setup.
-        """
+        """Clean up the unit test environment after each method."""
+
         del self.dat_key, self.mod_key, self.units, self.pairs, self.input_args
+        return
 
     @pytest.mark.parametrize("input_ind,input_val,err_tst",
                              [(0, None, "must provide Dataset of paired"),
@@ -61,8 +64,8 @@ class TestUtilsCompare():
         return
 
     def test_compare_model_and_inst_data_success(self):
-        """Test the successful comparison for all possible statistics.
-        """
+        """Test the successful comparison for all possible statistics."""
+
         # Get the output data
         out_stat, out_units = compare.compare_model_and_inst(*self.input_args)
 

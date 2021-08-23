@@ -76,6 +76,7 @@ _test_download = {'': {'': False,
 
 def init(self):
     """Initialize the Instrument object with instrument specific values."""
+
     acks = ''.join(('The original DINEOF model code may be found at ',
                     'http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF.',
                     'pyDINEOFs is stored online in a private repository at ',
@@ -162,7 +163,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
 
 def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
-    """Download dineof data.  Currently only retrieves test data from github.
+    """Download dineof data. 
 
     Parameters
     ----------
@@ -185,7 +186,7 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
     Note
     ----
     This routine is invoked by pysat and is not intended for direct use by
-    the end user.
+    the end user. Currently only retrieves test data from github
 
     The test object generates the datetime requested by the user, which may not
     match the date of the model run.
