@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Support exported model data from pyDINEOF.
+"""
+Support exported model data from pyDINEOF.
 
 Properties
 ----------
@@ -162,7 +163,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
 
 def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
-    """Download dineof data. 
+    """Download dineof data.
 
     Parameters
     ----------
