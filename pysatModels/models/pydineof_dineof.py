@@ -1,26 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Supports exported model data from pyDINEOF.
-
-pyDINEOF is a Python package that interfaces with a version of Data
-Interpolation Empirical Orthogonal Functions (DINEOFs). This module couples
-into the systematic export pyDINEOF format and thus should support
-all exports from the package.
-
-Given the generality of the support, each model series is identified
-using the `tag` keyword.
-
-DINEOFs are a purely data based method that can analyze a data-set, with
-data gaps, and extract a series of basis functions that optimally reproduce
-the input data. The quality of the reconstruction is primarily determined
-by the quantity and quality of the input data.
-
-http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF
-
-References
-----------
-J.-M. Beckers and M. Rixen. EOF calculations and data filling from
-incomplete oceanographic data sets. Journal of Atmospheric and
-Oceanic Technology, 20(12):1839-­1856, 2003.
+"""
+Support exported model data from pyDINEOF.
 
 Properties
 ----------
@@ -35,11 +15,30 @@ inst_id
 
 Note
 ----
+pyDINEOFs is a Python package that interfaces with a version of
+Data Interpolation Empirical Orthogonal Functions (DINEOFs).
+This module couples into the systematic export pyDINEOF format and thus
+should support all exports from the package.
+
 Specific tags are not listed here as this method is intended to support
 all pyDINEOF export models. Place the desired model (daily files)
-at '{pysat_data_dir}/pydineof/dineof/{tag}'. It is presumed the default
+at '{pysat_data_dir}/pydineof/dineof/{tag}'. Each model series is identified
+using the `tag` keyword. It is presumed the default
 naming scheme of 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
 has been retained. Use the `file_format` option for custom filenames.
+
+DINEOFs are a purely data based method that can analyze a data-set, with
+data gaps, and extract a series of basis functions that optimally reproduce
+the input data. The quality of the reconstruction is primarily determined
+by the quantity and quality of the input data.
+
+http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF
+
+References
+----------
+J.-M. Beckers and M. Rixen. EOF calculations and data filling from
+incomplete oceanographic data sets. Journal of Atmospheric and
+Oceanic Technology, 20(12):1839-­1856, 2003.
 
 """
 import datetime as dt
@@ -61,7 +60,7 @@ tags = {'': 'pydineof output file',
         'test': 'Standard output of pydineof for benchmarking'}
 inst_ids = {'': [tag for tag in tags.keys()]}
 
-# Specify the use of xarray instead of pandas
+# Specify the use of xarray instead of pandas.
 pandas_format = False
 
 # ----------------------------------------------------------------------------
@@ -94,7 +93,7 @@ def init(self):
 
 
 def clean(self):
-    """Return pydineof data cleaned to the specified level, unused."""
+    """Clean pydineof data to the specified level, unused."""
 
     logger.info('Cleaning not supported for DINEOFs')
 
@@ -106,7 +105,6 @@ def clean(self):
 #
 # Use local and default pysat methods
 
-# Set the list_files routine
 # Set the list_files routine
 fname = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
 supported_tags = {'': {'': fname, 'test': fname}}
@@ -154,18 +152,18 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     """
 
-    # netCDF4 files were produced by xarray
-    # returning an xarray.Dataset
-    return pysat.utils.load_netcdf4(fnames, epoch_name='time',
-                                    pandas_format=False)
+    # netCDF4 files were produced by xarray.
+    # returning an xarray.Dataset.
+    data, meta = pysat.utils.load_netcdf4(fnames, epoch_name='time',
+                                          pandas_format=False)
+    # Manually close link to file.
+    data.close()
+
+    return data, meta
 
 
 def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
     """Download dineof data.
-
-    Note
-    ----
-    Currently only retrieves test data from github
 
     Parameters
     ----------
@@ -188,7 +186,7 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
     Note
     ----
     This routine is invoked by pysat and is not intended for direct use by
-    the end user.
+    the end user. Currently only retrieves test data from github.
 
     The test object generates the datetime requested by the user, which may not
     match the date of the model run.
@@ -200,10 +198,10 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
         remote_url = 'https://github.com/pysat/pysatModels/'
         remote_path = 'blob/main/pysatModels/tests/test_data/'
 
-        # Need to tell github to show the raw data, not the webpage version
+        # Need to tell github to show the raw data, not the webpage version.
         fname = 'dineof-2009-01-01.nc?raw=true'
 
-        # Use a pysat-compatible name
+        # Use a pysat-compatible name.
         format_str = supported_tags[inst_id][tag]
         saved_local_fname = os.path.join(data_path,
                                          format_str.format(year=date.year,
@@ -211,12 +209,16 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
                                                            day=date.day))
         remote_path = '/'.join((remote_url.strip('/'), remote_path.strip('/'),
                                 fname))
-        req = requests.get(remote_path)
-        if req.status_code != 404:
-            open(saved_local_fname, 'wb').write(req.content)
-        else:
-            warnings.warn('Unable to find remote file: {:}'.format(remote_path))
+        with requests.get(remote_path) as req:
+            if req.status_code != 404:
+                if not os.path.isfile(saved_local_fname):
+                    with open(saved_local_fname, 'wb') as open_f:
+                        open_f.write(req.content)
+            else:
+                warnings.warn(' '.join(('Unable to find remote file:',
+                                        remote_path)))
     else:
+
         warnings.warn('Downloads currently only supported for test files.')
 
     return
