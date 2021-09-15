@@ -13,7 +13,8 @@ import verify  # PyForecastTools
 import pysatModels as ps_mod
 
 
-def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all']):
+def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all'],
+                           unit_label='units'):
     """Compare modelled and measured data.
 
     Parameters
@@ -27,7 +28,10 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all']):
         Ordered list of strings indicating which modelled data to compare to
         instrument measurements
     methods : list
-        Statistics to calculate. See Notes for accecpted inputs. (default="all")
+        Statistics to calculate. See Notes for accecpted inputs.
+        (default=['all'])
+    unit_label : str
+        Unit attribute for data in `pairs` (default='units')
 
     Returns
     -------
@@ -141,13 +145,15 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all']):
 
     # Initialize the output
     stat_dict = {iname: dict() for iname in inst_name}
-    data_units = {iname: pairs.data_vars[iname].units for iname in inst_name}
+    data_units = {iname: pairs.data_vars[iname].attrs[unit_label]
+                  for iname in inst_name}
 
     # Cycle through all of the data types
     for i, iname in enumerate(inst_name):
         # Determine whether the model data needs to be scaled
-        iscale = pysat.utils.scale_units(pairs.data_vars[iname].units,
-                                         pairs.data_vars[mod_name[i]].units)
+        iscale = pysat.utils.scale_units(
+            pairs.data_vars[iname].attrs[unit_label],
+            pairs.data_vars[mod_name[i]].attrs[unit_label])
         mod_scaled = pairs.data_vars[mod_name[i]].values.flatten() * iscale
 
         # Flatten both data sets, since accuracy routines require 1D arrays
