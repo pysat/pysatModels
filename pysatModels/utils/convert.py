@@ -4,14 +4,14 @@
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
 """
-Routines to support extracting pysat.Instrument data as xarray.Datasets
+Routines to support extracting pysat.Instrument data as xarray.Datasets.
 
 """
 from os import path
 
 
 def load_model_xarray(ftime, model_inst=None, filename=None):
-    """ Load and extract data from a model Instrument at the specified time
+    """Load and extract data from a model Instrument at the specified time.
 
     Parameters
     ----------
@@ -53,7 +53,7 @@ def load_model_xarray(ftime, model_inst=None, filename=None):
 
 
 def convert_pysat_to_xarray(inst):
-    """ Extract data from a model Instrument as a Dataset with metadata
+    """Extract data from a model Instrument as a Dataset with metadata.
 
     Parameters
     ----------

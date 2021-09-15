@@ -4,7 +4,7 @@
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
 """
-Utilities designed to extract, match, and compare modelled and observed data
+Utilities designed to extract, match, and compare modelled and observed data.
 
 """
 

@@ -18,7 +18,7 @@ import pysatModels as ps_mod
 
 def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all'],
                            unit_label='units'):
-    """Compare modelled and measured data
+    """Compare modelled and measured data.
 
     Parameters
     ----------
