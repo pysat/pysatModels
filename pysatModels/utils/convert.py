@@ -7,6 +7,7 @@
 Routines to support extracting pysat.Instrument data as xarray.Datasets.
 
 """
+
 from os import path
 
 
