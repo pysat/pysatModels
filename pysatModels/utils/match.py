@@ -12,8 +12,8 @@ import pandas as pds
 import pysat
 
 import pysatModels
-from pysatModels.utils import extract
 from pysatModels.utils.convert import load_model_xarray
+from pysatModels.utils import extract
 
 
 def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
