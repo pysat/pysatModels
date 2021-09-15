@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Supports loading data from files generated using TIEGCM
-(Thermosphere Ionosphere Electrodynamics General Circulation Model) model.
-TIEGCM file is a netCDF file with multiple dimensions for some variables.
+"""Supports loading data from files generated using TIEGCM model.
+
+TIEGCM (Thermosphere Ionosphere Electrodynamics General Circulation Model)
+file is a netCDF file with multiple dimensions for some variables.
 
 Properties
 ----------
@@ -47,8 +47,8 @@ _test_download = {'': {'': False}}
 
 
 def init(self):
-    """Initializes the Instrument object with instrument specific values.
-    """
+    """Initialize the Instrument object with instrument specific values."""
+
     ack = " ".join(["References and information about TIEGCM are available at",
                     "https://www.hao.ucar.edu/modeling/tgcm/index.php"])
     refs = [" ".join(("Dickinson, R. E., E. C. Ridley and R. G. Roble, A",
@@ -105,8 +105,7 @@ def init(self):
 
 # Required method
 def clean(self):
-    """Method to return UCER/TIE-GCM data cleaned to the specified level, unused
-    """
+    """Return UCAR/TIE-GCM data cleaned to the specified level, unused."""
 
     logger.info('Cleaning not supported or needed for TIEGCM')
     return
@@ -125,7 +124,7 @@ list_files = functools.partial(pysat.instruments.methods.general.list_files,
 
 
 def load(fnames, tag=None, inst_id=None, **kwargs):
-    """Loads TIE-GCM data using xarray.
+    """Load TIE-GCM data using xarray.
 
     Parameters
     ----------
@@ -182,7 +181,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
 
 def download(date_array, tag, inst_id, data_path=None, **kwargs):
-    """Placeholder for UCAR TIE-GCM downloads. Doesn't do anything.
+    """Download UCAR TIE-GCM (placeholder). Doesn't do anything.
 
     Parameters
     ----------

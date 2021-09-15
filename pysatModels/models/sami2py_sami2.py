@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Supports loading data from files generated using the sami2py model.
+"""Supports loading data from files generated using the sami2py model.
+
 sami2py file is a netCDF file with multiple dimensions for some variables.
 The sami2py project is at https://www.github.com/sami2py/sami2py
 
@@ -51,8 +51,7 @@ _test_download = {'': {'': False,
 
 
 def init(self):
-    """Initializes the Instrument object with instrument specific values.
-    """
+    """Initialize the Instrument object with instrument specific values."""
 
     self.acknowledgements = " ".join(("This work uses the SAMI2 ionosphere",
                                       "model written and developed by the",
@@ -74,8 +73,7 @@ def init(self):
 
 
 def clean(self):
-    """Method to return SAMI data cleaned to the specified level, unused
-    """
+    """Return SAMI data cleaned to the specified level, unused."""
 
     logger.info('Cleaning not supported for SAMI')
 
@@ -95,7 +93,7 @@ list_files = functools.partial(pysat.instruments.methods.general.list_files,
 
 
 def load(fnames, tag=None, inst_id=None, **kwargs):
-    """Loads sami2py data using xarray.
+    """Load sami2py data using xarray.
 
     This routine is called as needed by pysat. It is not intended
     for direct user interaction.
@@ -144,12 +142,18 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
+    # Manually close link to file
+    data.close()
 
     return data, meta
 
 
 def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
-    """Downloads sami2py data.  Currently only retrieves test data from github
+    """Download sami2py data.
+
+    Note
+    ----
+    Currently only retrieves test data from github
 
     Parameters
     ----------
@@ -195,11 +199,13 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
                                                            day=date.day))
         remote_path = '/'.join((remote_url.strip('/'), remote_path.strip('/'),
                                 fname))
-        req = requests.get(remote_path)
-        if req.status_code != 404:
-            open(saved_local_fname, 'wb').write(req.content)
-        else:
-            warnings.warn('Unable to find remote file: {:}'.format(remote_path))
+        with requests.get(remote_path) as req:
+            if req.status_code != 404:
+                with open(saved_local_fname, 'wb') as open_f:
+                    open_f.write(req.content)
+            else:
+                warnings.warn(' '.join(('Unable to find remote file:',
+                                        remote_path)))
 
     else:
         warnings.warn('Downloads currently only supported for test files.')

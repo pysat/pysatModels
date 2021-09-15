@@ -3,15 +3,12 @@
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
-"""
-Routines to align and work with pairs of modelled and observational data
-
-"""
+"""Routines to align and work with pairs of modelled and observational data."""
 
 import numpy as np
 
-import verify  # PyForecastTools
 import pysat
+import verify  # PyForecastTools
 
 import pysatModels as ps_mod
 

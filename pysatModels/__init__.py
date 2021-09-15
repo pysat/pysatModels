@@ -3,9 +3,7 @@
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
-"""
-pysatModels
-===========
+"""Core library for pysatModels.
 
 Model utilities designed to facilitate studies that integrate observational
 and modelled data sets.
@@ -16,8 +14,8 @@ import logging
 import os
 
 # Import key modules and skip F401 testing in flake8
-from pysatModels import utils  # noqa: F401
 from pysatModels import models  # noqa: F401
+from pysatModels import utils  # noqa: F401
 
 # Set the version
 local_dir = os.path.abspath(os.path.dirname(__file__))

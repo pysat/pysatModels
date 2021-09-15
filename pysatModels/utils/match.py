@@ -3,10 +3,7 @@
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
-"""
-Routines to match modelled and observational data
-
-"""
+"""Routines to match modelled and observational data."""
 
 import datetime as dt
 import numpy as np
@@ -28,7 +25,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                              mod_units=None, sel_name=None, time_method='min',
                              pair_method='closest', method='linear',
                              model_label='model', comp_clean='clean'):
-    """Pair instrument and model data
+    """Pair instrument and model data.
 
     Parameters
     ----------
