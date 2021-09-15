@@ -61,13 +61,11 @@ def eval_xarray_output(inst, xdata):
     return
 
 
-class TestUtilsConvertLoadModelXarray():
-    """Unit tests for `utils.convert.load_model_xarray`.
-    """
+class TestUtilsConvertLoadModelXarray(object):
+    """Unit tests for `utils.convert.load_model_xarray`."""
 
     def setup(self):
-        """Create a clean testing setup before each method.
-        """
+        """Create a clean testing setup before each method."""
         self.ftime = pysat.instruments.pysat_testing_xarray._test_dates['']['']
         self.filename = "%Y-%m-%d.nofile"
         self.model_kwargs = {'platform': str('pysat'),
@@ -87,8 +85,7 @@ class TestUtilsConvertLoadModelXarray():
         del self.temp_file, self.model_inst
 
     def test_no_inst(self):
-        """Test failure when no instrument object is provided.
-        """
+        """Test failure when no instrument object is provided."""
         with pytest.raises(ValueError) as verr:
             convert.load_model_xarray(self.ftime)
 
@@ -97,8 +94,7 @@ class TestUtilsConvertLoadModelXarray():
 
     @pytest.mark.parametrize("fname", [(None), ('filename')])
     def test_load_filename(self, fname):
-        """Test success when loading through different filename options.
-        """
+        """Test success when loading through different filename options."""
         if fname is not None:
             if hasattr(self, fname):
                 fname = getattr(self, fname)
@@ -120,8 +116,7 @@ class TestUtilsConvertLoadModelXarray():
     @pytest.mark.parametrize("mkey, mval", [("name", "testing"),
                                             (None, None)])
     def test_load_inst(self, mkey, mval):
-        """Test success when loading different types of pysat Instruments.
-        """
+        """Test success when loading different types of pysat Instruments."""
         if mkey in self.model_kwargs.keys():
             self.model_kwargs[mkey] = mval
         self.model_inst = pysat.Instrument(**self.model_kwargs)
@@ -132,12 +127,11 @@ class TestUtilsConvertLoadModelXarray():
         return
 
 
-class TestUtilsConvertPysatXarray():
-    """Unit tests for utils.convert.convert_pydat_to_xarray.
-    """
+class TestUtilsConvertPysatXarray(object):
+    """Unit tests for utils.convert.convert_pydat_to_xarray."""
+
     def setup(self):
-        """Create a clean testing setup before each method.
-        """
+        """Create a clean testing setup before each method."""
         self.ref_time = pysat.instruments.pysat_testing._test_dates['']['']
 
     def teardown(self):
@@ -148,8 +142,7 @@ class TestUtilsConvertPysatXarray():
                                             ('testing', True),
                                             ('testmodel', True)])
     def test_convert_pysat_to_xarray(self, name, load):
-        """Test success when converting pysat data to an xarray.Dataset.
-        """
+        """Test success when converting pysat data to an xarray.Dataset."""
         # Initialize the pysat Instrument, loading if desired. Also ensure
         # load worked correctly
         inst = pysat.Instrument('pysat', name)

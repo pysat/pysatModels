@@ -13,8 +13,9 @@ import pysatModels as ps_mod
 import pysatModels.utils.match as match
 
 
-class TestUtilsMatchCollectInstModPairs():
+class TestUtilsMatchCollectInstModPairs(object):
     """Unit tests for utils.match.collect_inst_model_pairs."""
+
     def setup(self):
         """Set up the unit test environment for each method."""
 
