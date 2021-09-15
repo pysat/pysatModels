@@ -3,7 +3,7 @@
 # Copyright (C) 2019, pysat team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
-
+"""Unit tests for pysatModels.utils.convert."""
 import numpy as np
 import os
 import pytest
@@ -15,7 +15,7 @@ from pysatModels.utils import convert
 
 
 def eval_xarray_output(inst, xdata):
-    """ Evaluate the convertion from pysat.Instrument to xarray.Dataset
+    """Evaluate the conversion from pysat.Instrument to xarray.Dataset.
 
     Parameters
     ----------
@@ -26,7 +26,7 @@ def eval_xarray_output(inst, xdata):
 
     Raises
     ------
-    AssertionError
+    ValueError
         If data type is incorrect, if data variables don't match, or if
         metadata variables don't match
 
@@ -62,10 +62,11 @@ def eval_xarray_output(inst, xdata):
 
 
 class TestUtilsConvertLoadModelXarray():
-    """ Unit tests for utils.convert.load_model_xarray
+    """Unit tests for `utils.convert.load_model_xarray`.
     """
+
     def setup(self):
-        """ Runs before every method to create a clean testing setup
+        """Create a clean testing setup before each method.
         """
         self.ftime = pysat.instruments.pysat_testing_xarray._test_dates['']['']
         self.filename = "%Y-%m-%d.nofile"
@@ -78,6 +79,7 @@ class TestUtilsConvertLoadModelXarray():
         self.temp_file = 'None'
 
     def teardown(self):
+        """Clean up test environment after each method."""
         if os.path.isfile(self.temp_file):
             os.remove(self.temp_file)
 
@@ -85,7 +87,7 @@ class TestUtilsConvertLoadModelXarray():
         del self.temp_file, self.model_inst
 
     def test_no_inst(self):
-        """ Test failure when no instrument object is provided
+        """Test failure when no instrument object is provided.
         """
         with pytest.raises(ValueError) as verr:
             convert.load_model_xarray(self.ftime)
@@ -95,7 +97,7 @@ class TestUtilsConvertLoadModelXarray():
 
     @pytest.mark.parametrize("fname", [(None), ('filename')])
     def test_load_filename(self, fname):
-        """ Test success when loading through different filename options
+        """Test success when loading through different filename options.
         """
         if fname is not None:
             if hasattr(self, fname):
@@ -118,7 +120,7 @@ class TestUtilsConvertLoadModelXarray():
     @pytest.mark.parametrize("mkey, mval", [("name", "testing"),
                                             (None, None)])
     def test_load_inst(self, mkey, mval):
-        """ Test success when loading different types of pysat Instruments
+        """Test success when loading different types of pysat Instruments.
         """
         if mkey in self.model_kwargs.keys():
             self.model_kwargs[mkey] = mval
@@ -131,21 +133,22 @@ class TestUtilsConvertLoadModelXarray():
 
 
 class TestUtilsConvertPysatXarray():
-    """ Unit tests for utils.convert.convert_pydat_to_xarray
+    """Unit tests for utils.convert.convert_pydat_to_xarray.
     """
     def setup(self):
-        """ Runs before every method to create a clean testing setup
+        """Create a clean testing setup before each method.
         """
         self.ref_time = pysat.instruments.pysat_testing._test_dates['']['']
 
     def teardown(self):
+        """Clean up test environment after each method."""
         del self.ref_time
 
     @pytest.mark.parametrize("name, load", [('testing', False),
                                             ('testing', True),
                                             ('testmodel', True)])
     def test_convert_pysat_to_xarray(self, name, load):
-        """ Test success when converting pysat data to an xarray.Dataset
+        """Test success when converting pysat data to an xarray.Dataset.
         """
         # Initialize the pysat Instrument, loading if desired. Also ensure
         # load worked correctly
