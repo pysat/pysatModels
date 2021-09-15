@@ -36,7 +36,7 @@ name = 'main'
 tags = {'': 'aether output file for unnamed run',
         'test': 'Standard output of Aether for benchmarking'}
 inst_ids = {inst_id: list(tags.keys())
-            for inst_id in ['3Dall', '3Dneu', '3dion']}
+            for inst_id in ['3dall', '3dneu', '3dion']}
 
 pandas_format = False
 multi_file_day = True
