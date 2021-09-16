@@ -6,6 +6,7 @@
 """Routines to extract observational-style data from model output."""
 
 import numpy as np
+import re
 import scipy.interpolate as interpolate
 
 import pandas as pds
@@ -317,7 +318,8 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         # Some units may have extra information (e.g., 'degrees North').
         # Use only the actual units in the scaling function.  These are assumed
         # to come first.
-        long_units = inst.meta[iname, inst.meta.labels.units].split()[0]
+        long_units = re.split('\W+|_',
+                              inst.meta[iname, inst.meta.labels.units])[0]
         inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     del_list = list()
@@ -483,7 +485,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         # Some units may have extra information (e.g., 'degrees North').
         # Use only the actual units in the scaling function.  These are assumed
         # to come first.
-        long_units = inst.meta[iname, inst.meta.labels.units].split()[0]
+        long_units = re.split('\W+|_',
+                              inst.meta[iname, inst.meta.labels.units])[0]
         inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     # First, model locations for interpolation (regulargrid)
@@ -680,7 +683,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         # Some units may have extra information (e.g., 'degrees North').
         # Use only the actual units in the scaling function.  These are assumed
         # to come first.
-        long_units = inst.meta[iname, inst.meta.labels.units].split()[0]
+        long_units = re.split('\W+|_',
+                              inst.meta[iname, inst.meta.labels.units])[0]
         inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     # Determine the model time resolution
