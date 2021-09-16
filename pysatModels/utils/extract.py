@@ -105,7 +105,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
-        # altitude variable check
+        # Altitude variable check
         if iname == inst_alt:
             alt_scale = pyutils.scale_units(
                 mod_alt_units, inst.meta[iname, inst.meta.labels.units])
@@ -313,8 +313,12 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
-        inst_scale[i] = pyutils.scale_units(
-            mod_units[i], inst.meta[iname, inst.meta.labels.units])
+
+        # Some units may have extra information (e.g., 'degrees North').
+        # Use only the actual units in the scaling function.  These are assumed
+        # to come first.
+        long_units = inst.meta[iname, inst.meta.labels.units].split()[0]
+        inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     del_list = list()
     keep_list = list()
@@ -476,8 +480,11 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
 
-        inst_scale[i] = pyutils.scale_units(
-            mod_units[i], inst.meta[iname, inst.meta.labels.units])
+        # Some units may have extra information (e.g., 'degrees North').
+        # Use only the actual units in the scaling function.  These are assumed
+        # to come first.
+        long_units = inst.meta[iname, inst.meta.labels.units].split()[0]
+        inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
@@ -669,8 +676,12 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:} '.format(iname),
                                       '(should not be epoch time)']))
-        inst_scale[i] = pyutils.scale_units(
-            mod_units[i], inst.meta[iname, inst.meta.labels.units])
+
+        # Some units may have extra information (e.g., 'degrees North').
+        # Use only the actual units in the scaling function.  These are assumed
+        # to come first.
+        long_units = inst.meta[iname, inst.meta.labels.units].split()[0]
+        inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     # Determine the model time resolution
     if mod_datetime_name in model.data_vars:
