@@ -217,7 +217,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
             if inst.empty or inst.index[-1] < istart:
                 inst.load(date=istart)
 
-            if not inst.empty and inst.index[0] >= istart:
+            if not inst.empty and np.any(inst.index >= istart):
                 added_names = extract.extract_modelled_observations(
                     inst=inst, model=mdata, inst_name=inst_name,
                     mod_name=mod_name, mod_datetime_name=mod_datetime_name,
