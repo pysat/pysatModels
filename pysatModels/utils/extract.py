@@ -245,6 +245,14 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     this does also yield an exponential variation along the horizontal
     directions as well.
 
+    Expects units strings to have the units as the first word, if a long
+    description is provided (e.g., 'degrees', 'degrees North', or 'deg_N' and
+    not 'geographic North degrees')
+
+    See Also
+    --------
+    pysat.utils.scale_units
+
     """
 
     # Ensure the coordinate and data variable names are array-like
@@ -318,7 +326,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         # Some units may have extra information (e.g., 'degrees North').
         # Use only the actual units in the scaling function.  These are assumed
         # to come first.
-        long_units = re.split('\W+|_',
+        long_units = re.split(r"\W+|_",
                               inst.meta[iname, inst.meta.labels.units])[0]
         inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
@@ -430,6 +438,17 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     interp_data.keys() : dict_keys
         Keys of modelled data added to the instrument
 
+
+    Notes
+    -----
+    Expects units strings to have the units as the first word, if a long
+    description is provided (e.g., 'degrees', 'degrees North', or 'deg_N' and
+    not 'geographic North degrees')
+
+    See Also
+    --------
+    pysat.utils.scale_units
+
     """
 
     # Ensure the inputs are array-like
@@ -485,7 +504,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         # Some units may have extra information (e.g., 'degrees North').
         # Use only the actual units in the scaling function.  These are assumed
         # to come first.
-        long_units = re.split('\W+|_',
+        long_units = re.split(r"\W+|_",
                               inst.meta[iname, inst.meta.labels.units])[0]
         inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
@@ -683,7 +702,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         # Some units may have extra information (e.g., 'degrees North').
         # Use only the actual units in the scaling function.  These are assumed
         # to come first.
-        long_units = re.split('\W+|_',
+        long_units = re.split(r"\W+|_",
                               inst.meta[iname, inst.meta.labels.units])[0]
         inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
