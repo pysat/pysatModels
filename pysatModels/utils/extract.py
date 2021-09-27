@@ -6,6 +6,7 @@
 """Routines to extract observational-style data from model output."""
 
 import numpy as np
+import re
 import scipy.interpolate as interpolate
 
 import pandas as pds
@@ -105,7 +106,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
-        # altitude variable check
+        # Altitude variable check
         if iname == inst_alt:
             alt_scale = pyutils.scale_units(
                 mod_alt_units, inst.meta[iname, inst.meta.labels.units])
@@ -244,6 +245,14 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     this does also yield an exponential variation along the horizontal
     directions as well.
 
+    Expects units strings to have the units as the first word, if a long
+    description is provided (e.g., 'degrees', 'degrees North', or 'deg_N' and
+    not 'geographic North degrees')
+
+    See Also
+    --------
+    pysat.utils.scale_units
+
     """
 
     # Ensure the coordinate and data variable names are array-like
@@ -313,8 +322,13 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
-        inst_scale[i] = pyutils.scale_units(
-            mod_units[i], inst.meta[iname, inst.meta.labels.units])
+
+        # Some units may have extra information (e.g., 'degrees North').
+        # Use only the actual units in the scaling function.  These are assumed
+        # to come first.
+        long_units = re.split(r"\W+|_",
+                              inst.meta[iname, inst.meta.labels.units])[0]
+        inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     del_list = list()
     keep_list = list()
@@ -424,6 +438,17 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     interp_data.keys() : dict_keys
         Keys of modelled data added to the instrument
 
+
+    Notes
+    -----
+    Expects units strings to have the units as the first word, if a long
+    description is provided (e.g., 'degrees', 'degrees North', or 'deg_N' and
+    not 'geographic North degrees')
+
+    See Also
+    --------
+    pysat.utils.scale_units
+
     """
 
     # Ensure the inputs are array-like
@@ -476,8 +501,12 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
 
-        inst_scale[i] = pyutils.scale_units(
-            mod_units[i], inst.meta[iname, inst.meta.labels.units])
+        # Some units may have extra information (e.g., 'degrees North').
+        # Use only the actual units in the scaling function.  These are assumed
+        # to come first.
+        long_units = re.split(r"\W+|_",
+                              inst.meta[iname, inst.meta.labels.units])[0]
+        inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
@@ -669,8 +698,13 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:} '.format(iname),
                                       '(should not be epoch time)']))
-        inst_scale[i] = pyutils.scale_units(
-            mod_units[i], inst.meta[iname, inst.meta.labels.units])
+
+        # Some units may have extra information (e.g., 'degrees North').
+        # Use only the actual units in the scaling function.  These are assumed
+        # to come first.
+        long_units = re.split(r"\W+|_",
+                              inst.meta[iname, inst.meta.labels.units])[0]
+        inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     # Determine the model time resolution
     if mod_datetime_name in model.data_vars:
