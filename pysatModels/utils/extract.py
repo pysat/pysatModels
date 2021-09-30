@@ -35,7 +35,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         at which the model data will be interpolated. Must be in the same order
         as mod_name.
     mod_name : array-like
-        list of names of the data series to use for determing model locations
+        list of names of the data series to use for determining model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
@@ -406,7 +406,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates. Same ordering as used by mod_name.
     mod_name : array-like
-        list of names of the data series to use for determing model locations
+        list of names of the data series to use for determining model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
@@ -598,10 +598,10 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     model : xarray.Dataset
         modelled data set
     inst_name : array-like
-        list of names of the data series to use for determing instrument
+        list of names of the data series to use for determining instrument
         location
     mod_name : array-like
-        list of names of the data series to use for determing model locations
+        list of names of the data series to use for determining model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
