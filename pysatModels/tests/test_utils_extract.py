@@ -413,27 +413,6 @@ class TestUtilsAltitudePressure(object):
         assert str(verr.value.args[0]).find(err_msg) >= 0
         return
 
-    # @pytest.mark.parametrize("bad_key,bad_val,err_msg",
-    #                          [("sel_name", ["altitude"],
-    #                            "No model data keys to interpolate"),
-    #                           ("method", "not_a_method",
-    #                            "interpn only understands the methods"),
-    #                           ("model_label", 1, "Unknown format code "),
-    #                           ("time_method", "fun", "unknown time method"),
-    #                           ("pair_method", "fun",
-    #                            "unknown pairing method")])
-    # def test_bad_kwarg_input(self, bad_key, bad_val, err_msg):
-    #     """Test for expected failure with bad kwarg input."""
-    #
-    #     self.input_kwargs[bad_key] = bad_val
-    #
-    #     with pytest.raises(Exception) as err:
-    #         extract.extract_modelled_observations(*self.input_args,
-    #                                               **self.input_kwargs)
-    #
-    #     assert str(err.value.args[0]).find(err_msg) >= 0
-    #     return
-    #
     @pytest.mark.parametrize("tol_val", [10., 1., 0.1])
     @pytest.mark.parametrize("scale_val", [1000., 100., 50.])
     def test_good_translation_over_tolerance_and_scale(self, tol_val,
