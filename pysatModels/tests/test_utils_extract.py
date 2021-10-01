@@ -435,10 +435,22 @@ class TestUtilsAltitudePressure(object):
     #     return
     #
     @pytest.mark.parametrize("tol_val", [10., 1., 0.1])
-    def test_good_translation_over_tolerance(self, tol_val):
-        """Test for success with different altitude tolerances"""
+    @pytest.mark.parametrize("scale_val", [1000., 100., 50.])
+    def test_good_translation_over_tolerance_and_scale(self, tol_val,
+                                                       scale_val):
+        """Test for success with different altitude tolerances and scales
 
-        self.input_kwargs = {"tol": tol_val}
+        Parameters
+        ----------
+        tol_val : float
+            Tolerance for altitude matching
+        scale_val : float
+            Scale height used to normalize altitude differences
+
+        """
+
+        self.input_kwargs = {"tol": tol_val,
+                             "scale": scale_val}
         self.out = extract.instrument_altitude_to_model_pressure(
             *self.input_args,
             **self.input_kwargs)
@@ -447,19 +459,4 @@ class TestUtilsAltitudePressure(object):
         # from Model) and ensure it is less than specified tolerance.
         alt_diff = np.abs(self.inst[self.out[0]] - self.inst['altitude'])
         assert np.all(alt_diff <= tol_val)
-        return
-
-    @pytest.mark.parametrize("scale_val", [1000., 100., 50.])
-    def test_good_translation_over_scale(self, scale_val):
-        """Test for success with different altitude scale heights"""
-
-        self.input_kwargs = {"scale": scale_val}
-        self.out = extract.instrument_altitude_to_model_pressure(
-            *self.input_args,
-            **self.input_kwargs)
-
-        # Calculate difference in altitude (Instrument and values extracted
-        # from Model) and ensure it is less than specified tolerance.
-        alt_diff = np.abs(self.inst[self.out[0]] - self.inst['altitude'])
-        assert np.all(alt_diff <= 1.0)
         return
