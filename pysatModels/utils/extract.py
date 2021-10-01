@@ -51,8 +51,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         Variable identifier for altitude data in the model
         e.g. 'ZG' in standard TIEGCM files.
     mod_alt_units : str
-        units for the altitude variable. Currently
-        supports: m, km, and cm
+        units for the altitude variable. Currently supports: m, km, and cm
     scale : float
         Scalar used to roughly translate a change in altitude with a
         change in pressure level, the scale height. Same units as used by inst.
@@ -65,6 +64,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         (default='model_pressure').
     tol : float
         Allowed difference between observed and modelled altitudes.
+        Interpreted to have the same units as `inst_alt` (default=1.0).
 
     Returns
     -------
@@ -189,7 +189,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         # Altitude pulled out from model
         orbit_alt = interp(sat_pts)
         # Difference in altitude
-        diff = np.e**orbit_alt - np.e**log_ialt
+        diff = np.e ** orbit_alt - np.e ** log_ialt
         # Shift index in inst for model pressure level in the opposite direction
         # to diff, reduced in value by scale, the 'scale height'
         inst_model_coord -= diff / scale
