@@ -435,7 +435,7 @@ class TestUtilsAltitudePressure(object):
     #     return
     #
     @pytest.mark.parametrize("tol_val", [10., 1., 0.1])
-    def test_good_translation(self, tol_val):
+    def test_good_translation_over_tolerance(self, tol_val):
         """Test for success with different altitude tolerances"""
 
         self.input_kwargs = {"tol": tol_val}
@@ -445,11 +445,25 @@ class TestUtilsAltitudePressure(object):
 
         # Calculate difference in altitude (Instrument and values extracted
         # from Model) and ensure it is less than specified tolerance.
-        print('Inst altitude ', self.inst['altitude'])
-        print('Returned Inteproalted alt ', self.out[0])
         alt_diff = np.abs(self.inst[self.out[0]] - self.inst['altitude'])
         assert np.all(alt_diff <= tol_val)
         return
+
+    @pytest.mark.parametrize("scale_val", [1000., 100., 50.])
+    def test_good_translation_over_scale(self, scale_val):
+        """Test for success with different altitude scale heights"""
+
+        self.input_kwargs = {"scale": scale_val}
+        self.out = extract.instrument_altitude_to_model_pressure(
+            *self.input_args,
+            **self.input_kwargs)
+
+        # Calculate difference in altitude (Instrument and values extracted
+        # from Model) and ensure it is less than specified tolerance.
+        alt_diff = np.abs(self.inst[self.out[0]] - self.inst['altitude'])
+        assert np.all(alt_diff <= 1.0)
+        return
+
     #
     # def test_success_w_out_of_bounds(self):
     #     """Test extraction success for all variables without UT dependence."""
