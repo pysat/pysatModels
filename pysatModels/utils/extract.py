@@ -80,8 +80,8 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     """
 
     # Ensure the coordinate and data variable names are array-like
-    inst_name = pysat.utils.listify(inst_name)
-    mod_name = pysat.utils.listify(mod_name)
+    inst_name = pyutils.listify(inst_name)
+    mod_name = pyutils.listify(mod_name)
 
     # Test input
     if len(inst_name) == 0:
@@ -103,6 +103,12 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
 
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
+
+    if inst_alt not in inst.variables:
+        raise ValueError("Unknown Instrument altitude key name")
+
+    if mod_alt not in model.data_vars:
+        raise ValueError("Unknown Model altitude key name")
 
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
