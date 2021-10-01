@@ -135,70 +135,69 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         raise ValueError("".join(["unknown model name for datetime: ",
                                   mod_datetime_name]))
 
-    # create initial fake regular grid index in inst
+    # Create initial fake regular grid index in inst
     inst_model_coord = inst[inst_name[0]] * 0
 
-    # we need to create altitude index from model
-    # collect relevant inputs
-    # First, model locations for interpolation
-    # we use the dimensions associated with model altitude
-    # in the order provided
+    # We need to create altitude index from the model.
+    # First, handle model locations for interpolation.
+    # We use the dimensions associated with model altitude
+    # in the order provided.
     points = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
-    # time first
+    # Add time in first
     points.insert(0, mod_datetime)
 
-    # create interpolator
+    # Create interpolator
     interp = interpolate.RegularGridInterpolator(points,
                                                  np.log(model[mod_alt].values
                                                         / alt_scale),
                                                  bounds_error=False,
                                                  fill_value=None)
-    # use this interpolator to figure out what altitudes we are at
-    # each loop, use the current estimated path through model expressed in
-    # pressure and interp above to get the equivalent altitude of this path
-    # compare this altitude to the actual instrument altitude
+    # Use this interpolator to figure out what altitudes we are at.
+    # Each loop, use the current estimated path through model expressed in
+    # pressure and interp above to get the equivalent altitude of this path.
+    # Compare this altitude to the actual instrument altitude and
     # shift the equivalent pressure for the instrument up/down
-    # until difference between altitudes is small
+    # until difference between altitudes is small.
 
-    # log of instrument altitude
+    # Log of instrument altitude
     log_ialt = np.log(inst[inst_alt])
-    # initial difference signal
+
+    # Initial difference signal
     diff = log_ialt * 0 + 2.0 * tol
     while np.any(np.abs(diff) > tol):
-        # create input array using satellite time/position
-        # replace the altitude coord with the fake tiegcm one
+        # Create input array using satellite time/position.
+        # Replace the altitude coord with the fake tiegcm one
         coords = []
         for iscale, coord in zip(inst_scale, inst_name):
             if coord == inst_alt:
-                # don't scale altitude-like model coordinate
+                # Don't scale altitude-like model coordinate
                 coords.append(inst_model_coord)
             else:
-                # scale other dimensions to the model
+                # Scale other dimensions to the model
                 coords.append(inst[coord] * iscale)
 
         coords.insert(0, inst.index.values.astype(int))
-        # to peform the interpolation we need points
+        # To peform the interpolation we need points
         # like (x1, y1, z1), (x2, y2, z2)
         # but we currently have a list like
-        # [(x1, x2, x3), (y1, y2, y3), ...]
-        # convert to the form we need
-        # the * below breaks each main list out, and zip
-        # repeatedly outputs a tuple (xn, yn, zn)
+        # [(x1, x2, x3), (y1, y2, y3), ...].
+        # To convert to the form we need the * below breaks each main list out,
+        # and zip repeatedly outputs a tuple (xn, yn, zn).
         sat_pts = [inp for inp in zip(*coords)]
 
-        # altitude pulled out from model
+        # Altitude pulled out from model
         orbit_alt = interp(sat_pts)
-        # difference in altitude
+        # Difference in altitude
         diff = np.e**orbit_alt - np.e**log_ialt
-        # shift index in inst for model pressure level
-        # in the opposite direction to diff
-        # reduced value by scale, the 'scale height'
+        # Shift index in inst for model pressure level in the opposite direction
+        # to diff, reduced in value by scale, the 'scale height'
         inst_model_coord -= diff / scale
 
-    # achieved model altitude
-    inst[inst_out_alt] = np.e**orbit_alt
-    # pressure level that goes with altitude
+    # Store achieved model altitude
+    inst[inst_out_alt] = np.e ** orbit_alt
+
+    # Add pressure level that goes with altitude to Instrument
     inst[inst_out_pres] = inst_model_coord
 
     return [inst_out_alt, inst_out_pres]
