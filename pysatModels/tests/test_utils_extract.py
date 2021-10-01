@@ -371,7 +371,7 @@ class TestUtilsAltitudePressure(object):
         self.model.load(date=pysat_testmodel._test_dates[''][''])
 
         self.input_args = [self.inst, self.model.data,
-                           ["altitude",  "latitude", "longitude"],
+                           ["altitude", "latitude", "longitude"],
                            ["ilev", "latitude", "longitude"],
                            "time", "time", ['', "deg", "deg"],
                            'altitude', 'altitude', 'cm']
@@ -438,7 +438,7 @@ class TestUtilsAltitudePressure(object):
     @pytest.mark.parametrize("scale_val", [1000., 100., 50.])
     def test_good_translation_over_tolerance_and_scale(self, tol_val,
                                                        scale_val):
-        """Test for success with different altitude tolerances and scales
+        """Test for success with different altitude tolerances and scales.
 
         Parameters
         ----------
@@ -462,7 +462,7 @@ class TestUtilsAltitudePressure(object):
         return
 
     def test_updated_metadata(self):
-        """Test new metadata is present in Instrument"""
+        """Test new metadata is present in Instrument."""
 
         self.out = extract.instrument_altitude_to_model_pressure(
             *self.input_args)
