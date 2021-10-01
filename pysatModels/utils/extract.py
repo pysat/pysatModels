@@ -119,6 +119,16 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
             inst_scale[i] = pyutils.scale_units(
                 mod_units[i], inst.meta[iname, inst.meta.labels.units])
 
+    # Pull out datetime data
+    if mod_datetime_name in model.data_vars:
+        mod_datetime = model.data_vars[mod_datetime_name]
+        mod_datetime = mod_datetime.values.astype(np.int64)
+    elif mod_datetime_name in model.coords:
+        mod_datetime = model.coords[mod_datetime_name].values.astype(np.int64)
+    else:
+        raise ValueError("".join(["unknown model name for datetime: ",
+                                  mod_datetime_name]))
+
     # create initial fake regular grid index in inst
     inst_model_coord = inst[inst_name[0]] * 0
 
@@ -130,7 +140,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     points = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
     # time first
-    points.insert(0, model[mod_datetime_name].values.astype(int))
+    points.insert(0, mod_datetime.values.astype(np.int64))
 
     # create interpolator
     interp = interpolate.RegularGridInterpolator(points,
