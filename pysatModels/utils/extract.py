@@ -200,7 +200,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
                          inst_out_pres, '` pressure level.',
                          inst.meta[inst_alt, inst.meta.labels.notes]))
     inst.meta[inst_out_alt] = {inst.meta.labels.units:
-                                   inst.meta[inst_alt, inst.meta.labels.units],
+                               inst.meta[inst_alt, inst.meta.labels.units],
                                inst.meta.labels.notes: notes_str}
 
     # Add pressure level that goes with altitude to Instrument
