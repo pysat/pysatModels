@@ -470,10 +470,10 @@ class TestUtilsAltitudePressure(object):
         assert self.inst.meta['model_altitude', 'units'] == 'km'
 
         test_str = 'Interpolated Model altitude'
-        assert self.inst.meta['model_altitude', 'notes'].find(test_str) > 0
+        assert self.inst.meta['model_altitude', 'notes'].find(test_str) >= 0
 
         test_str = 'Interpolated Model pressure'
-        assert self.inst.meta['model_pressure', 'notes'].find(test_str) > 0
+        assert self.inst.meta['model_pressure', 'notes'].find(test_str) >= 0
 
         return
 
