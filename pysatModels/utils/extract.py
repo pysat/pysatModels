@@ -35,8 +35,9 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         at which the model data will be interpolated. Must be in the same order
         as mod_name.
     mod_name : array-like
-        list of names of the data series to use for determining model locations
-        in the same order as inst_name.  These must make up a regular grid.
+        list of names of the coordinates to use for determining model locations.
+        Must be in the same order as `mod_alt` is stored within xarray.
+        The coordinates must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
     mod_time_name : str
@@ -79,8 +80,8 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     """
 
     # Ensure the coordinate and data variable names are array-like
-    inst_name = np.asarray(inst_name)
-    mod_name = np.asarray(mod_name)
+    inst_name = pysat.utils.listify(inst_name)
+    mod_name = pysat.utils.listify(mod_name)
 
     # Test input
     if len(inst_name) == 0:
