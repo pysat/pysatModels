@@ -358,6 +358,7 @@ class TestUtilsExtractInstModView(object):
                     ~np.isnan(self.inst.data[tcol])]) > 0
         return
 
+
 class TestUtilsAltitudePressure(object):
     """Unit tests for `utils.extract.instrument_altitude_to_model_pressure`."""
 
