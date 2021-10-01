@@ -460,3 +460,36 @@ class TestUtilsAltitudePressure(object):
         alt_diff = np.abs(self.inst[self.out[0]] - self.inst['altitude'])
         assert np.all(alt_diff <= tol_val)
         return
+
+    def test_updated_metadata(self):
+        """Test new metadata is present in Instrument"""
+
+        self.out = extract.instrument_altitude_to_model_pressure(
+            *self.input_args)
+
+        assert self.inst.meta['model_altitude', 'units'] == 'km'
+        test_str = 'Interpolated Model altitude'
+        assert self.inst.meta['model_altitude', 'notes'].find(test_str) > 0
+
+        test_str = 'Interpolated Model pressure'
+        assert self.inst.meta['model_pressure', 'notes'].find(test_str) > 0
+
+        return
+
+    def test_alternate_output_names(self):
+        """Test alternate output labels work as expected."""
+        self.input_kwargs = {'inst_out_alt': 'alter_altitude',
+                             'inst_out_pres': 'alter_pressure'}
+
+        self.out = extract.instrument_altitude_to_model_pressure(
+            *self.input_args, **self.input_kwargs)
+
+        assert 'alter_altitude' in self.inst.variables
+        assert 'alter_altitude' == self.out[0]
+        assert 'alter_pressure' in self.inst.variables
+        assert 'alter_pressure' == self.out[1]
+
+        alt_diff = np.abs(self.inst[self.out[0]] - self.inst['altitude'])
+        assert np.all(alt_diff <= 1.0)
+
+        return
