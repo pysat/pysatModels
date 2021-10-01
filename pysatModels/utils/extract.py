@@ -140,7 +140,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     points = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
     # time first
-    points.insert(0, mod_datetime.values.astype(np.int64))
+    points.insert(0, mod_datetime)
 
     # create interpolator
     interp = interpolate.RegularGridInterpolator(points,
