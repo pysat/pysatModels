@@ -468,6 +468,7 @@ class TestUtilsAltitudePressure(object):
             *self.input_args)
 
         assert self.inst.meta['model_altitude', 'units'] == 'km'
+
         test_str = 'Interpolated Model altitude'
         assert self.inst.meta['model_altitude', 'notes'].find(test_str) > 0
 

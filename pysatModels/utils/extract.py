@@ -196,7 +196,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
 
     # Store achieved model altitude
     inst[inst_out_alt] = np.e ** orbit_alt
-    notes_str = ''.join(('Inteprolated Model altitude corresponding to `',
+    notes_str = ''.join(('Interpolated Model altitude corresponding to `',
                           inst_out_pres, '` pressure level.',
                          inst.meta[inst_alt, inst.meta.labels.notes]))
     inst.meta[inst_out_alt] = {inst.meta.labels.units:
@@ -205,7 +205,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
 
     # Add pressure level that goes with altitude to Instrument
     inst[inst_out_pres] = inst_model_coord
-    notes_str = ''.join(('Inteprolated Model pressure corresponding to `',
+    notes_str = ''.join(('Interpolated Model pressure corresponding to `',
                           inst_out_alt, '` altitude level.'))
     # TODO, add units from Model when that input is upgraded to be
     # a pysat Custom compatible method
