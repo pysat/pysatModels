@@ -469,6 +469,10 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     interp_data.keys() : dict_keys
         Keys of modelled data added to the instrument
 
+    Raises
+    ------
+    ValueError
+        For incorrect input arguments
 
     Notes
     -----
