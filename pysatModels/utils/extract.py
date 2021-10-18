@@ -208,7 +208,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     notes_str = ''.join(('Interpolated Model pressure corresponding to `',
                          inst_out_alt, '` altitude level.'))
 
-    # TODO(meta) add units from Model when that input is upgraded to be
+    # TODO(#95) add units from Model when that input is upgraded to be
     # a pysat Custom compatible method
     inst.meta[inst_out_pres] = {inst.meta.labels.notes: notes_str}
 
