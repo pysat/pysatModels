@@ -71,6 +71,10 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     inst_out_alt, inst_out_pres
         Keys of modelled data added to the instrument
 
+    Raises
+    ------
+    ValueError
+        For incorrect input arguments
 
     Notes
     -----
@@ -255,6 +259,11 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     -------
     interp_data.keys() : Keys
         Keys of modelled data added to the instrument
+
+    Raises
+    ------
+    ValueError
+        For incorrect input arguments
 
     Notes
     -----
