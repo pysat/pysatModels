@@ -359,7 +359,7 @@ class TestUtilsExtractInstModView(object):
         return
 
 
-@pytest.mark.skipif(pysat.__version__ != '3.0.1',
+@pytest.mark.skipif(pysat.__version__ == '3.0.1',
                     reason=''.join(('Requires test model in pysat ',
                                     ' v3.1 or later.')))
 class TestUtilsAltitudePressure(object):
@@ -388,7 +388,7 @@ class TestUtilsAltitudePressure(object):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out
-        del self.input_kwargs, self.log_capture
+        del self.input_kwargs
         return
 
     @pytest.mark.parametrize("bad_index,bad_input,err_msg",
