@@ -472,6 +472,9 @@ class TestUtilsAltitudePressure(object):
         assert 'alter_pressure' == self.out[1]
 
         alt_diff = np.abs(self.inst[self.out[0]] - self.inst['altitude'])
+
+        # Test that the altitude difference is less than or equal to the
+        # default tolerance value for the function.
         assert np.all(alt_diff <= 1.0)
 
         return
