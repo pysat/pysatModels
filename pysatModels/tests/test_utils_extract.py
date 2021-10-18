@@ -443,7 +443,7 @@ class TestUtilsAltitudePressure(object):
         return
 
     def test_updated_metadata(self):
-        """Test new metadata is present in Instrument."""
+        """Test new pressure metadata is present in Instrument."""
 
         self.out = extract.instrument_altitude_to_model_pressure(
             *self.input_args)
