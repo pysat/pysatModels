@@ -359,10 +359,9 @@ class TestUtilsExtractInstModView(object):
         return
 
 
-@pytest.mark.skipif(pysat.__version__ < 3.1, reason=''.join(('Requires test ',
-                                                             'model in pysat ',
-                                                             ' v3.1 or later.'
-                                                             )))
+@pytest.mark.skipif(pysat.__version__ != '3.0.1',
+                    reason=''.join(('Requires test model in pysat ',
+                                    ' v3.1 or later.')))
 class TestUtilsAltitudePressure(object):
     """Unit tests for `utils.extract.instrument_altitude_to_model_pressure`."""
 
