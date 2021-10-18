@@ -210,6 +210,10 @@ class TestUtilsExtractModObs(object):
         return
 
 
+@pytest.mark.skipif(pysat.__version__ < 3.1, reason=''.join(('Requires test ',
+                                                             'model in pysat ',
+                                                             ' v3.1 or later.'
+                                                             )))
 class TestUtilsExtractInstModView(object):
     """Unit tests for `utils.extract.instrument_view_through_model`."""
 
@@ -379,9 +383,6 @@ class TestUtilsAltitudePressure(object):
         self.input_kwargs = {}
 
         self.out = []
-        self.log_capture = StringIO()
-        ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
-        ps_mod.logger.setLevel(logging.INFO)
         return
 
     def teardown(self):
