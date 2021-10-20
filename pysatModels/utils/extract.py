@@ -35,8 +35,9 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         at which the model data will be interpolated. Must be in the same order
         as mod_name.
     mod_name : array-like
-        list of names of the data series to use for determing model locations
-        in the same order as inst_name.  These must make up a regular grid.
+        list of names of the coordinates to use for determining model locations.
+        Must be in the same order as `mod_alt` is stored within xarray.
+        The coordinates must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
     mod_time_name : str
@@ -50,23 +51,31 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
         Variable identifier for altitude data in the model
         e.g. 'ZG' in standard TIEGCM files.
     mod_alt_units : str
-        units for the altitude variable. Currently
-        supports: m, km, and cm
+        units for the altitude variable. Currently supports: m, km, and cm
     scale : float
         Scalar used to roughly translate a change in altitude with a
         change in pressure level, the scale height. Same units as used by inst.
+        (default=100.)
     inst_out_alt : str
         Label assigned to the model altitude data when attached to inst
-    inst_out_alt : str
+        (default='model_altitude').
+    inst_out_pres : str
         Label assigned to the model pressure level when attached to inst
+        (default='model_pressure').
     tol : float
         Allowed difference between observed and modelled altitudes.
+        Interpreted to have the same units as `inst_alt` (default=1.0).
 
     Returns
     -------
-    interp_data.keys() : Keys
-        Keys of modelled data added to the instrument (inst_out)
+    [inst_out_alt, inst_out_pres] : list
+        List of keys corresponding to the modelled data that was added to the
+        instrument.
 
+    Raises
+    ------
+    ValueError
+        For incorrect input arguments
 
     Notes
     -----
@@ -76,8 +85,8 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     """
 
     # Ensure the coordinate and data variable names are array-like
-    inst_name = np.asarray(inst_name)
-    mod_name = np.asarray(mod_name)
+    inst_name = pyutils.listify(inst_name)
+    mod_name = pyutils.listify(mod_name)
 
     # Test input
     if len(inst_name) == 0:
@@ -100,6 +109,12 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     if mod_time_name not in model.coords:
         raise ValueError("Unknown model time coordinate key name")
 
+    if inst_alt not in inst.variables:
+        raise ValueError("Unknown Instrument altitude key name")
+
+    if mod_alt not in model.data_vars:
+        raise ValueError("Unknown Model altitude key name")
+
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
     for i, iname in enumerate(inst_name):
@@ -115,71 +130,92 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
             inst_scale[i] = pyutils.scale_units(
                 mod_units[i], inst.meta[iname, inst.meta.labels.units])
 
-    # create initial fake regular grid index in inst
+    # Pull out datetime data
+    if mod_datetime_name in model.data_vars:
+        mod_datetime = model.data_vars[mod_datetime_name]
+        mod_datetime = mod_datetime.values.astype(np.int64)
+    elif mod_datetime_name in model.coords:
+        mod_datetime = model.coords[mod_datetime_name].values.astype(np.int64)
+    else:
+        raise ValueError("".join(["unknown model name for datetime: ",
+                                  mod_datetime_name]))
+
+    # Create initial fake regular grid index in inst
     inst_model_coord = inst[inst_name[0]] * 0
 
-    # we need to create altitude index from model
-    # collect relevant inputs
-    # First, model locations for interpolation
-    # we use the dimensions associated with model altitude
-    # in the order provided
+    # We need to create altitude index from the model.
+    # First, handle model locations for interpolation.
+    # We use the dimensions associated with model altitude
+    # in the order provided.
     points = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
-    # time first
-    points.insert(0, model[mod_datetime_name].values.astype(int))
+    # Add time in first
+    points.insert(0, mod_datetime)
 
-    # create interpolator
+    # Create interpolator
     interp = interpolate.RegularGridInterpolator(points,
                                                  np.log(model[mod_alt].values
                                                         / alt_scale),
                                                  bounds_error=False,
                                                  fill_value=None)
-    # use this interpolator to figure out what altitudes we are at
-    # each loop, use the current estimated path through model expressed in
-    # pressure and interp above to get the equivalent altitude of this path
-    # compare this altitude to the actual instrument altitude
+    # Use this interpolator to figure out what altitudes we are at.
+    # Each loop, use the current estimated path through model expressed in
+    # pressure and interp above to get the equivalent altitude of this path.
+    # Compare this altitude to the actual instrument altitude and
     # shift the equivalent pressure for the instrument up/down
-    # until difference between altitudes is small
+    # until difference between altitudes is small.
 
-    # log of instrument altitude
+    # Log of instrument altitude
     log_ialt = np.log(inst[inst_alt])
-    # initial difference signal
+
+    # Initial difference signal
     diff = log_ialt * 0 + 2.0 * tol
     while np.any(np.abs(diff) > tol):
-        # create input array using satellite time/position
-        # replace the altitude coord with the fake tiegcm one
+        # Create input array using satellite time/position.
+        # Replace the altitude coord with the fake tiegcm one
         coords = []
         for iscale, coord in zip(inst_scale, inst_name):
             if coord == inst_alt:
-                # don't scale altitude-like model coordinate
+                # Don't scale altitude-like model coordinate
                 coords.append(inst_model_coord)
             else:
-                # scale other dimensions to the model
+                # Scale other dimensions to the model
                 coords.append(inst[coord] * iscale)
 
         coords.insert(0, inst.index.values.astype(int))
-        # to peform the interpolation we need points
+        # To peform the interpolation we need points
         # like (x1, y1, z1), (x2, y2, z2)
         # but we currently have a list like
-        # [(x1, x2, x3), (y1, y2, y3), ...]
-        # convert to the form we need
-        # the * below breaks each main list out, and zip
-        # repeatedly outputs a tuple (xn, yn, zn)
+        # [(x1, x2, x3), (y1, y2, y3), ...].
+        # To convert to the form we need the * below breaks each main list out,
+        # and zip repeatedly outputs a tuple (xn, yn, zn).
         sat_pts = [inp for inp in zip(*coords)]
 
-        # altitude pulled out from model
+        # Altitude pulled out from model
         orbit_alt = interp(sat_pts)
-        # difference in altitude
-        diff = np.e**orbit_alt - np.e**log_ialt
-        # shift index in inst for model pressure level
-        # in the opposite direction to diff
-        # reduced value by scale, the 'scale height'
+        # Difference in altitude
+        diff = np.e ** orbit_alt - np.e ** log_ialt
+        # Shift index in inst for model pressure level in the opposite direction
+        # to diff, reduced in value by scale, the 'scale height'
         inst_model_coord -= diff / scale
 
-    # achieved model altitude
-    inst[inst_out_alt] = np.e**orbit_alt
-    # pressure level that goes with altitude
+    # Store achieved model altitude
+    inst[inst_out_alt] = np.e ** orbit_alt
+    notes_str = ''.join(('Interpolated Model altitude corresponding to `',
+                         inst_out_pres, '` pressure level.',
+                         inst.meta[inst_alt, inst.meta.labels.notes]))
+    inst.meta[inst_out_alt] = {inst.meta.labels.units:
+                               inst.meta[inst_alt, inst.meta.labels.units],
+                               inst.meta.labels.notes: notes_str}
+
+    # Add pressure level that goes with altitude to Instrument
     inst[inst_out_pres] = inst_model_coord
+    notes_str = ''.join(('Interpolated Model pressure corresponding to `',
+                         inst_out_alt, '` altitude level.'))
+
+    # TODO(#95) add units from Model when that input is upgraded to be
+    # a pysat Custom compatible method
+    inst.meta[inst_out_pres] = {inst.meta.labels.notes: notes_str}
 
     return [inst_out_alt, inst_out_pres]
 
@@ -224,6 +260,11 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     -------
     interp_data.keys() : Keys
         Keys of modelled data added to the instrument
+
+    Raises
+    ------
+    ValueError
+        For incorrect input arguments
 
     Notes
     -----
@@ -406,7 +447,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates. Same ordering as used by mod_name.
     mod_name : array-like
-        list of names of the data series to use for determing model locations
+        list of names of the data series to use for determining model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
@@ -438,6 +479,10 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     interp_data.keys() : dict_keys
         Keys of modelled data added to the instrument
 
+    Raises
+    ------
+    ValueError
+        For incorrect input arguments
 
     Notes
     -----
@@ -598,10 +643,10 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     model : xarray.Dataset
         modelled data set
     inst_name : array-like
-        list of names of the data series to use for determing instrument
+        list of names of the data series to use for determining instrument
         location
     mod_name : array-like
-        list of names of the data series to use for determing model locations
+        list of names of the data series to use for determining model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info

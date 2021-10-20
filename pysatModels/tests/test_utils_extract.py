@@ -357,3 +357,123 @@ class TestUtilsExtractInstModView(object):
                 assert len(self.inst.data[tcol][
                     ~np.isnan(self.inst.data[tcol])]) > 0
         return
+
+
+@pytest.mark.skipif(pysat.__version__ == '3.0.1',
+                    reason=''.join(('Requires test model in pysat ',
+                                    ' v3.1 or later.')))
+class TestUtilsAltitudePressure(object):
+    """Unit tests for `utils.extract.instrument_altitude_to_model_pressure`."""
+
+    def setup(self):
+        """Set up the unit test environment for each method."""
+
+        self.inst = pysat.Instrument(platform='pysat', name='testing')
+        self.model = pysat.Instrument(inst_module=pysat_testmodel,
+                                      tag='pressure_levels')
+        self.inst.load(date=pysat_testmodel._test_dates[''][''])
+        self.model.load(date=pysat_testmodel._test_dates[''][''])
+
+        self.input_args = [self.inst, self.model.data,
+                           ["altitude", "latitude", "longitude"],
+                           ["ilev", "latitude", "longitude"],
+                           "time", "time", ['', "deg", "deg"],
+                           'altitude', 'altitude', 'cm']
+        self.input_kwargs = {}
+
+        self.out = []
+        return
+
+    def teardown(self):
+        """Clean up the unit test environment after each method."""
+
+        del self.inst, self.model, self.input_args, self.out
+        del self.input_kwargs
+        return
+
+    @pytest.mark.parametrize("bad_index,bad_input,err_msg",
+                             [(2, [], "Must provide inst_name as a list"),
+                              (2, [''], 'Must provide the same number of'),
+                              (2, ['glon', 'latitude', 'altitude'],
+                               "Unknown instrument location index"),
+                              (3, [], "Must provide mod_name as a list"),
+                              (3, [''], "Must provide the same number"),
+                              (6, [], "Must provide units for each "),
+                              (4, "naname", "unknown model name for datetime"),
+                              (5, "naname", "Unknown model time coordinate"),
+                              (7, 'navar', 'Unknown Instrument altitude key'),
+                              (8, 'navar', 'Unknown Model altitude key')])
+    def test_bad_arg_input(self, bad_index, bad_input, err_msg):
+        """Test for expected failure with bad input arguments."""
+
+        self.input_args[bad_index] = bad_input
+
+        with pytest.raises(ValueError) as verr:
+            extract.instrument_altitude_to_model_pressure(*self.input_args)
+
+        assert str(verr.value.args[0]).find(err_msg) >= 0
+        return
+
+    @pytest.mark.parametrize("tol_val", [10., 1., 0.1])
+    @pytest.mark.parametrize("scale_val", [1000., 100., 50.])
+    def test_good_translation_over_tolerance_and_scale(self, tol_val,
+                                                       scale_val):
+        """Test for success with different altitude tolerances and scales.
+
+        Parameters
+        ----------
+        tol_val : float
+            Tolerance for altitude matching
+        scale_val : float
+            Scale height used to normalize altitude differences
+
+        """
+
+        self.input_kwargs = {"tol": tol_val,
+                             "scale": scale_val}
+        self.out = extract.instrument_altitude_to_model_pressure(
+            *self.input_args,
+            **self.input_kwargs)
+
+        # Calculate difference in altitude (Instrument and values extracted
+        # from Model) and ensure it is less than specified tolerance.
+        alt_diff = np.abs(self.inst[self.out[0]] - self.inst['altitude'])
+        assert np.all(alt_diff <= tol_val)
+        return
+
+    def test_updated_metadata(self):
+        """Test new pressure metadata is present in Instrument."""
+
+        self.out = extract.instrument_altitude_to_model_pressure(
+            *self.input_args)
+
+        assert self.inst.meta['model_altitude', 'units'] == 'km'
+
+        test_str = 'Interpolated Model altitude'
+        assert self.inst.meta['model_altitude', 'notes'].find(test_str) >= 0
+
+        test_str = 'Interpolated Model pressure'
+        assert self.inst.meta['model_pressure', 'notes'].find(test_str) >= 0
+
+        return
+
+    def test_alternate_output_names(self):
+        """Test alternate output labels work as expected."""
+        self.input_kwargs = {'inst_out_alt': 'alter_altitude',
+                             'inst_out_pres': 'alter_pressure'}
+
+        self.out = extract.instrument_altitude_to_model_pressure(
+            *self.input_args, **self.input_kwargs)
+
+        assert 'alter_altitude' in self.inst.variables
+        assert 'alter_altitude' == self.out[0]
+        assert 'alter_pressure' in self.inst.variables
+        assert 'alter_pressure' == self.out[1]
+
+        alt_diff = np.abs(self.inst[self.out[0]] - self.inst['altitude'])
+
+        # Test that the altitude difference is less than or equal to the
+        # default tolerance value for the function.
+        assert np.all(alt_diff <= 1.0)
+
+        return
