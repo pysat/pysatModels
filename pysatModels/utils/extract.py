@@ -68,8 +68,8 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
 
     Returns
     -------
-    inst_out_alt, inst_out_pres
-        Keys of modelled data added to the instrument
+    [inst_out_alt, inst_out_pres] : list
+        List of keys corresponding to the modelled data that was added to the instrument
 
     Raises
     ------
