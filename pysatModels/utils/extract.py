@@ -452,7 +452,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
     mod_units : list
-        units for each of the mod_name location attributes.  Currently
+        units for each of the mod_name location attributes. Units for
+        `mod_irreg_var' should replace those for `mod_reg_dim`. Currently
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
     mod_reg_dim : str
         Existing regular dimension name used to organize model data that will
@@ -546,11 +547,11 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
-    for i, iname in enumerate(inst_name):
+    for i, (iname, mname)in enumerate(zip(inst_name, mod_name)):
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
-        if iname != mod_reg_dim:
+        if mname != mod_reg_dim:
             # Some units may have extra information (e.g., 'degrees North').
             # Use only the actual units in the scaling function. These are
             # assumed to come first.
@@ -558,10 +559,12 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                   inst.meta[iname, inst.meta.labels.units])[0]
             inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
         else:
+            #TODO (add number) update this else to use metadata from
+            # `mod_irreg_var` when made a pysat compatible fuction.
             long_units = re.split(r"\W+|_",
-                                  inst.meta[mod_irreg_var,
-                                            inst.meta.labels.units])[0]
+                                  inst.meta[iname, inst.meta.labels.units])[0]
             inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
+
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
