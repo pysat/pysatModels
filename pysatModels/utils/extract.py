@@ -497,16 +497,21 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     """
 
     # Ensure the inputs are array-like
-    inst_name = np.asarray(inst_name)
+    inst_name = pyutils.listify(inst_name)
+
     # interp over all vars if None provided
     if sel_name is None:
-        sel_name = np.asarray(list(model.data_vars.keys()))
+        sel_name = list(model.data_vars.keys())
     else:
-        sel_name = np.asarray(sel_name)
+        sel_name = pyutils.listify(sel_name)
 
     # Test input
     if len(inst_name) == 0:
         estr = 'Must provide inst_name as a list of strings.'
+        raise ValueError(estr)
+
+    if len(mod_name) == 0:
+        estr = 'Must provide mod_name as a list of strings.'
         raise ValueError(estr)
 
     if len(sel_name) == 0:
@@ -524,9 +529,9 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     # Ensure coordinate dimensions match
     for var in sel_name:
-        if var.dims != model[mod_irreg_var].dims:
+        if model[var].dims != model[mod_irreg_var].dims:
             estr = ' '.join(('Coordinate dimensions must match for',
-                             '"mod_irreg_var" and', var.name))
+                             '"mod_irreg_var" and', model[var].name))
             raise ValueError(estr)
     # Ensure mod_reg_dim in mod_irreg_var
     if mod_reg_dim not in model[mod_irreg_var].dims:
@@ -545,14 +550,18 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
-
-        # Some units may have extra information (e.g., 'degrees North').
-        # Use only the actual units in the scaling function.  These are assumed
-        # to come first.
-        long_units = re.split(r"\W+|_",
-                              inst.meta[iname, inst.meta.labels.units])[0]
-        inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
-
+        if iname != mod_reg_dim:
+            # Some units may have extra information (e.g., 'degrees North').
+            # Use only the actual units in the scaling function. These are
+            # assumed to come first.
+            long_units = re.split(r"\W+|_",
+                                  inst.meta[iname, inst.meta.labels.units])[0]
+            inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
+        else:
+            long_units = re.split(r"\W+|_",
+                                  inst.meta[mod_irreg_var,
+                                            inst.meta.labels.units])[0]
+            inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
