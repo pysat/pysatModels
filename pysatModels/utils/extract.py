@@ -489,7 +489,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     -----
     Expects units strings to have the units as the first word, if a long
     description is provided (e.g., 'degrees', 'degrees North', or 'deg_N' and
-    not 'geographic North degrees')
+    not 'geographic North degrees').
 
     See Also
     --------
@@ -565,6 +565,9 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                   inst.meta[iname, inst.meta.labels.units])[0]
             inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
+            # Store scaling for mod_irreg_var
+            dvar_scale = inst_scale[i]
+
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
@@ -593,8 +596,10 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     for i, pt in enumerate(pts):
         points[:, i] = np.ravel(pt)
 
-    # Replace existing regular dimension with irregular data
-    points[:, update_dim] = np.ravel(dvar)
+    # Replace existing regular dimension with irregular data. Model values
+    # need to account for any change in units wrt the Instrumetn.
+
+    points[:, update_dim] = np.ravel(dvar) / dvar_scale
 
     # Downselect points to those in (altitude) range of instrument. Determine
     # the selection criteria and store the limits
