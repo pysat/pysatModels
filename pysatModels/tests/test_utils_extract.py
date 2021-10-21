@@ -484,9 +484,11 @@ class TestUtilsExtractInstModIrregView(object):
     def setup(self):
         """Run before every method to create a clean testing setup."""
 
-        self.inst = pysat.Instrument(platform='pysat', name='testing')
+        self.inst = pysat.Instrument(platform='pysat', name='testing',
+                                     num_samples=3)
         self.model = pysat.Instrument(inst_module=pysat_testmodel,
-                                      tag='pressure_levels')
+                                      tag='pressure_levels',
+                                      num_samples=96)
         self.inst.load(date=pysat_testmodel._test_dates[''][''])
         self.model.load(date=pysat_testmodel._test_dates[''][''])
         self.model_label = 'tmodel'
@@ -497,7 +499,8 @@ class TestUtilsExtractInstModIrregView(object):
                            "altitude"] #,
                            # "altitude"]
         self.input_kwargs = {"sel_name": ["dummy_drifts", "altitude"],
-                             "inst_var_label": "altitude"}
+                             "inst_var_label": "altitude",
+                             "inst_var_delta": .1}
         # self.input_kwargs = {"sel_name":
         #                      [kk for kk in self.model.data.data_vars
         #                       if len([dd for dd
