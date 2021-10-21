@@ -610,7 +610,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     # Now get the maximum value
     if max_inst_alt < max_pts_alt:
-        inst[inst_var_label].max() + inst_var_delta
+        max_sel_val = inst[inst_var_label].max() + inst_var_delta
     else:
         max_sel_val = max_pts_alt
 
