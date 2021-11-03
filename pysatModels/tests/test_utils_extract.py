@@ -561,7 +561,7 @@ class TestUtilsExtractInstModIrregView(object):
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
                              [("sel_name", ["unknown_variable"],
                                "Unknown model variable index unknown_variable"),
-                              ("sel_name", [], 'Must provide sel_name as a list'),
+                              ("sel_name", [], 'Must provide sel_name as a li'),
                               ("model_label", 1, "expected str instance")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg, caplog):
         """Test for expected failure with bad kwarg input."""
@@ -570,7 +570,7 @@ class TestUtilsExtractInstModIrregView(object):
 
         with pytest.raises((ValueError, TypeError)) as err:
             extract.instrument_view_irregular_model(*self.input_args,
-                                                  **self.input_kwargs)
+                                                    **self.input_kwargs)
 
         assert str(err.value.args[0]).find(err_msg) >= 0
 

@@ -565,7 +565,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
-    for i, (iname, mname)in enumerate(zip(inst_name, mod_name)):
+    for i, (iname, mname) in enumerate(zip(inst_name, mod_name)):
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
@@ -577,7 +577,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                   inst.meta[iname, inst.meta.labels.units])[0]
             inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
         else:
-            #TODO (add number) update this else to use metadata from
+            #TODO(#95) update this else to use metadata from
             # `mod_irreg_var` when made a pysat compatible fuction.
             long_units = re.split(r"\W+|_",
                                   inst.meta[iname, inst.meta.labels.units])[0]
