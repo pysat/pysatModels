@@ -431,8 +431,8 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
 def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                     mod_datetime_name, mod_units, mod_reg_dim,
                                     mod_irreg_var, sel_name=None,
-                                    inst_var_label='altitude',
-                                    inst_var_delta=20.0, model_label='model'):
+                                    mod_var_delta=None,
+                                    model_label='model'):
     """Interpolate irregularly gridded model onto Insrument locations.
 
     Parameters
@@ -442,11 +442,11 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     model : pysat.Instrument
         Xarray pysat Instrument with model data that will be interpolated onto
         the `inst` locations
-    inst_name : array-like
+    inst_name : list
         List of variable names containing the instrument data coordinates
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates. Same ordering as used by mod_name.
-    mod_name : array-like
+    mod_name : list
         list of names of the data series to use for determining model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : str
@@ -460,17 +460,15 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         be replaced with values from mod_irreg_var to perform interpolation.
     mod_irreg_var : str
         Variable name in model for irregular grid values used to define
-        locations along mod_reg_dim. Must have same coordinates as mod_name.
+        locations along `mod_reg_dim`. Must have same coordinates as mod_name.
     sel_name : list
         List of strings denoting model variable names that will be
         interpolated onto inst. The coordinate dimensions for these variables
-        must correspond to those in mod_irreg_var.
-    inst_var_label : str
-        String label used within inst for the same kind of values identified
-        by mod_irreg_var in model (default='altitude')
-    inst_var_delta : float
-        Range of values kept within method when performing interpolation
-        values - delta < val < values + delta (default=20.0)
+        must correspond to those in `mod_irreg_var`.
+    mod_var_delta : list
+        List of delta values to be used when downselecting model values
+        before interpolation, values - delta < val < values + delta.
+        Interpreted in the same order as `mod_name`.
     model_label : str
         name of model, used to identify interpolated data values in instrument
         (default="model")
@@ -573,7 +571,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
               for dim, temp_scale in zip(mod_name, inst_scale)]
 
     # Time first
-    coords.insert(0, model[mod_datetime_name].values.astype(int))
+    coords.insert(0, model[mod_datetime_name].values.astype(np.int64))
 
     # Translate regular locations to equivalent irregular ones
     # pull out irregular grid locations for variables that will be interpolated
@@ -597,50 +595,58 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         points[:, i] = np.ravel(pt)
 
     # Replace existing regular dimension with irregular data. Model values
-    # need to account for any change in units wrt the Instrumetn.
-
+    # need to account for any change in units wrt the Instrument.
     points[:, update_dim] = np.ravel(dvar) / dvar_scale
 
-    # Downselect points to those in (altitude) range of instrument. Determine
-    # the selection criteria and store the limits
-    min_inst_alt = inst[inst_var_label].min()
-    max_inst_alt = inst[inst_var_label].max()
-    max_pts_alt = np.nanmax(points[:, update_dim])
+    # Pull out model data to be interpolated. Needed so same downselection
+    # procedure may be applied to data as to dimensions.
+    model_vars = []
+    for iname in sel_name:
+        model_vars.append(np.ravel(model[iname].values))
 
-    # Get downselection values using the minimum value
-    if min_inst_alt < max_pts_alt:
-        min_sel_val = inst[inst_var_label].min() - inst_var_delta
-    else:
-        min_sel_val = max_pts_alt - inst_var_delta
+    # Downselect all model points to those within some range of the Instrument
+    # values. For each of the model dimensions, each with a corresponding
+    # instrument variable, determine the selection criteria and store the
+    # limits.
+    for i, (iname, idelta) in enumerate(zip(inst_name, mod_var_delta)):
+        # Range from Instrument values
+        min_val = inst[iname].min()
+        max_val = inst[iname].max()
 
-    # Now get the maximum value
-    if max_inst_alt < max_pts_alt:
-        max_sel_val = inst[inst_var_label].max() + inst_var_delta
-    else:
-        max_sel_val = max_pts_alt
+        # Range from model values
+        min_mval = np.nanmin(points[:, i + 1])
+        max_mval = np.nanmax(points[:, i + 1])
 
-    # Perform the downselection
-    idx, = np.where((points[:, update_dim] >= min_sel_val)
-                    & (points[:, update_dim] <= max_sel_val))
-    points = points[idx, :]
+        # Net range
+        min_val = np.max([min_val - idelta, min_mval])
+        max_val = np.min([max_val + idelta, max_mval])
+
+        # Determine which points are within the specified tolerance range.
+        idx, = np.where((points[:, i + 1] >= min_val)
+                        & (points[:, i + 1] <= max_val))
+
+        # Downselect model dimension values
+        points = points[idx, :]
+
+        # Perform downselection of model variables as well
+        for j, ivar in enumerate(model_vars):
+            model_vars[j] = ivar[idx]
+
     ps_mod.logger.debug('Remaining points after downselection {:d}'.format(
         len(idx)))
 
     # Create input array using inst time/position
     coords = [inst[coord] for coord in inst_name]
-    coords.insert(0, inst.index.values.astype(int))
+    coords.insert(0, inst.index.values.astype(np.int64))
     sat_pts = [inp for inp in zip(*coords)]
 
     # Perform interpolation of user desired variables
     output_names = []
-    for var in sel_name:
+    for var, idata in zip(sel_name, model_vars):
         ps_mod.logger.debug('Creating interpolation object for ' + var)
         output_names.append('_'.join((model_label, var)))
         inst[output_names[-1]] = \
-            interpolate.griddata(points,
-                                 np.ravel(model[var].values)[idx],
-                                 sat_pts,
-                                 rescale=True)
+            interpolate.griddata(points, idata, sat_pts, rescale=True)
         ps_mod.logger.debug('Complete.')
     return output_names
 
