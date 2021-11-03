@@ -478,6 +478,10 @@ class TestUtilsAltitudePressure(object):
 
         return
 
+
+@pytest.mark.skipif(pysat.__version__ == '3.0.1',
+                    reason=''.join(('Requires test model in pysat ',
+                                    ' v3.1 or later.')))
 class TestUtilsExtractInstModIrregView(object):
     """Unit tests for `utils.extract.instrument_view_irregular_model`."""
 
@@ -485,7 +489,7 @@ class TestUtilsExtractInstModIrregView(object):
         """Run before every method to create a clean testing setup."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing',
-                                     num_samples=3)
+                                     num_samples=3, max_latitude=45.)
         self.model = pysat.Instrument(inst_module=pysat_testmodel,
                                       tag='pressure_levels',
                                       num_samples=96)
@@ -496,11 +500,9 @@ class TestUtilsExtractInstModIrregView(object):
                            ["altitude", "latitude", "longitude"],
                            ["ilev", "latitude", "longitude"],
                            "time", ["cm", "deg", "deg"], "ilev",
-                           "altitude"] #,
-                           # "altitude"]
+                           "altitude"]
         self.input_kwargs = {"sel_name": ["dummy_drifts", "altitude"],
-                             "inst_var_label": "altitude",
-                             "inst_var_delta": .1}
+                             "mod_var_delta": [50., 10., 10.]}
         # self.input_kwargs = {"sel_name":
         #                      [kk for kk in self.model.data.data_vars
         #                       if len([dd for dd
@@ -525,7 +527,7 @@ class TestUtilsExtractInstModIrregView(object):
         """Test for successful interpolation."""
 
         self.out = extract.instrument_view_irregular_model(*self.input_args,
-                                                         **self.input_kwargs)
+                                                           **self.input_kwargs)
         for name in self.input_kwargs['sel_name']:
             assert ''.join(('model_', name)) in self.inst.data
 
