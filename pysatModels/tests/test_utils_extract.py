@@ -552,7 +552,7 @@ class TestUtilsExtractInstModIrregView(object):
 
         with pytest.raises(ValueError) as verr:
             extract.instrument_view_irregular_model(*self.input_args,
-                                                  **self.input_kwargs)
+                                                    **self.input_kwargs)
 
         assert str(verr.value.args[0]).find(err_msg) >= 0
 
