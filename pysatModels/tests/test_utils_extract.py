@@ -500,17 +500,8 @@ class TestUtilsExtractInstModIrregView(object):
                            ["altitude", "latitude", "longitude"],
                            ["ilev", "latitude", "longitude"],
                            "time", ["cm", "deg", "deg"], "ilev",
-                           "altitude"]
-        self.input_kwargs = {"sel_name": ["dummy_drifts", "altitude"],
-                             "mod_var_delta": [50., 10., 10.]}
-        # self.input_kwargs = {"sel_name":
-        #                      [kk for kk in self.model.data.data_vars
-        #                       if len([dd for dd
-        #                               in self.model.data.data_vars[kk].dims
-        #                               if dd in [self.input_args[7]]])
-        #                       and (len(self.model.data.data_vars[kk].dims)
-        #                            == len(self.model[self.input_args[7]].dims) )],
-        #                      "inst_var_label": "altitude"}
+                           "altitude", [50., 10., 10.]]
+        self.input_kwargs = {"sel_name": ["dummy_drifts", "altitude"]}
         self.out = []
 
         return
@@ -534,6 +525,10 @@ class TestUtilsExtractInstModIrregView(object):
         for name in self.out:
             assert name in self.inst.data
 
+        # Ensure values are all finite
+        for name in self.out:
+            assert np.all(np.isfinite(self.inst[name]))
+
         return
 
     @pytest.mark.parametrize("bad_index,bad_input,err_msg",
@@ -545,7 +540,11 @@ class TestUtilsExtractInstModIrregView(object):
                               (5, [], "Must provide units for each "),
                               (4, "naname", "unknown model name for datetime"),
                               (6, "lev", "mod_reg_dim must be a coordinate "),
-                              (3, "lev", "mod_name must contain coordinate")])
+                              (3, "lev", "mod_name must contain coordinate"),
+                              (7, "not", "Unknown irregular model"),
+                              (7, "lev", "Coordinate dimensions must"),
+                              (8, [], "Must provide mod_var_delta "),
+                              (8, ['hi'], 'Must provide the same number of')])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
         """Test for expected failure with bad input arguments."""
 
@@ -561,8 +560,8 @@ class TestUtilsExtractInstModIrregView(object):
 
     @pytest.mark.parametrize("bad_key,bad_val,err_msg",
                              [("sel_name", ["unknown_variable"],
-                               "unknown_variable is not a valid model variabl"),
-                              ("sel_name", "", 'Must provide sel_name as a list'),
+                               "Unknown model variable index unknown_variable"),
+                              ("sel_name", [], 'Must provide sel_name as a list'),
                               ("model_label", 1, "expected str instance")])
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg, caplog):
         """Test for expected failure with bad kwarg input."""
@@ -576,56 +575,3 @@ class TestUtilsExtractInstModIrregView(object):
         assert str(err.value.args[0]).find(err_msg) >= 0
 
         return
-
-    # def test_failure_for_already_ran_data(self):
-    #     """Test the failure for all model variables already extracted."""
-    #
-    #     self.input_kwargs["model_label"] = self.model_label
-    #
-    #     # Run everything successfully once
-    #     extract.instrument_view_irregular_model(*self.input_args,
-    #                                           **self.input_kwargs)
-    #
-    #     # Run everything again, raising a value error
-    #     with pytest.raises(ValueError) as err:
-    #         extract.instrument_view_irregular_model(*self.input_args,
-    #                                               **self.input_kwargs)
-    #
-    #         self.out = self.log_capture.getvalue()
-    #         assert self.out.find('model data already interpolated') >= 0
-    #
-    #     assert str(err.value.args[0]).find(
-    #         'instrument object already contains all model data') >= 0
-    #
-    #     return
-
-    # def test_success_for_some_already_ran_data(self):
-    #     """Test the success for some model variables already extracted."""
-    #
-    #     all_sel = list(self.input_kwargs['sel_name'])
-    #     all_sel.append('dummy72')
-    #     self.input_kwargs['model_label'] = self.model_label
-    #
-    #     self.model['dummy72'] = self.model['dummy2']
-    #
-    #     # Run through twice
-    #     for i, selected in enumerate([all_sel[1:], all_sel]):
-    #         self.input_kwargs['sel_name'] = selected
-    #         self.input_kwargs['methods'] = ['linear'] * len(selected)
-    #         self.out = extract.instrument_view_irregular_model(
-    #             *self.input_args, **self.input_kwargs)
-    #
-    #         lout = self.log_capture.getvalue()
-    #
-    #     assert lout.find('model data already interpolated') >= 0
-    #
-    #     for label in all_sel:
-    #         if label not in self.input_args[3]:
-    #             # Test each of the extracted model data columns
-    #             tcol = "{:s}_{:s}".format(self.model_label, label)
-    #             assert tcol in self.inst.data.columns
-    #             assert (self.inst.data[self.input_args[2][0]].shape
-    #                     == self.inst.data[tcol].shape)
-    #             assert len(self.inst.data[tcol][
-    #                 ~np.isnan(self.inst.data[tcol])]) > 0
-    #     return

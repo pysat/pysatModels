@@ -430,9 +430,8 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
 
 def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                     mod_datetime_name, mod_units, mod_reg_dim,
-                                    mod_irreg_var, sel_name=None,
-                                    mod_var_delta=None,
-                                    model_label='model'):
+                                    mod_irreg_var, mod_var_delta,
+                                    sel_name=None, model_label='model'):
     """Interpolate irregularly gridded model onto Insrument locations.
 
     Parameters
@@ -461,14 +460,14 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     mod_irreg_var : str
         Variable name in model for irregular grid values used to define
         locations along `mod_reg_dim`. Must have same coordinates as mod_name.
-    sel_name : list
-        List of strings denoting model variable names that will be
-        interpolated onto inst. The coordinate dimensions for these variables
-        must correspond to those in `mod_irreg_var`.
     mod_var_delta : list
         List of delta values to be used when downselecting model values
         before interpolation, values - delta < val < values + delta.
         Interpreted in the same order as `mod_name`.
+    sel_name : list
+        List of strings denoting model variable names that will be
+        interpolated onto inst. The coordinate dimensions for these variables
+        must correspond to those in `mod_irreg_var`.
     model_label : str
         name of model, used to identify interpolated data values in instrument
         (default="model")
@@ -517,14 +516,34 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         estr = 'Must provide sel_name as a list of strings.'
         raise ValueError(estr)
 
+    if len(mod_var_delta) == 0:
+        estr = 'Must provide mod_var_delta as a list of floats.'
+        raise ValueError(estr)
+
+    if len(mod_var_delta) != len(mod_name):
+        estr = ' '.join(['Must provide the same number of model deltas',
+                         'and dimension names.'])
+        raise ValueError(estr)
+
     if len(inst_name) != len(mod_name):
-        estr = 'Must provide the same number of instrument and model '
-        estr += 'location attribute names as a list'
+        estr = ' '.join(['Must provide the same number of instrument and model',
+                         'location attribute names as a list'])
         raise ValueError(estr)
 
     if len(mod_name) != len(mod_units):
         raise ValueError(''.join(['Must provide units for each model location',
                                   ' attribute']))
+
+    # Ensure all variables in sel_name exist
+    for iname in sel_name:
+        if iname not in model:
+            raise ValueError(''.join(['Unknown model variable index ',
+                                      '{:}'.format(iname)]))
+
+    # Ensure that `mod_irreg_var` exists
+    if mod_irreg_var not in model:
+        raise ValueError(''.join(['Unknown irregular model variable index ',
+                                  '{:}'.format(mod_irreg_var)]))
 
     # Ensure coordinate dimensions match
     for var in sel_name:
@@ -532,6 +551,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
             estr = ' '.join(('Coordinate dimensions must match for',
                              '"mod_irreg_var" and', model[var].name))
             raise ValueError(estr)
+
     # Ensure mod_reg_dim in mod_irreg_var
     if mod_reg_dim not in model[mod_irreg_var].dims:
         estr = 'mod_reg_dim must be a coordinate dimension for mod_irreg_var.'
@@ -566,12 +586,22 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
             # Store scaling for mod_irreg_var
             dvar_scale = inst_scale[i]
 
+    # Pull out datetime data
+    if mod_datetime_name in model.data_vars:
+        mod_datetime = model.data_vars[mod_datetime_name]
+        mod_datetime = mod_datetime.values.astype(np.int64)
+    elif mod_datetime_name in model.coords:
+        mod_datetime = model.coords[mod_datetime_name].values.astype(np.int64)
+    else:
+        raise ValueError("".join(["unknown model name for datetime: ",
+                                  mod_datetime_name]))
+
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
               for dim, temp_scale in zip(mod_name, inst_scale)]
 
     # Time first
-    coords.insert(0, model[mod_datetime_name].values.astype(np.int64))
+    coords.insert(0, mod_datetime)
 
     # Translate regular locations to equivalent irregular ones
     # pull out irregular grid locations for variables that will be interpolated
