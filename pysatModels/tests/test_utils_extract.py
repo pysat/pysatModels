@@ -12,6 +12,9 @@ from pysat.instruments import pysat_testmodel
 import pysatModels as ps_mod
 import pysatModels.utils.extract as extract
 
+pysat_version_major = int(pysat.__version__.split('.')[0])
+pysat_version_minor = int(pysat.__version__.split('.')[1])
+
 
 @pytest.mark.skip("input requires a regular grid for the model")
 class TestUtilsExtractObsViewModel(object):
@@ -359,7 +362,7 @@ class TestUtilsExtractInstModView(object):
         return
 
 
-@pytest.mark.skipif(pysat.__version__ == '3.0.1',
+@pytest.mark.skipif(pysat_version_major <= 3 & (pysat_version_minor < 1),
                     reason=''.join(('Requires test model in pysat ',
                                     ' v3.1 or later.')))
 class TestUtilsAltitudePressure(object):
@@ -479,7 +482,7 @@ class TestUtilsAltitudePressure(object):
         return
 
 
-@pytest.mark.skipif(pysat.__version__ == '3.0.1',
+@pytest.mark.skipif(pysat_version_major <= 3 & (pysat_version_minor < 1),
                     reason=''.join(('Requires test model in pysat ',
                                     ' v3.1 or later.')))
 class TestUtilsExtractInstModIrregView(object):
