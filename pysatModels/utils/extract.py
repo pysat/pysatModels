@@ -673,7 +673,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     # Perform interpolation of user desired variables
     output_names = []
     for var, idata in zip(sel_name, model_vars):
-        ps_mod.logger.debug('Creating interpolation object for ' + var)
+        ps_mod.logger.debug(''.join(['Creating interpolation object for ',
+                                     var]))
         output_names.append('_'.join((model_label, var)))
         inst[output_names[-1]] = \
             interpolate.griddata(points, idata, sat_pts, rescale=True)
