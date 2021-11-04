@@ -565,11 +565,11 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
-    for i, (iname, mname) in enumerate(zip(inst_name, mod_name)):
+    for i, iname in enumerate(inst_name):
         if iname not in inst.data.keys():
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:}'.format(iname)]))
-        if mname != mod_reg_dim:
+        if mod_name[i] != mod_reg_dim:
             # Some units may have extra information (e.g., 'degrees North').
             # Use only the actual units in the scaling function. These are
             # assumed to come first.
@@ -638,7 +638,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     # values. For each of the model dimensions, each with a corresponding
     # instrument variable, determine the selection criteria and store the
     # limits.
-    for i, (iname, idelta) in enumerate(zip(inst_name, mod_var_delta)):
+    for i, iname in enumerate(inst_name):
         # Range from Instrument values
         min_val = inst[iname].min()
         max_val = inst[iname].max()
@@ -648,8 +648,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         max_mval = np.nanmax(points[:, i + 1])
 
         # Net range
-        min_val = np.max([min_val - idelta, min_mval])
-        max_val = np.min([max_val + idelta, max_mval])
+        min_val = np.max([min_val - mod_var_delta[i], min_mval])
+        max_val = np.min([max_val + mod_var_delta[i], max_mval])
 
         # Determine which points are within the specified tolerance range.
         idx, = np.where((points[:, i + 1] >= min_val)
