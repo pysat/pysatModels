@@ -474,8 +474,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
 
     Returns
     -------
-    interp_data.keys() : dict_keys
-        Keys of modelled data added to the instrument
+    output_names : list
+        Keys of interpolated model data added to the instrument
 
     Raises
     ------
@@ -679,6 +679,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         inst[output_names[-1]] = \
             interpolate.griddata(points, idata, sat_pts, rescale=True)
         ps_mod.logger.debug(' '.join([var, 'complete.']))
+
     return output_names
 
 
