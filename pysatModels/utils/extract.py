@@ -459,10 +459,12 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         be replaced with values from mod_irreg_var to perform interpolation.
     mod_irreg_var : str
         Variable name in model for irregular grid values used to define
-        locations along `mod_reg_dim`. Must have same coordinates as mod_name.
+        locations along `mod_reg_dim`. Must have same coordinates as `mod_name`.
     mod_var_delta : list
         List of delta values to be used when downselecting model values
-        before interpolation, values - delta < val < values + delta.
+        before interpolation,
+        max(min(inst) - delta, min(model)) <= val <= min(max(inst) + delta,
+                                                         max(model)).
         Interpreted in the same order as `mod_name`.
     sel_name : list
         List of strings denoting model variable names that will be
