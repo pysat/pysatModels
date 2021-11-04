@@ -678,7 +678,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         output_names.append('_'.join((model_label, var)))
         inst[output_names[-1]] = \
             interpolate.griddata(points, idata, sat_pts, rescale=True)
-        ps_mod.logger.debug('Complete.')
+        ps_mod.logger.debug(' '.join([var, 'complete.']))
     return output_names
 
 
