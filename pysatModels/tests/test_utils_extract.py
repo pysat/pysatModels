@@ -362,8 +362,8 @@ class TestUtilsExtractInstModView(object):
         return
 
 
-@pytest.mark.skipif(pysat_version_major < 3 or (pysat_version_major == 3 and
-                                                (pysat_version_minor < 1)),
+@pytest.mark.skipif(pysat_version_major < 3 or (pysat_version_major == 3
+                                                and (pysat_version_minor < 1)),
                     reason=''.join(('Requires test model in pysat ',
                                     ' v3.1 or later.')))
 class TestUtilsAltitudePressure(object):
