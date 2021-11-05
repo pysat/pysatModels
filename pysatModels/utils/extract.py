@@ -454,7 +454,7 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info.
     mod_units : list
-        Units for each of the `mod_name` dimensions. Users should provide units
+        Units for each of the `mod_name` dimensions. Users must provide units
         for `mod_irreg_var' instead of the units for `mod_reg_dim`.
         Currently supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m,
         km, and cm.
