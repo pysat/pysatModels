@@ -428,11 +428,12 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     return output_names
 
 
-def instrument_view_irregular_model(inst, model, inst_name, mod_name,
-                                    mod_datetime_name, mod_units, mod_reg_dim,
-                                    mod_irreg_var, mod_var_delta,
-                                    sel_name=None, model_label='model'):
-    """Interpolate irregularly spaced model data onto Instrument locations.
+def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
+                                        mod_datetime_name, mod_units,
+                                        mod_reg_dim, mod_irreg_var,
+                                        mod_var_delta, sel_name=None,
+                                        model_label='model'):
+    """Interpolate model data with irregular coordinate onto Instrument.
 
     Parameters
     ----------
@@ -453,8 +454,8 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info.
     mod_units : list
-        Units for each of the `mod_name` dimensions. Units for
-        `mod_irreg_var' should be used in place of the units for `mod_reg_dim`.
+        Units for each of the `mod_name` dimensions. Users should provide units
+        for `mod_irreg_var' instead of the units for `mod_reg_dim`.
         Currently supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m,
         km, and cm.
     mod_reg_dim : str

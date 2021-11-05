@@ -506,7 +506,7 @@ class TestUtilsExtractInstModIrregView(object):
                            ["ilev", "latitude", "longitude"],
                            "time", ["cm", "deg", "deg"], "ilev",
                            "altitude", [50., 10., 10.]]
-        self.input_kwargs = {"sel_name": ["dummy_drifts", "altitude"]}
+        self.in_kwargs = {"sel_name": ["dummy_drifts", "altitude"]}
         self.out = []
 
         return
@@ -515,16 +515,16 @@ class TestUtilsExtractInstModIrregView(object):
         """Run after every method to clean up previous testing."""
 
         del self.inst, self.model, self.input_args, self.out, self.model_label
-        del self.input_kwargs
+        del self.in_kwargs
 
         return
 
     def test_standard_call(self):
         """Test for successful interpolation."""
 
-        self.out = extract.instrument_view_irregular_model(*self.input_args,
-                                                           **self.input_kwargs)
-        for name in self.input_kwargs['sel_name']:
+        self.out = extract.interp_inst_w_irregular_model_coord(*self.input_args,
+                                                               **self.in_kwargs)
+        for name in self.in_kwargs['sel_name']:
             assert ''.join(('model_', name)) in self.inst.data
 
         for name in self.out:
@@ -557,7 +557,7 @@ class TestUtilsExtractInstModIrregView(object):
 
         with pytest.raises(ValueError) as verr:
             extract.instrument_view_irregular_model(*self.input_args,
-                                                    **self.input_kwargs)
+                                                    **self.in_kwargs)
 
         assert str(verr.value.args[0]).find(err_msg) >= 0
 
@@ -571,11 +571,11 @@ class TestUtilsExtractInstModIrregView(object):
     def test_bad_kwarg_input(self, bad_key, bad_val, err_msg, caplog):
         """Test for expected failure with bad kwarg input."""
 
-        self.input_kwargs[bad_key] = bad_val
+        self.in_kwargs[bad_key] = bad_val
 
         with pytest.raises((ValueError, TypeError)) as err:
             extract.instrument_view_irregular_model(*self.input_args,
-                                                    **self.input_kwargs)
+                                                    **self.in_kwargs)
 
         assert str(err.value.args[0]).find(err_msg) >= 0
 
