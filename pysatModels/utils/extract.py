@@ -447,8 +447,9 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         only spatial coordinates. Same ordering as used by mod_name.
     mod_name : list
         List of names of the data dimensions used to organize model data,
-        in the same order as `inst_name`. These dimension must make up a
-        regular grid.
+        in the same order as `inst_name`. These dimensions must make up a
+        regular grid. Values from `mod_irreg_var` will be used to replace
+        one of these regular dimensions, `mod_reg_dim`, with irregular values.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info.
     mod_units : list
