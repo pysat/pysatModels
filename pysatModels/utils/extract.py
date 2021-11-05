@@ -432,7 +432,7 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
                                     mod_datetime_name, mod_units, mod_reg_dim,
                                     mod_irreg_var, mod_var_delta,
                                     sel_name=None, model_label='model'):
-    """Interpolate irregularly gridded model onto Insrument locations.
+    """Interpolate irregularly spaced model data onto Insrument locations.
 
     Parameters
     ----------
@@ -446,26 +446,28 @@ def instrument_view_irregular_model(inst, model, inst_name, mod_name,
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates. Same ordering as used by mod_name.
     mod_name : list
-        list of names of the data series to use for determining model locations
-        in the same order as inst_name.  These must make up a regular grid.
+        list of names of the data dimensions used to organize model data,
+        in the same order as inst_name.  These dimension must make up a regular
+        grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
     mod_units : list
-        units for each of the mod_name location attributes. Units for
-        `mod_irreg_var' should replace those for `mod_reg_dim`. Currently
-        supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
+        units for each of the `mod_name` location attributes. Units for
+        `mod_irreg_var' should be used in place of the units for `mod_reg_dim`.
+        Currently supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m,
+        km, and cm
     mod_reg_dim : str
-        Existing regular dimension name used to organize model data that will
-        be replaced with values from mod_irreg_var to perform interpolation.
+        Existing regular dimension name (in `mod_name`) used to organize model
+        data that will be replaced with values from `mod_irreg_var` before
+        performing interpolation.
     mod_irreg_var : str
         Variable name in model for irregular grid values used to define
-        locations along `mod_reg_dim`. Must have same coordinates as `mod_name`.
+        locations along `mod_reg_dim`. Must have same dimensions as `mod_name`.
     mod_var_delta : list
         List of delta values to be used when downselecting model values
-        before interpolation,
-        max(min(inst) - delta, min(model)) <= val <= min(max(inst) + delta,
-                                                         max(model)).
-        Interpreted in the same order as `mod_name`.
+        before interpolation, max(min(inst) - delta, min(model)) <= val <=
+        min(max(inst) + delta, max(model)). Interpreted in the same order as
+        `mod_name`.
     sel_name : list
         List of strings denoting model variable names that will be
         interpolated onto inst. The coordinate dimensions for these variables
