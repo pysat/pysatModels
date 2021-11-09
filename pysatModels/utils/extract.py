@@ -237,23 +237,24 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
         at which the model data will be interpolated. Do not include 'time',
         only spatial coordinates.
     mod_name : array-like
-        list of names of the data series to use for determining model locations
-        in the same order as inst_name.  These must make up a regular grid.
+        List of model dimension names used for organizing model data
+        in the same order as `inst_name`.  These must make up a regular grid.
+        Do not include 'time', only spatial dimensions.
     mod_datetime_name : str
-        Name of the data series in the model Dataset containing datetime info
+        Name of the data series in the model Dataset containing datetime info.
     mod_time_name : str
-        Name of the time coordinate in the model Dataset
+        Name of the time coordinate in the model Dataset.
     mod_units : list
-        units for each of the mod_name location attributes.  Currently
+        Units for each of the mod_name location dimensions.  Currently
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
     sel_name : array-like or NoneType
-        list of names of modelled data indices to append to instrument object,
-        or None to append all modelled data (default=None)
+        List of names of modelled data indices to append to Instrument object,
+        or None to append all modelled data. (default=None)
     methods : str
         'linear' interpolation or 'nearest' neighbor options for RegularGrid.
         Must supply an option for each variable. (default=['linear'])
     model_label : str
-        name of model, used to identify interpolated data values in instrument
+        Name of model, used to identify interpolated data values in instrument
         (default="model")
 
     Returns
