@@ -281,7 +281,7 @@ More generally,
 deal with irregular coordinates when interpolating onto an observational-like
 data set using :py:func:`scipy.interpolate.griddata`. The `model` loaded above
 is regular against pressure level, latitude, and longitude, however it is
-irregular with
+irregular with respect to altitude.
 
 .. code:: python
 
@@ -289,7 +289,7 @@ irregular with
                 model.data, ["altitude", "latitude", "longitude"],
                 ["ilev", "latitude", "longitude"],
                 "time", ["cm", "deg", "deg"], "ilev",
-                "altitude", [50., 10., 10.],
+                "altitude", [50., 2., 5.],
                 sel_name=["dummy_drifts", "altitude"])
 
 where `inst` and `model.data` provide the required :py:class:`pysat.Instrument`
@@ -342,13 +342,79 @@ and +/-10 degrees in longitude is used. The keyword argument ::
 
 identifies the `model.data` variables that will be interpolated onto `inst`.
 
+The code below demonstrates the equality of the two processes when dealing
+with some irregular data. The number of samples in both `inst` and `model`
+is limited to ensure quick runtime.
+
+.. code:: python
+
+    import pysat
+    import pysatModels
+
+    inst = pysat.Instrument('pysat', 'testing', max_latitude=10., num_samples=100)
+    model = pysat.Instrument('pysat', 'testmodel', tag='pressure_levels', num_samples=5)
+    inst.load(2009, 1)
+    model.load(2009, 1)
+    In []: %time keys = pysatModels.utils.extract.interp_inst_w_irregular_model_coord(inst,
+                                model.data, ["altitude", "latitude", "longitude"],
+                                ["ilev", "latitude", "longitude"],
+                                "time", ["cm", "deg", "deg"], "ilev",
+                                "altitude", [50., 2., 5.],
+                                sel_name=["dummy_drifts", "altitude"])
+    CPU times: user 419 ms, sys: 13 ms, total: 432 ms
+    Wall time: 431 ms
+
+    In []: inst['model_dummy_drifts']
+    Out[]:
+    Epoch
+    2009-01-01 00:00:00    22.393249
+    2009-01-01 00:00:01    22.405926
+    2009-01-01 00:00:02    22.418600
+    2009-01-01 00:00:03    22.431272
+    2009-01-01 00:00:04    22.443941
+                             ...
+    2009-01-01 00:01:35    23.592833
+    2009-01-01 00:01:36    23.605252
+    2009-01-01 00:01:37    23.617668
+    2009-01-01 00:01:38    23.630081
+    2009-01-01 00:01:39    23.642492
+    Name: model_dummy_drifts, Length: 100, dtype: float64
+
+    In []: %time keys = iamp(inst, model.data, ["altitude", "latitude", "longitude"],
+                            ["ilev", "latitude", "longitude"], "time", "time",
+                            ['', "deg", "deg"], 'altitude', 'altitude', 'cm')
+    CPU times: user 37.8 ms, sys: 3.87 ms, total: 41.6 ms
+    Wall time: 40.7 ms
+
+    In []: %time new_data_keys = pysatModels.utils.extract.instrument_view_through_model(inst,
+                    model.data, ['model_pressure', 'latitude', 'longitude'],
+                    ['ilev', 'latitude', 'longitude'], 'time', 'time',
+                    ['', 'deg', 'deg'], ['dummy_drifts'], model_label='model2')
+    CPU times: user 3.11 ms, sys: 388 µs, total: 3.5 ms
+    Wall time: 3.14 ms
+
+    In []: inst['model2_dummy_drifts'] - inst['model_dummy_drifts']
+    Out[]:
+    Epoch
+    2009-01-01 00:00:00   -0.024180
+    2009-01-01 00:00:01   -0.023968
+    2009-01-01 00:00:02   -0.023756
+    2009-01-01 00:00:03   -0.023544
+    2009-01-01 00:00:04   -0.023332
+                             ...
+    2009-01-01 00:01:35   -0.011532
+    2009-01-01 00:01:36   -0.011326
+    2009-01-01 00:01:37   -0.011120
+    2009-01-01 00:01:38   -0.010914
+    2009-01-01 00:01:39   -0.010708
+    Length: 100, dtype: float64
+
+
 The results of ::
 
     inst[keys].plot(title='Interpolation Example')
 
 are shown below.
-
-
 
 
 
