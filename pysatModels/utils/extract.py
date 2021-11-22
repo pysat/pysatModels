@@ -434,7 +434,7 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
                                         mod_reg_dim, mod_irreg_var,
                                         mod_var_delta, sel_name=None,
                                         model_label='model'):
-    """Interpolate model data with irregular coordinate onto Instrument.
+    """Interpolate model data onto Instrument path using an irregular coordinate.
 
     Parameters
     ----------
