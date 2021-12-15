@@ -970,7 +970,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                                 k = mod_name.index(kk)
                                 if k in imod_dims:
                                     # This is an xarray coordiante
-                                    xi.append(inst_coord[kk][cinds[k]])
+                                    cind = imod_dims.index(k)
+                                    xi.append(inst_coord[kk][cinds[cind]])
                                 else:
                                     # This is an xarray variable
                                     xi.append(inst_coord[kk][xind])
