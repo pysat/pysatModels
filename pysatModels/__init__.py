@@ -27,3 +27,8 @@ del local_dir, version_file
 # Define a logger object to allow easier log handling
 logging.raiseExceptions = False
 logger = logging.getLogger('pysatModels_logger')
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(name)s %(levelname)s: %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.WARNING)
