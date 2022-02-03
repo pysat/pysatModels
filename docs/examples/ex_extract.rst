@@ -62,21 +62,21 @@ Looking at the loaded `model.data` we can see that the model is indeed regular.
        dummy1     (time, latitude, longitude) float64 0.0 0.0 0.0 ... 0.0 3.0 6.0
        dummy2     (time, latitude, longitude, altitude) float64 0.0 0.0 ... 18.0
 
-The `Coordinates` `time`, `latitude`, `longitude`, and `altitude` are all
-one-dimensional and directly relevant to a physical satellite location. The
-equivalent satellite variables are `latitude`, `longitude`, and `altitude`,
-with `time` taken from the Instrument's associated datetimeindex
-(`inst.data.index`).
+The coordinates are :py:var:`time`, :py:var:`latitude`, :py:var:`longitude`,
+and :py:var:`altitude`, and are all one-dimensional and directly relevant to a
+physical satellite location. The equivalent satellite variables are
+:py:var:`latitude`, :py:var:`longitude`, and:py:var: `altitude`, with
+:py:var:`time` taken from the associated :py:class:`Instrument` time index
+(:py:attr:`inst.data.index`).
 
 .. code:: python
 
    In []: inst.variables
    Out[]:
    Index(['uts', 'mlt', 'slt', 'longitude', 'latitude', 'altitude', 'orbit_num',
-          'dummy1', 'dummy2', 'dummy3', 'dummy4', 'string_dummy', 'unicode_dummy',
-          'int8_dummy', 'int16_dummy', 'int32_dummy', 'int64_dummy',
-          'model_dummy2'],
-         dtype='object')
+          'dummy1', 'dummy2', 'dummy3', 'dummy4', 'string_dummy',
+	  'unicode_dummy', 'int8_dummy', 'int16_dummy', 'int32_dummy',
+	  'int64_dummy', 'model_dummy2'], dtype='object')
 
    In []: inst.data.index
    Out[]:
@@ -94,7 +94,7 @@ with `time` taken from the Instrument's associated datetimeindex
                  dtype='datetime64[ns]', name='Epoch', length=86400, freq=None)
 
 
-Interpolating `model` data onto `inst` is accomplished via
+Interpolating :py:var:`model` data onto :py:var:`inst` is accomplished via
 
 .. code:: python
 
@@ -103,8 +103,8 @@ Interpolating `model` data onto `inst` is accomplished via
                               ['latitude', 'longitude', 'altitude'], 'time',
                               'time', ['deg', 'deg', 'km'], ['dummy2'])
 
-where `inst` and `model.data` provide the required :py:class:`pysat.Instrument`
-object and :py:class:`xarray.Dataset`. The ::
+where :py:var:`inst` and :py:attr:`model.data` provide the required
+:py:class:`pysat.Instrument` object and :py:class:`xarray.Dataset`. The ::
 
    ['latitude', 'longitude', 'altitude']
 
@@ -125,11 +125,11 @@ terms cover the model labels used for time variable and coordinate. The ::
 
 term covers the units for the model dimensions (latitude/longitude/altitude).
 Units for the corresponding information from `inst` are taken directly from the
-:py:class:`pysat.Instrument` object. The final presented input::
+:py:class:`pysat.Instrument` object. The final presented input ::
 
     ['dummy2']
 
-is a list of model variables that will be interpolated onto `inst`.
+is a list of model variables that will be interpolated onto :py:var:`inst`.
 
 The results of ::
 
@@ -194,11 +194,11 @@ supplied altitude in an observational-like data set.
                  'altitude', 'altitude', 'cm')
 
 The function will guess a pressure level for all locations in `inst` and then
-use the regular mapping from pressure to altitude to obtain the equivalent altitude
-from the model. The pressure is adjusted up/down an increment based upon the
-comparison and the process is repeated until the target tolerance (default
-is 1 km) is achieved. The keys for the model derived pressure and altitude
-values added to `inst` are returned from the function.
+use the regular mapping from pressure to altitude to obtain the equivalent
+altitude from the model. The pressure is adjusted up/down an increment based
+upon the comparison and the process is repeated until the target tolerance
+(default is 1 km) is achieved. The keys for the model derived pressure and
+altitude values added to `inst` are returned from the function.
 
 .. code:: python
 
@@ -237,8 +237,8 @@ values added to `inst` are returned from the function.
     2009-01-01 23:59:59   -0.610749
     Length: 86400, dtype: float64
 
-Using the added `model_pressure` information model values may not be interpolated
-onto `inst` using regular grid methods.
+Using the added `model_pressure` information model values may not be
+interpolated onto `inst` using regular grid methods.
 
 .. code:: python
 
@@ -314,11 +314,13 @@ terms cover the model label used for the datetime coordinate. The ::
    ["cm", "deg", "deg"]
 
 term covers the units for the model information (altitude/latitude/longitude)
-that maps to the `inst` information in `["altitude", "latitude", "longitude"]`.
-Note that the "cm" covers units for 'altitude' in `model.data`, the variable
-that will replace 'ilev', while "deg" and "deg" covers the units for
-the "latitude" and "longitude" dimensions. Units for the corresponding information from `inst` are taken directly from the
-:py:class:`pysat.Instrument` object. The ::
+that maps to the :py:var:`inst` information in the coordinate list
+:py:var:`["altitude", "latitude", "longitude"]`. Note that the :py:var:`"cm"`
+covers units for :py:var:`'altitude'` in :py:attr:`model.data`, the variable
+that will replace :py:var:`'ilev'`, while the second two list elements (both
+:py:var:`"deg"`) covers the units for the latitude and longitude dimensions.
+Units for the corresponding information from :py:var:`inst` are taken directly
+from the :py:class:`pysat.Instrument` object. The ::
 
     "ilev"
 
@@ -327,8 +329,8 @@ data for interpolation. The ::
 
     "altitude"
 
-identifies the irregular model variable that will replace the regular coordinate.
-The ::
+identifies the irregular model variable that will replace the regular
+coordinate. The ::
 
     [50., 10., 10.]
 
