@@ -20,8 +20,6 @@ inteprolate model values onto instrument locations or use the nearest modeled
 location. Uses :py:func:`scipy.interpolate.interpn` as the underlying
 interpolation function.
 
-Leaving description of @aburrell's function to @aburrell.
-
 
 :py:func:`pysatModels.utils.extract.instrument_view_through_model` supports
 interpolating values from regular grid models onto Instrument locations using
@@ -62,11 +60,11 @@ Looking at the loaded `model.data` we can see that the model is indeed regular.
        dummy1     (time, latitude, longitude) float64 0.0 0.0 0.0 ... 0.0 3.0 6.0
        dummy2     (time, latitude, longitude, altitude) float64 0.0 0.0 ... 18.0
 
-The coordinates are :py:var:`time`, :py:var:`latitude`, :py:var:`longitude`,
-and :py:var:`altitude`, and are all one-dimensional and directly relevant to a
+The coordinates are `time`, `latitude`, `longitude`,
+and `altitude`, and are all one-dimensional and directly relevant to a
 physical satellite location. The equivalent satellite variables are
-:py:var:`latitude`, :py:var:`longitude`, and:py:var: `altitude`, with
-:py:var:`time` taken from the associated :py:class:`Instrument` time index
+`latitude`, `longitude`, and `altitude`, with
+`time` taken from the associated :py:class:`Instrument` time index
 (:py:attr:`inst.data.index`).
 
 .. code:: python
@@ -94,7 +92,7 @@ physical satellite location. The equivalent satellite variables are
                  dtype='datetime64[ns]', name='Epoch', length=86400, freq=None)
 
 
-Interpolating :py:var:`model` data onto :py:var:`inst` is accomplished via
+Interpolating `model` data onto `inst` is accomplished via
 
 .. code:: python
 
@@ -103,7 +101,7 @@ Interpolating :py:var:`model` data onto :py:var:`inst` is accomplished via
                               ['latitude', 'longitude', 'altitude'], 'time',
                               'time', ['deg', 'deg', 'km'], ['dummy2'])
 
-where :py:var:`inst` and :py:attr:`model.data` provide the required
+where `inst` and `model.data` provide the required
 :py:class:`pysat.Instrument` object and :py:class:`xarray.Dataset`. The ::
 
    ['latitude', 'longitude', 'altitude']
@@ -129,7 +127,7 @@ Units for the corresponding information from `inst` are taken directly from the
 
     ['dummy2']
 
-is a list of model variables that will be interpolated onto :py:var:`inst`.
+is a list of model variables that will be interpolated onto `inst`.
 
 The results of ::
 
@@ -182,7 +180,7 @@ Altitude to Pressue
 ^^^^^^^^^^^^^^^^^^^
 
 :py:func:`pysatModels.utils.extract.instrument_altitude_to_model_pressure`
-will use information in a model to generate approrpiate pressure levels for a
+will use information in a model to generate appropriate pressure levels for a
 supplied altitude in an observational-like data set.
 
 .. code:: python
@@ -314,12 +312,12 @@ terms cover the model label used for the datetime coordinate. The ::
    ["cm", "deg", "deg"]
 
 term covers the units for the model information (altitude/latitude/longitude)
-that maps to the :py:var:`inst` information in the coordinate list
-:py:var:`["altitude", "latitude", "longitude"]`. Note that the :py:var:`"cm"`
-covers units for :py:var:`'altitude'` in :py:attr:`model.data`, the variable
-that will replace :py:var:`'ilev'`, while the second two list elements (both
-:py:var:`"deg"`) covers the units for the latitude and longitude dimensions.
-Units for the corresponding information from :py:var:`inst` are taken directly
+that maps to the `inst` information in the coordinate list
+`["altitude", "latitude", "longitude"]`. Note that the `"cm"`
+covers units for `'altitude'` in `model.data`, the variable
+that will replace `'ilev'`, while the second two list elements (both
+`"deg"`) covers the units for the latitude and longitude dimensions.
+Units for the corresponding information from `inst` are taken directly
 from the :py:class:`pysat.Instrument` object. The ::
 
     "ilev"
@@ -429,7 +427,7 @@ Model verification and validation is supported in pysatModels through
 standard statistics used for these purposes can be run in a single go using
 the utility :py:func:`pysatModels.utils.compare.compare_model_and_inst`. The
 following example uses the paired data produced in example :ref:`ex_match-loc`.
-The :py:data:`matched_inst` object at this point should display as shown below.
+The `matched_inst` object at this point should display as shown below.
 
 Now, we need to convert this :py:class:`pysat.Instrument` object to an
 :py:class:`xarray.Dataset`.  This conversion is needed to simplify the
@@ -446,7 +444,7 @@ units of the same type, so we will specify that the modelled data is a velocity
 in *cm/s*, while the observations are a velocity measured in *m/s*.
 
 Note the statistical output is in the units of the observed data set.  The
-:py:data:`stat_dict` output is a *dict* with the observed data
+`stat_dict` output is a *dict* with the observed data
 variable name(s) as the first set of keys and the requested statistics for
 each data type as a nested *dict*.
 
