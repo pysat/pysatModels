@@ -360,8 +360,8 @@ class TestUtilsExtractInstModView(object):
         return
 
 
-@pytest.mark.skipif(packaging.version.Version(pysat.__version__) <
-                    packaging.version.Version('3.1.0'),
+@pytest.mark.skipif(packaging.version.Version(pysat.__version__)
+                    < packaging.version.Version('3.1.0'),
                     reason=''.join(('Requires test model in pysat ',
                                     ' v3.1 or later.')))
 class TestUtilsAltitudePressure(object):
@@ -481,8 +481,8 @@ class TestUtilsAltitudePressure(object):
         return
 
 
-@pytest.mark.skipif(packaging.version.Version(pysat.__version__) <
-                    packaging.version.Version('3.1.0'),
+@pytest.mark.skipif(packaging.version.Version(pysat.__version__)
+                    < packaging.version.Version('3.1.0'),
                     reason=''.join(('Requires `max_latitude` test Instrument ',
                                     'support in pysat v3.1 or later.')))
 class TestUtilsExtractInstModIrregView(object):
