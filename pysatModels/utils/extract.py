@@ -814,7 +814,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         inst_scale[i] = pyutils.scale_units(mod_units[i], long_units)
 
     # Determine the model time resolution
-    if mod_datetime_name in model.data_vars:
+    if mod_datetime_name in model.data_vars.keys():
         mod_datetime = model.data_vars[mod_datetime_name].values
     elif mod_datetime_name in model.coords:
         mod_datetime = model.coords[mod_datetime_name].values
