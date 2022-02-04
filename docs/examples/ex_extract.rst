@@ -109,7 +109,7 @@ to be interpolated. The subsequent ::
    ['latitude', 'longitude', 'altitude']
 
 term provides the equivalent content from the satellite's data set, in the same
-order as the model coordinates. In this case, the same lables are used for
+order as the model coordinates. In this case, the same labels are used for
 both the satellite and modeled data sets. The ::
 
    'time', 'time'
@@ -168,7 +168,7 @@ Unfortunately, the observational data in `inst` doesn't contain pressure level
 as a simulated/measured parameter. However, `altitude` is present in the model
 data but varies over all four coordinates. Interpolating `dummy_drifts`
 onto `inst` requires either adding an appropriate value for `ilev` into `inst`,
-or iterpolating model variables using the irregular variable `altitude` instead
+or interpolating model variables using the irregular variable `altitude` instead
 of `ilev`.
 
 Altitude to Pressue
