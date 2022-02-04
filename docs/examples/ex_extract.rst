@@ -16,7 +16,7 @@ Regular Grid Models
 
 :py:func:`pysatModels.utils.extract.extract_modeled_observations` supports
 extracting values from models on a regular grid. The function can linearly
-inteprolate model values onto instrument locations or use the nearest modeled
+interpolate model values onto instrument locations or use the nearest modeled
 location. Uses :py:func:`scipy.interpolate.interpn` as the underlying
 interpolation function.
 
@@ -28,6 +28,8 @@ example that interpolates model data onto a satellite data set using
 pysat testing data sets.
 
 .. code:: python
+
+   import datetime as dt
 
    import pysat
    import pysatModels
@@ -73,8 +75,6 @@ physical satellite location. The equivalent satellite variables are
 	  'unicode_dummy', 'int8_dummy', 'int16_dummy', 'int32_dummy',
 	  'int64_dummy', 'model_dummy2'], dtype='object')
 
-.. code:: python
-
    DatetimeIndex(['2009-01-01 00:00:00', '2009-01-01 00:00:01',
                   '2009-01-01 00:00:02', '2009-01-01 00:00:03',
                   '2009-01-01 00:00:04', '2009-01-01 00:00:05',
@@ -94,12 +94,81 @@ Interpolating `model` data onto `inst` is accomplished via
 .. code:: python
 
    new_data_keys = pysatModels.utils.extract.instrument_view_through_model(inst,
+                              model.data, ['longitude'], ['longitude'], 'time',
+                              'time', ['deg'], ['mlt'])
+
+where `inst` and `model.data` provide the required
+:py:class:`pysat.Instrument` object and :py:class:`xarray.Dataset`. The ::
+
+   ['longitude']
+
+term provides the content and ordering of the coordinates for model variables
+to be interpolated. The subsequent ::
+
+   ['longitude']
+
+term provides the equivalent content from the satellite's data set, in the same
+order as the model coordinates. In this case, the same labels are used for
+both the satellite and modeled data sets. The ::
+
+   'time', 'time'
+
+terms cover the model labels used for time variable and coordinate. The ::
+
+   ['deg']
+
+term covers the units for the model dimensions (longitude).
+Units for the corresponding information from `inst` are taken directly from the
+:py:class:`pysat.Instrument` object. The final presented input ::
+
+    ['mlt']
+
+is a list of model variables that will be interpolated onto `inst`. By
+default a linear interpolation is performed but a nearest neighbor option is
+also supported.
+
+.. code:: python
+
+    # Store results for linear interpolation
+    inst.rename({new_data_keys[0]: "mlt_linear"})
+
+    # Run interpolation using 'nearest'
+    new_data_keys = pysatModels.utils.extract.instrument_view_through_model(inst,
+                              model.data, ['longitude'], ['longitude'], 'time',
+                              'time', ['deg'], ['mlt'], ['nearest'])
+    inst.rename({new_data_keys[0]: "mlt_nearest"})
+
+    # Set up time range for plotting results
+    stime = inst.date
+    etime = inst.date + dt.timedelta(hours=1)
+
+The results of
+
+.. code:: python
+
+    title = 'Interpolating MLT Example'
+    ylabel = 'Magnetic Local Time'
+    inst[stime:etime, ['mlt_linear', 'mlt_nearest'].plot(title=title,
+                                                         ylabel=ylabel)
+
+are shown below.
+
+.. image:: ../images/ex_extract_mlt_interp.png
+    :width: 800px
+    :align: center
+    :alt: Comparison of Interpolation Methods.
+
+
+Multidimensional interpolation is performed in the same manner.
+
+.. code:: python
+
+   new_data_keys = pysatModels.utils.extract.instrument_view_through_model(inst,
                               model.data, ['latitude', 'longitude', 'altitude'],
                               ['latitude', 'longitude', 'altitude'], 'time',
                               'time', ['deg', 'deg', 'km'], ['dummy2'])
 
-where `inst` and `model.data` provide the required
-:py:class:`pysat.Instrument` object and :py:class:`xarray.Dataset`. The ::
+The ::
 
    ['latitude', 'longitude', 'altitude']
 
@@ -109,8 +178,7 @@ to be interpolated. The subsequent ::
    ['latitude', 'longitude', 'altitude']
 
 term provides the equivalent content from the satellite's data set, in the same
-order as the model coordinates. In this case, the same labels are used for
-both the satellite and modeled data sets. The ::
+order as the model coordinates. The ::
 
    'time', 'time'
 
@@ -127,11 +195,20 @@ Units for the corresponding information from `inst` are taken directly from the
 is a list of model variables that will be interpolated onto `inst`.
 
 The results of ::
+    # Set up time range for plotting results
+    stime = inst.date
+    etime = inst.date + dt.timedelta(hours=1)
 
-    inst[new_data_keys].plot(title='Interpolation Example')
+    ylabel = 'Dummy Variable'
+    inst[stime:etime, new_data_keys].plot(title='Interpolation Example',
+                                          ylabel=ylabel)
 
 are shown below.
 
+.. image:: ../images/ex_extract_dummy_interp.png
+    :width: 800px
+    :align: center
+    :alt: Multi-dimensional interpolation example for dummy variable
 
 
 Irregular Grid Models
@@ -171,8 +248,8 @@ onto `inst` requires either adding an appropriate value for `ilev` into `inst`,
 or interpolating model variables using the irregular variable `altitude` instead
 of `ilev`.
 
-Altitude to Pressue
-^^^^^^^^^^^^^^^^^^^
+Altitude to Pressure
+^^^^^^^^^^^^^^^^^^^^
 
 :py:func:`pysatModels.utils.extract.instrument_altitude_to_model_pressure`
 will use information in a model to generate appropriate pressure levels for a
@@ -180,11 +257,13 @@ supplied altitude in an observational-like data set.
 
 .. code:: python
 
-    from pysatModels.utils.extract import instrument_altitude_to_model_pressure as iamp
-    keys  = iamp(inst, model.data, ["altitude", "latitude", "longitude"],
-                 ["ilev", "latitude", "longitude"],
-                 "time", "time", ['', "deg", "deg"],
-                 'altitude', 'altitude', 'cm')
+    import pysatModels
+
+    keys = pysatModels.utils.extract.instrument_altitude_to_model_pressure(inst,
+                model.data, ["altitude", "latitude", "longitude"],
+                ["ilev", "latitude", "longitude"],
+                "time", "time", ['', "deg", "deg"],
+                'altitude', 'altitude', 'cm')
 
 The function will guess a pressure level for all locations in `inst` and then
 use the regular mapping from pressure to altitude to obtain the equivalent
@@ -234,9 +313,9 @@ interpolated onto `inst` using regular grid methods.
 .. code:: python
 
     new_keys = pysatModels.utils.extract.instrument_view_through_model(inst,
-               model.data, ['model_pressure', 'latitude', 'longitude'],
-               ['ilev', 'latitude', 'longitude'], 'time', 'time',
-               ['', 'deg', 'deg'], ['dummy_drifts'])
+                    model.data, ['model_pressure', 'latitude', 'longitude'],
+                    ['ilev', 'latitude', 'longitude'], 'time', 'time',
+                    ['', 'deg', 'deg'], ['dummy_drifts'])
 
 .. code:: python
 
@@ -255,8 +334,6 @@ interpolated onto `inst` using regular grid methods.
     2009-01-01 23:59:58    63.939724
     2009-01-01 23:59:59    63.975389
     Name: model_dummy_drifts, Length: 86400, dtype: float64
-
-Attached image.
 
 The time to translate altitude to model pressure is ~3 s, and the regular
 interpolation takes an additional ~300 ms.
@@ -341,19 +418,24 @@ is limited to ensure quick runtime.
     import pysat
     import pysatModels
 
-    inst = pysat.Instrument('pysat', 'testing', max_latitude=10., num_samples=100)
-    model = pysat.Instrument('pysat', 'testmodel', tag='pressure_levels', num_samples=5)
+    inst = pysat.Instrument('pysat', 'testing', max_latitude=10.,
+                            num_samples=100)
+    model = pysat.Instrument('pysat', 'testmodel', tag='pressure_levels',
+                             num_samples=5)
     inst.load(2009, 1)
     model.load(2009, 1)
-    %time keys = pysatModels.utils.extract.interp_inst_w_irregular_model_coord(inst,
-                                model.data, ["altitude", "latitude", "longitude"],
-                                ["ilev", "latitude", "longitude"],
-                                "time", ["cm", "deg", "deg"], "ilev",
-                                "altitude", [50., 2., 5.],
-                                sel_name=["dummy_drifts", "altitude"])
-    CPU times: user 419 ms, sys: 13 ms, total: 432 ms
-    Wall time: 431 ms
 
+    keys = pysatModels.utils.extract.interp_inst_w_irregular_model_coord(inst,
+                model.data, ["altitude", "latitude", "longitude"],
+                ["ilev", "latitude", "longitude"],
+                "time", ["cm", "deg", "deg"], "ilev",
+                "altitude", [50., 2., 5.],
+                sel_name=["dummy_drifts", "altitude"])
+
+    # CPU times: user 419 ms, sys: 13 ms, total: 432 ms
+    # Wall time: 431 ms
+
+    # Print results from interpolation
     inst['model_dummy_drifts']
 
     Epoch
@@ -370,18 +452,23 @@ is limited to ensure quick runtime.
     2009-01-01 00:01:39    23.642492
     Name: model_dummy_drifts, Length: 100, dtype: float64
 
-    %time keys = iamp(inst, model.data, ["altitude", "latitude", "longitude"],
-                      ["ilev", "latitude", "longitude"], "time", "time",
-                      ['', "deg", "deg"], 'altitude', 'altitude', 'cm')
-    CPU times: user 37.8 ms, sys: 3.87 ms, total: 41.6 ms
-    Wall time: 40.7 ms
+.. code:: python
 
-    %time new_data_keys = pysatModels.utils.extract.instrument_view_through_model(inst,
+    keys = pysatModels.utils.extract.instrument_altitude_to_model_pressure(inst,
+           model.data, ["altitude", "latitude", "longitude"],
+           ["ilev", "latitude", "longitude"], "time", "time",
+           ['', "deg", "deg"], 'altitude', 'altitude', 'cm')
+
+    # CPU times: user 37.8 ms, sys: 3.87 ms, total: 41.6 ms
+    # Wall time: 40.7 ms
+
+    new_data_keys = pysatModels.utils.extract.instrument_view_through_model(inst,
                     model.data, ['model_pressure', 'latitude', 'longitude'],
                     ['ilev', 'latitude', 'longitude'], 'time', 'time',
                     ['', 'deg', 'deg'], ['dummy_drifts'], model_label='model2')
-    CPU times: user 3.11 ms, sys: 388 µs, total: 3.5 ms
-    Wall time: 3.14 ms
+
+    # CPU times: user 3.11 ms, sys: 388 µs, total: 3.5 ms
+    # Wall time: 3.14 ms
 
     # Compare interpolated `dummy_drifts` between two techniques
     inst['model2_dummy_drifts'] - inst['model_dummy_drifts']
@@ -399,10 +486,3 @@ is limited to ensure quick runtime.
     2009-01-01 00:01:38   -0.010914
     2009-01-01 00:01:39   -0.010708
     Length: 100, dtype: float64
-
-
-The results of ::
-
-    inst[keys].plot(title='Interpolation Example')
-
-are shown below.
