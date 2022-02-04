@@ -44,8 +44,6 @@ Looking at the loaded `model.data` we can see that the model is indeed regular.
 
 .. code:: python
 
-   In []: model.data
-   Out[]:
    <xarray.Dataset>
    Dimensions:    (time: 96, latitude: 21, longitude: 73, altitude: 41)
    Coordinates:
@@ -65,19 +63,18 @@ and `altitude`, and are all one-dimensional and directly relevant to a
 physical satellite location. The equivalent satellite variables are
 `latitude`, `longitude`, and `altitude`, with
 `time` taken from the associated :py:class:`Instrument` time index
-(:py:attr:`inst.data.index`).
+(:py:attr:`inst.data.index`). The output from `inst.variables` and `inst.data.index` should be
+
 
 .. code:: python
 
-   In []: inst.variables
-   Out[]:
    Index(['uts', 'mlt', 'slt', 'longitude', 'latitude', 'altitude', 'orbit_num',
           'dummy1', 'dummy2', 'dummy3', 'dummy4', 'string_dummy',
 	  'unicode_dummy', 'int8_dummy', 'int16_dummy', 'int32_dummy',
 	  'int64_dummy', 'model_dummy2'], dtype='object')
 
-   In []: inst.data.index
-   Out[]:
+.. code:: python
+
    DatetimeIndex(['2009-01-01 00:00:00', '2009-01-01 00:00:01',
                   '2009-01-01 00:00:02', '2009-01-01 00:00:03',
                   '2009-01-01 00:00:04', '2009-01-01 00:00:05',
@@ -145,12 +142,10 @@ the coordinates of interest. Consider an alternative model data set,
 
 .. code:: python
 
-    In []: model = pysat.Instrument('pysat', 'testmodel', tag='pressure_levels')
+    model = pysat.Instrument('pysat', 'testmodel', tag='pressure_levels')
+    model.load(2009, 1)
+    model.data
 
-    In []: model.load(2009, 1)
-
-    In []: model.data
-    Out[]:
     <xarray.Dataset>
     Dimensions:       (time: 24, latitude: 72, longitude: 144, lev: 57, ilev: 57)
     Coordinates:
@@ -200,11 +195,8 @@ altitude values added to `inst` are returned from the function.
 
 .. code:: python
 
-    In []: keys
-    Out[]: ['model_altitude', 'model_pressure']
+    inst['model_pressure']
 
-    In []: inst['model_pressure']
-    Out[]:
     Epoch
     2009-01-01 00:00:00    3.104662
     2009-01-01 00:00:01    3.104652
@@ -219,8 +211,9 @@ altitude values added to `inst` are returned from the function.
     2009-01-01 23:59:59    2.494776
     Name: model_pressure, Length: 86400, dtype: float64
 
-    In []: inst['model_altitude'] - inst['altitude']
-    Out[]:
+    # Calculate difference between interpolation techniques
+    inst['model_altitude'] - inst['altitude']
+
     Epoch
     2009-01-01 00:00:00   -0.744426
     2009-01-01 00:00:01   -0.744426
@@ -235,7 +228,7 @@ altitude values added to `inst` are returned from the function.
     2009-01-01 23:59:59   -0.610749
     Length: 86400, dtype: float64
 
-Using the added `model_pressure` information model values may not be
+Using the added `model_pressure` information model values may be
 interpolated onto `inst` using regular grid methods.
 
 .. code:: python
@@ -247,11 +240,8 @@ interpolated onto `inst` using regular grid methods.
 
 .. code:: python
 
-    In []: new_data_keys
-    Out[]: ['model_dummy_drifts']
+    inst['model_dummy_drifts']
 
-    In []: inst['model_dummy_drifts']
-    Out[]:
     Epoch
     2009-01-01 00:00:00    30.289891
     2009-01-01 00:00:01    30.305303
@@ -355,7 +345,7 @@ is limited to ensure quick runtime.
     model = pysat.Instrument('pysat', 'testmodel', tag='pressure_levels', num_samples=5)
     inst.load(2009, 1)
     model.load(2009, 1)
-    In []: %time keys = pysatModels.utils.extract.interp_inst_w_irregular_model_coord(inst,
+    %time keys = pysatModels.utils.extract.interp_inst_w_irregular_model_coord(inst,
                                 model.data, ["altitude", "latitude", "longitude"],
                                 ["ilev", "latitude", "longitude"],
                                 "time", ["cm", "deg", "deg"], "ilev",
@@ -364,8 +354,8 @@ is limited to ensure quick runtime.
     CPU times: user 419 ms, sys: 13 ms, total: 432 ms
     Wall time: 431 ms
 
-    In []: inst['model_dummy_drifts']
-    Out[]:
+    inst['model_dummy_drifts']
+
     Epoch
     2009-01-01 00:00:00    22.393249
     2009-01-01 00:00:01    22.405926
@@ -380,21 +370,22 @@ is limited to ensure quick runtime.
     2009-01-01 00:01:39    23.642492
     Name: model_dummy_drifts, Length: 100, dtype: float64
 
-    In []: %time keys = iamp(inst, model.data, ["altitude", "latitude", "longitude"],
-                            ["ilev", "latitude", "longitude"], "time", "time",
-                            ['', "deg", "deg"], 'altitude', 'altitude', 'cm')
+    %time keys = iamp(inst, model.data, ["altitude", "latitude", "longitude"],
+                      ["ilev", "latitude", "longitude"], "time", "time",
+                      ['', "deg", "deg"], 'altitude', 'altitude', 'cm')
     CPU times: user 37.8 ms, sys: 3.87 ms, total: 41.6 ms
     Wall time: 40.7 ms
 
-    In []: %time new_data_keys = pysatModels.utils.extract.instrument_view_through_model(inst,
+    %time new_data_keys = pysatModels.utils.extract.instrument_view_through_model(inst,
                     model.data, ['model_pressure', 'latitude', 'longitude'],
                     ['ilev', 'latitude', 'longitude'], 'time', 'time',
                     ['', 'deg', 'deg'], ['dummy_drifts'], model_label='model2')
     CPU times: user 3.11 ms, sys: 388 µs, total: 3.5 ms
     Wall time: 3.14 ms
 
-    In []: inst['model2_dummy_drifts'] - inst['model_dummy_drifts']
-    Out[]:
+    # Compare interpolated `dummy_drifts` between two techniques
+    inst['model2_dummy_drifts'] - inst['model_dummy_drifts']
+
     Epoch
     2009-01-01 00:00:00   -0.024180
     2009-01-01 00:00:01   -0.023968
@@ -415,42 +406,3 @@ The results of ::
     inst[keys].plot(title='Interpolation Example')
 
 are shown below.
-
-
-
-Text below saved as a development reference while writing.
-
-Routines to extract observational-style data from model output.
-
-Model verification and validation is supported in pysatModels through
-`pyForecastTools <https://github.com/drsteve/PyForecastTools>`_. Many of the
-standard statistics used for these purposes can be run in a single go using
-the utility :py:func:`pysatModels.utils.compare.compare_model_and_inst`. The
-following example uses the paired data produced in example :ref:`ex_match-loc`.
-The `matched_inst` object at this point should display as shown below.
-
-Now, we need to convert this :py:class:`pysat.Instrument` object to an
-:py:class:`xarray.Dataset`.  This conversion is needed to simplify the
-comparison analysis, since :py:attr:`pysat.Instrument.data` may be either
-:py:class:`xarray.Dataset` or :py:class:`pandas.DataFrame` objects.  pysatModels
-uses :py:class:`xarray.Dataset` as the base analysis class, because this class
-is best suited for modelled output.  This can be easily done using
-:py:func:`pysatModels.utils.convert.convert_pysat_to_xarray`. Before we do
-that, though, we're going to update the units of the modelled data. This is
-necessary for the comparison, since the
-:py:func:`pysatModels.utils.compare.compare_model_and_inst` tests to make sure
-the paired data have the same units.  It can handle converting between different
-units of the same type, so we will specify that the modelled data is a velocity
-in *cm/s*, while the observations are a velocity measured in *m/s*.
-
-Note the statistical output is in the units of the observed data set.  The
-`stat_dict` output is a *dict* with the observed data
-variable name(s) as the first set of keys and the requested statistics for
-each data type as a nested *dict*.
-
-
-Not all of the statistics were appropriate for the data set, as indicated by the
-:py:exc:`RuntimeWarning` messages seen when running
-:py:func:`~pysatModels.utils.compare.compare_model_and_inst`.  The values
-show that, unsurprisingly, the random data from the test model file does not
-agree well with the C/NOFS meridional **E** x **B** drifts.
