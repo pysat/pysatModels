@@ -4,6 +4,7 @@
 from io import StringIO
 import logging
 import numpy as np
+import packaging
 import pytest
 
 import pysat
@@ -483,8 +484,8 @@ class TestUtilsAltitudePressure(object):
         return
 
 
-@pytest.mark.skipif(pysat_version_major < 3 or (pysat_version_major == 3
-                                                and (pysat_version_minor < 1)),
+@pytest.mark.skipif(packaging.version.Version(pysat.__version__) <
+                    packaging.version.Version('3.1.0'),
                     reason=''.join(('Requires `max_latitude` test Instrument ',
                                     'support in pysat v3.1 or later.')))
 class TestUtilsExtractInstModIrregView(object):
