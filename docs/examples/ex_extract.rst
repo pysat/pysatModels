@@ -63,7 +63,7 @@ and `altitude`, and are all one-dimensional and directly relevant to a
 physical satellite location. The equivalent satellite variables are
 `latitude`, `longitude`, and `altitude`, with
 `time` taken from the associated :py:class:`Instrument` time index
-(:py:attr:`inst.data.index`). The output from `inst.variables` and `inst.data.index` should be
+(:py:attr:`Instrument.data.index`). The output from `inst.variables` and `inst.data.index` should be
 
 
 .. code:: python
