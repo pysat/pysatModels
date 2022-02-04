@@ -13,9 +13,6 @@ from pysat.instruments import pysat_testmodel
 import pysatModels as ps_mod
 import pysatModels.utils.extract as extract
 
-pysat_version_major = int(pysat.__version__.split('.')[0])
-pysat_version_minor = int(pysat.__version__.split('.')[1])
-
 
 @pytest.mark.skip("input requires a regular grid for the model")
 class TestUtilsExtractObsViewModel(object):
