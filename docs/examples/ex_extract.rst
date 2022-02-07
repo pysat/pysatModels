@@ -408,9 +408,11 @@ and +/-10 degrees in longitude is used. The keyword argument ::
 
 identifies the :py:attr:`model.data` variables that will be interpolated onto :py:var:`inst`.
 
-The code below demonstrates the equality of the two processes when dealing
-with some irregular data. The number of samples in both :py:var:`inst` and :py:var:`model`
-is limited to ensure quick runtime.
+Generalized irregular interpolation can take significant computational resources.
+The example above can take more than a work day to run fully. Thus,
+the code below demonstrates the equality of the two processes when dealing
+with some irregular data for small datasets. The number of samples in both
+:py:var:`inst` and :py:var:`model` is limited to ensure quick runtime.
 
 .. code:: python
 
