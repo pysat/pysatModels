@@ -113,7 +113,8 @@ both the satellite and modeled data sets. The ::
 
    'time', 'time'
 
-terms cover the model labels used for time variable and coordinate. The ::
+terms cover the model labels used for time variable and coordinate (which may be the
+same, as here, or different). The ::
 
    ['deg']
 
@@ -148,7 +149,7 @@ The results of
 
     title = 'Interpolating MLT Example'
     ylabel = 'Magnetic Local Time'
-    inst[stime:etime, ['mlt_linear', 'mlt_nearest'].plot(title=title,
+    inst[stime:etime, ['mlt_linear', 'mlt_nearest']].plot(title=title,
                                                          ylabel=ylabel)
 
 are shown below.
@@ -195,10 +196,7 @@ Units for the corresponding information from `inst` are taken directly from the
 is a list of model variables that will be interpolated onto `inst`.
 
 The results of ::
-    # Set up time range for plotting results
-    stime = inst.date
-    etime = inst.date + dt.timedelta(hours=1)
-
+    # Use the same time range as the prior example
     ylabel = 'Dummy Variable'
     inst[stime:etime, new_data_keys].plot(title='Interpolation Example',
                                           ylabel=ylabel)
@@ -405,7 +403,7 @@ requirements. In this case a window of +/-50 km in altitude,
 +/-10 degrees in latitude,
 and +/-10 degrees in longitude is used. The keyword argument ::
 
-    sel_name=["dummy_drifts", "altitude"]
+    sel_name = ["dummy_drifts", "altitude"]
 
 identifies the `model.data` variables that will be interpolated onto `inst`.
 
@@ -414,9 +412,6 @@ with some irregular data. The number of samples in both `inst` and `model`
 is limited to ensure quick runtime.
 
 .. code:: python
-
-    import pysat
-    import pysatModels
 
     inst = pysat.Instrument('pysat', 'testing', max_latitude=10.,
                             num_samples=100)
