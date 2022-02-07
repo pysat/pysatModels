@@ -801,7 +801,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
     for i, iname in enumerate(inst_name):
-        if iname not in inst.data.keys():
+        if iname not in inst.variables:
             raise ValueError(''.join(['Unknown instrument location index ',
                                       '{:} '.format(iname),
                                       '(should not be epoch time)']))
