@@ -347,6 +347,51 @@ data set using :py:func:`scipy.interpolate.griddata`. The :py:var:`model` loaded
 is regular against pressure level, latitude, and longitude, however it is
 irregular with respect to altitude.
 
+Here is a sample distribution of the
+:py:var:`model['altitude']` for `ilev=0` and the first
+model time.
+
+.. code:: python
+
+    import matplotlib.pyplot as plt
+
+    # Make base plot of 'altitude' for ilev=0 and time=0
+    model[0, 0, :, :, "altitude"].plot()
+
+    # Prep labels
+    xlabel = "".join([model.meta["longitude", model.meta.labels.name], " (",
+                      model.meta["longitude", model.meta.labels.units],
+                      ")"])
+    ylabel = "".join([model.meta["latitude", model.meta.labels.name], " (",
+                      model.meta["latitude", model.meta.labels.units],
+                      ")"])
+    cblabel = "".join([model.meta["altitude", model.meta.labels.name], " (",
+                       model.meta["altitude", model.meta.labels.units],
+                       ")"])
+
+    # Update labels
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+    # Update color bar and title
+    fig = plt.gcf()
+    fig.axes[1].set_ylabel(cblabel)
+    fig.axes[0].set_title("".join(["`pressure_levels` Altitude\n",
+                                   fig.axes[0].title.get_text()]))
+
+    plt.show()
+
+.. image:: ../images/ex_extract_model_altitude.png
+    :width: 800px
+    :align: center
+    :alt: Plot of altitude against longitude and latitude for ilev=0 on 1/1/2009
+
+
+To interpolate against the irregular variable, the following example
+code structure may be followed. Generalized irregular interpolation can take
+significant computational resources thus a more practical problem size is
+explicitly demonstrated after the code structure introduction.
+
 .. code:: python
 
     keys = pysatModels.utils.extract.interp_inst_w_irregular_model_coord(inst,
@@ -408,7 +453,6 @@ and +/-10 degrees in longitude is used. The keyword argument ::
 
 identifies the :py:attr:`model.data` variables that will be interpolated onto :py:var:`inst`.
 
-Generalized irregular interpolation can take significant computational resources.
 The example above can take more than a work day to run fully. Thus,
 the code below demonstrates the equality of the two processes when dealing
 with some irregular data for small datasets. The number of samples in both
