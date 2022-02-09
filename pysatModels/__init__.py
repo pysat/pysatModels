@@ -26,4 +26,4 @@ del local_dir, version_file
 
 # Define a logger object to allow easier log handling
 logging.raiseExceptions = False
-logger = logging.getLogger('pysatModels_logger')
+logger = logging.getLogger('pysat.pysatModels')

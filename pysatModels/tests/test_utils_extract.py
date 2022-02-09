@@ -4,6 +4,7 @@
 from io import StringIO
 import logging
 import numpy as np
+import packaging
 import pytest
 
 import pysat
@@ -359,7 +360,8 @@ class TestUtilsExtractInstModView(object):
         return
 
 
-@pytest.mark.skipif(pysat.__version__ == '3.0.1',
+@pytest.mark.skipif(packaging.version.Version(pysat.__version__)
+                    < packaging.version.Version('3.1.0'),
                     reason=''.join(('Requires test model in pysat ',
                                     ' v3.1 or later.')))
 class TestUtilsAltitudePressure(object):
@@ -475,5 +477,104 @@ class TestUtilsAltitudePressure(object):
         # Test that the altitude difference is less than or equal to the
         # default tolerance value for the function.
         assert np.all(alt_diff <= 1.0)
+
+        return
+
+
+@pytest.mark.skipif(packaging.version.Version(pysat.__version__)
+                    < packaging.version.Version('3.1.0'),
+                    reason=''.join(('Requires `max_latitude` test Instrument ',
+                                    'support in pysat v3.1 or later.')))
+class TestUtilsExtractInstModIrregView(object):
+    """Unit tests for `utils.extract.instrument_view_irregular_model`."""
+
+    def setup(self):
+        """Run before every method to create a clean testing setup."""
+
+        self.inst = pysat.Instrument(platform='pysat', name='testing',
+                                     num_samples=3, max_latitude=45.)
+        self.model = pysat.Instrument(inst_module=pysat_testmodel,
+                                      tag='pressure_levels',
+                                      num_samples=96)
+        self.inst.load(date=pysat_testmodel._test_dates[''][''])
+        self.model.load(date=pysat_testmodel._test_dates[''][''])
+        self.model_label = 'tmodel'
+        self.input_args = [self.inst, self.model.data,
+                           ["altitude", "latitude", "longitude"],
+                           ["ilev", "latitude", "longitude"],
+                           "time", ["cm", "deg", "deg"], "ilev",
+                           "altitude", [50., 10., 10.]]
+        self.in_kwargs = {"sel_name": ["dummy_drifts", "altitude"]}
+        self.out = []
+
+        return
+
+    def teardown(self):
+        """Run after every method to clean up previous testing."""
+
+        del self.inst, self.model, self.input_args, self.out, self.model_label
+        del self.in_kwargs
+
+        return
+
+    def test_standard_call(self):
+        """Test for successful interpolation."""
+
+        self.out = extract.interp_inst_w_irregular_model_coord(*self.input_args,
+                                                               **self.in_kwargs)
+        for name in self.in_kwargs['sel_name']:
+            assert ''.join(('model_', name)) in self.inst.data
+
+        for name in self.out:
+            assert name in self.inst.data
+
+        # Ensure values are all finite
+        for name in self.out:
+            assert np.all(np.isfinite(self.inst[name]))
+
+        return
+
+    @pytest.mark.parametrize("bad_index,bad_input,err_msg",
+                             [(2, [], 'Must provide inst_name as a list'),
+                              (3, [], 'Must provide mod_name as a list'),
+                              (2, ['glon', 'latitude', 'altitude'],
+                               "Unknown instrument location index"),
+                              (3, ['hi'], "Must provide the same number"),
+                              (5, [], "Must provide units for each "),
+                              (4, "naname", "unknown model name for datetime"),
+                              (6, "lev", "mod_reg_dim must be a coordinate "),
+                              (3, "lev", "mod_name must contain coordinate"),
+                              (7, "not", "Unknown irregular model"),
+                              (7, "lev", "Coordinate dimensions must"),
+                              (8, [], "Must provide mod_var_delta "),
+                              (8, ['hi'], 'Must provide the same number of')])
+    def test_bad_arg_input(self, bad_index, bad_input, err_msg):
+        """Test for expected failure with bad input arguments."""
+
+        self.input_args[bad_index] = bad_input
+
+        with pytest.raises(ValueError) as verr:
+            extract.instrument_view_irregular_model(*self.input_args,
+                                                    **self.in_kwargs)
+
+        assert str(verr.value.args[0]).find(err_msg) >= 0
+
+        return
+
+    @pytest.mark.parametrize("bad_key,bad_val,err_msg",
+                             [("sel_name", ["unknown_variable"],
+                               "Unknown model variable index unknown_variable"),
+                              ("sel_name", [], 'Must provide sel_name as a li'),
+                              ("model_label", 1, "expected str instance")])
+    def test_bad_kwarg_input(self, bad_key, bad_val, err_msg, caplog):
+        """Test for expected failure with bad kwarg input."""
+
+        self.in_kwargs[bad_key] = bad_val
+
+        with pytest.raises((ValueError, TypeError)) as err:
+            extract.instrument_view_irregular_model(*self.input_args,
+                                                    **self.in_kwargs)
+
+        assert str(err.value.args[0]).find(err_msg) >= 0
 
         return
