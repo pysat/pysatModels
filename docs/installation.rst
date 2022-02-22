@@ -1,7 +1,12 @@
+.. _install:
+
 Installation
 ============
 
 The following instructions will allow you to install pysatModels.
+
+
+.. _install-prereq:
 
 Prerequisites
 -------------
@@ -18,12 +23,15 @@ the Space Physics community.  This module officially supports Python 3.6+.
  ============== =================
  Common modules Community modules
  ============== =================
-  numpy         pysat             
-  scipy         pyForecastTools   
-  pandas                             
-  xarray              
+  numpy         pysat
+  pandas        pyForecastTools
+  requests
+  scipy
+  xarray
  ============== =================
 
+
+.. _install-opt:
 
 Installation Options
 --------------------
@@ -31,7 +39,7 @@ Installation Options
 1. Clone the git repository
 ::
 
-   
+
    git clone https://github.com/pysat/pysatModels.git
 
 
@@ -41,13 +49,13 @@ Installation Options
 
    A. Install on the system (root privileges required)::
 
-	
+
         sudo python3 setup.py install
    B. Install at the user level::
 
-	
-        python3 setup.py install --user  
+
+        python3 setup.py install --user
    C. Install with the intent to develop locally::
 
-	
+
         python3 setup.py develop --user

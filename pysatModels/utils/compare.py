@@ -3,49 +3,56 @@
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
-"""
-Routines to align and work with pairs of modelled and observational data
-
-"""
-
-from __future__ import absolute_import
-from __future__ import unicode_literals
+"""Routines to align and work with pairs of modelled and observational data."""
 
 import numpy as np
 
-import verify  # PyForecastTools
 import pysat
+import verify  # PyForecastTools
 
 import pysatModels as ps_mod
 
 
-def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
-                           methods=['all']):
-    """Compare modelled and measured data
+def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all'],
+                           unit_label='units'):
+    """Compare modelled and measured data.
 
     Parameters
-    ------------
-    pairs : xarray.Dataset instance
+    ----------
+    pairs : xarray.Dataset
         Dataset containing only the desired observation-model data pairs
-    inst_name : list of strings
-        ordered list of instrument measurements to compare to modelled data
-    mod_name : list of strings
-        ordered list of modelled data to compare to instrument measurements
-    methods : list of strings
-        statistics to calculate.  See Notes for accecpted inputs
+    inst_name : list
+        Ordered list of strings indicating whicch instrument measurements to
+         compare to modelled data
+    mod_name : list
+        Ordered list of strings indicating which modelled data to compare to
+        instrument measurements
+    methods : list
+        Statistics to calculate. See Notes for accecpted inputs.
+        (default=['all'])
+    unit_label : str
+        Unit attribute for data in `pairs` (default='units')
 
     Returns
-    ----------
-    stat_dict : dict of dicts
-        Dictionary where the first layer of keys denotes the instrument data
+    -------
+    stat_dict : dict
+        Dict of dicts where the first layer of keys denotes the instrument data
         name and the second layer provides the desired statistics
     data_units : dict
-        Dictionary containing the units for the data
+        Dict containing the units for the data
+
+    Raises
+    ------
+    ValueError
+        If input parameters are improperly formatted
+
+    See Also
+    --------
+    PyForecastTools
 
     Notes
     -----
     Statistics are calculated using PyForecastTools (imported as verify).
-    See notes there for more details.
 
     1. all: all statistics
     2. all_bias: bias, meanPercentageError, medianLogAccuracy,
@@ -72,6 +79,7 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
     19. logAccuracy: log accuracy ratio
     20. medSymAccuracy: Scaled measure of accuracy
     21. meanAPE: mean absolute percentage error
+    22. medAPE: median absolute perceentage error
 
     """
 
@@ -91,7 +99,7 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
                    "medSymAccuracy": verify.medSymAccuracy}
 
     replace_keys = {'MSE': 'meanSquaredError', 'MAE': 'meanAbsError',
-                    'MdAE': 'medAbsError', 'MAPE': 'meanAPE',
+                    'MdAE': 'medAbsError', 'MAPE': 'meanAPE', 'MdAPE': 'medAPE',
                     'MdSymAcc': 'medSymAccuracy'}
 
     # Grouped methods for things that don't have convenience functions
@@ -105,6 +113,7 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
                if mm in list(grouped_methods.keys())]:
         # Extend the methods list to include all the grouped methods
         methods.extend(grouped_methods[gg[1]])
+
         # Remove the grouped method key
         methods.pop(gg[0])
 
@@ -130,19 +139,21 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
         known_methods.extend(list(grouped_methods.keys()))
         unknown_methods = [mm for mm in methods
                            if mm not in list(method_rout.keys())]
-        raise ValueError(''.join(['unknown statistical method(s) requested:\n',
-                                  '{:}\nuse only:\n'.format(unknown_methods),
-                                  '{:}'.format(unknown_methods)]))
+        raise ValueError(''.join(['unknown statistical method(s) requested: ',
+                                  '{:}\nuse only: '.format(unknown_methods),
+                                  '{:}'.format(known_methods)]))
 
     # Initialize the output
     stat_dict = {iname: dict() for iname in inst_name}
-    data_units = {iname: pairs.data_vars[iname].units for iname in inst_name}
+    data_units = {iname: pairs.data_vars[iname].attrs[unit_label]
+                  for iname in inst_name}
 
     # Cycle through all of the data types
     for i, iname in enumerate(inst_name):
         # Determine whether the model data needs to be scaled
-        iscale = pysat.utils.scale_units(pairs.data_vars[iname].units,
-                                         pairs.data_vars[mod_name[i]].units)
+        iscale = pysat.utils.scale_units(
+            pairs.data_vars[iname].attrs[unit_label],
+            pairs.data_vars[mod_name[i]].attrs[unit_label])
         mod_scaled = pairs.data_vars[mod_name[i]].values.flatten() * iscale
 
         # Flatten both data sets, since accuracy routines require 1D arrays
@@ -168,7 +179,9 @@ def compare_model_and_inst(pairs=None, inst_name=[], mod_name=[],
             except (ValueError, NotImplementedError, ZeroDivisionError) as err:
                 # Not all data types can use all statistics.  Inform the user
                 # instead of stopping processing.  Only valid statistics will
-                # be included in output
+                # be included in output.
+                # New version of pyForecastTools doesn't trigger this, using
+                # Inf or masked output instead
                 ps_mod.logger.info("{:s} can't use {:s}: {:}".format(iname,
                                                                      mm, err))
 

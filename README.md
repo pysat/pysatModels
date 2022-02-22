@@ -5,11 +5,11 @@
 
 # pysatModels
 [![Documentation Status](https://readthedocs.org/projects/pysatmodels/badge/?version=latest)](https://pysatmodels.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://travis-ci.org/pysat/pysatModels.svg?branch=master)](https://travis-ci.org/pysat/pysatModels)
-[![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=master)](https://coveralls.io/github/pysat/pysatModels?branch=master)
+[![Build Status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=main)](https://coveralls.io/github/pysat/pysatModels?branch=main)
 
 This module handles model centric data loading through pysat and contains a
-variety of tools to perform model-data analysis, including model validation. 
+variety of tools to perform model-data analysis, including model validation.
 
 ## Getting started
 
@@ -24,8 +24,9 @@ the Space Physics community.  This module officially supports Python 3.6+.
 | Common modules | Community modules |
 | -------------- | ----------------- |
 | numpy          | pysat             |
-| scipy          | pyForecastTools   |
-| pandas         |                   |
+| pandas         | pyForecastTools   |
+| requests       |                   |
+| scipy          |                   |
 | xarray         |                   |
 
 ## Installation
@@ -46,4 +47,3 @@ the Space Physics community.  This module officially supports Python 3.6+.
 ## Examples
 
 Coming soon
-

@@ -1,14 +1,11 @@
 # Author: Angeline Burrell, NRL, 2019
-
-from __future__ import absolute_import, unicode_literals
+"""Unit tests for `pysatModels.utils.match`."""
 
 import datetime as dt
-import logging
 from io import StringIO
+import logging
 import numpy as np
-import os
 import pytest
-import xarray as xr
 
 import pysat
 
@@ -16,105 +13,20 @@ import pysatModels as ps_mod
 import pysatModels.utils.match as match
 
 
-class TestUtilsMatchLoadModelXarray:
-    """ Unit tests for utils.match.load_model_xarray
-    """
+class TestUtilsMatchCollectInstModPairs(object):
+    """Unit tests for utils.match.collect_inst_model_pairs."""
+
     def setup(self):
-        """ Runs before every method to create a clean testing setup
-        """
-        self.ftime = dt.datetime(2009, 1, 1)
-        self.filename = "%Y-%m-%d.nofile"
-        self.model_kwargs = {'platform': str('pysat'),
-                             'name': str('testing_xarray'),
-                             'sat_id': '12',
-                             'clean_level': 'clean'}
-        self.model_inst = None
-        self.xout = None
-        self.temp_file = 'None'
+        """Set up the unit test environment for each method."""
 
-    def teardown(self):
-        if os.path.isfile(self.temp_file):
-            os.remove(self.temp_file)
-
-        del self.ftime, self.model_kwargs, self.xout, self.filename
-        del self.temp_file, self.model_inst
-
-    def test_no_inst(self):
-        """ Test failure when no instrument object is provided
-        """
-        with pytest.raises(ValueError) as verr:
-            match.load_model_xarray(self.ftime)
-
-        assert verr.value.args[0].find("must provide a pysat.Instrument") >= 0
-
-    @pytest.mark.parametrize("fname", [(None), ('filename')])
-    def test_load_filename(self, fname):
-        """ Test success when loading through different filename options
-        """
-        if fname is not None:
-            if hasattr(self, fname):
-                fname = getattr(self, fname)
-            self.temp_file = self.ftime.strftime(fname)
-
-            # Create a temporary file
-            with open(self.temp_file, 'w') as fout:
-                fout.write('')
-
-        # Load the test instrument data
-        self.model_inst = pysat.Instrument(**self.model_kwargs)
-        self.xout = match.load_model_xarray(self.ftime, self.model_inst,
-                                            filename=fname)
-
-        # Test the output
-        assert isinstance(self.xout, xr.core.dataset.Dataset)
-
-        for kk in self.model_inst.data.data_vars:
-            assert kk in self.xout.data_vars
-
-        assert self.model_inst.index.name in self.xout.coords
-
-    def test_load_pandas_inst(self):
-        """ Test success when loading a panads pysat Instrument
-        """
-        self.model_kwargs["name"] = "testing"
-        self.model_inst = pysat.Instrument(**self.model_kwargs)
-        self.xout = match.load_model_xarray(self.ftime, self.model_inst)
-
-        # Test the output
-        assert isinstance(self.xout, xr.core.dataset.Dataset)
-
-        for kk in self.model_inst.data.columns:
-            assert kk in self.xout.data_vars
-
-        assert self.model_inst.index.name in self.xout.coords
-
-    def test_load_empty_inst(self):
-        """ Test return value of None with empty instrument load
-        """
-        self.model_inst = pysat.Instrument(**self.model_kwargs)
-        self.ftime = self.model_inst.files.files.index[0] - dt.timedelta(
-            days=1)
-        self.xout = match.load_model_xarray(self.ftime, self.model_inst)
-
-        assert self.xout is None
-
-
-class TestUtilsMatchCollectInstModPairs:
-    """ Unit tests for utils.match.collect_inst_model_pairs
-    """
-    def setup(self):
-        """Runs before every method to create a clean testing setup
-        """
-        self.inst = pysat.Instrument(platform=str('pysat'),
-                                     name=str('testing'),
-                                     clean_level='clean')
-        self.inst.load(yr=2009, doy=1)
-        self.input_args = [dt.datetime(2009, 1, 1), dt.datetime(2009, 1, 2),
+        self.inst = pysat.Instrument(platform='pysat', name='testing')
+        self.stime = pysat.instruments.pysat_testing._test_dates['']['']
+        self.inst.load(date=self.stime)
+        self.input_args = [self.stime, self.stime + dt.timedelta(days=1),
                            dt.timedelta(days=1), self.inst]
         self.ref_col = 'dummy1'
-        self.model = pysat.Instrument(platform=str('pysat'),
-                                      name=str('testmodel'), sat_id='10',
-                                      clean_level='clean')
+        self.model = pysat.Instrument(platform='pysat', name='testmodel',
+                                      num_samples=10)
         self.required_kwargs = {"model_load_kwargs":
                                 {"model_inst": self.model},
                                 "inst_clean_rout": lambda x: True,
@@ -129,19 +41,21 @@ class TestUtilsMatchCollectInstModPairs:
         ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
         ps_mod.logger.setLevel(logging.INFO)
         self.out = None
+        return
 
     def teardown(self):
-        """Runs after every method to clean up previous testing
-        """
+        """Clean up the unit test environment after each method."""
+
         del self.input_args, self.required_kwargs, self.inst, self.model
-        del self.out, self.log_capture
+        del self.out, self.log_capture, self.stime
+        return
 
     @pytest.mark.parametrize("mkey,mout",
                              [("verr", None), ("ierr", None),
                               ("other", "Unacceptable model load error")])
     def test_model_load_failure(self, mkey, mout):
-        """ Test for expected failure when unable to load model data
-        """
+        """Test for expected failure when unable to load model data."""
+
         def model_load_rout(stime, verr=False, ierr=False):
             if verr:
                 raise ValueError('Acceptable model load error')
@@ -165,6 +79,7 @@ class TestUtilsMatchCollectInstModPairs:
             with pytest.raises(TypeError, match=mout):
                 match.collect_inst_model_pairs(*self.input_args,
                                                **self.required_kwargs)
+        return
 
     @pytest.mark.parametrize("del_key,err_msg",
                              [("inst_lon_name",
@@ -173,15 +88,15 @@ class TestUtilsMatchCollectInstModPairs:
                                "Need longitude name for model"),
                               ("inst_name",
                                "Must provide instrument location"),
-                              ("mod_name", "Must provide the same number"),
-                              ("mod_units", "Must provide units for each "),
+                              ("mod_name", "Must provide model location attr"),
+                              ("mod_units", "Must provide model units as a "),
                               ("mod_datetime_name",
                                "Need datetime coordinate"),
                               ("mod_time_name", "Need time coordinate"),
                               ("inst_clean_rout", "Need routine to clean")])
     def test_input_failure(self, del_key, err_msg):
-        """ Test for expected failure when missing necessary input from kwargs
-        """
+        """Test for expected failure when missing requried input from kwargs."""
+
         del self.required_kwargs[del_key]
 
         with pytest.raises(ValueError, match=err_msg):
@@ -194,61 +109,67 @@ class TestUtilsMatchCollectInstModPairs:
                               ("mod_datetime_name", "dt",
                                "unknown model name for datetime"), ])
     def test_bad_input(self, cng_key, bad_val, err_msg):
-        """ Test for expected failure with bad input
-        """
+        """Test for expected failure with bad input."""
+
         self.required_kwargs[cng_key] = bad_val
 
         with pytest.raises(ValueError, match=err_msg):
             match.collect_inst_model_pairs(*self.input_args,
                                            **self.required_kwargs)
+        return
 
     def test_bad_time(self):
-        """ Test the match routine the times prevent any data from loading
-        """
+        """Test the match routine the times prevent any data from loading."""
+
         self.input_args[1] = self.input_args[0]
 
         assert match.collect_inst_model_pairs(*self.input_args,
                                               **self.required_kwargs) is None
+        return
 
-    @pytest.mark.parametrize("tinc_val,num", [(dt.timedelta(days=1), 3),
-                                              (dt.timedelta(days=2), 3)])
-    def test_tinc_success(self, tinc_val, num):
-        """ Test the match success with different time increments
-        """
+    @pytest.mark.parametrize("tinc_val, einc, num",
+                             [(dt.timedelta(days=1), dt.timedelta(days=1), 3),
+                              (dt.timedelta(days=2), dt.timedelta(days=1), 3),
+                              (dt.timedelta(days=1), dt.timedelta(days=2), 6)])
+    def test_tinc_success(self, tinc_val, einc, num):
+        """Test the match success with different time increments."""
+
+        self.input_args[1] = self.stime + einc
         self.input_args[2] = tinc_val
         self.required_kwargs['model_label'] = 'tmodel'
         self.required_kwargs['sel_name'] = [self.ref_col]
-        self.ref_col = '{:s}_{:s}'.format(self.required_kwargs['model_label'],
-                                          self.ref_col)
+        self.ref_col = '_'.join([self.required_kwargs['model_label'],
+                                 self.ref_col])
 
         self.out = match.collect_inst_model_pairs(*self.input_args,
                                                   **self.required_kwargs)
 
-        assert isinstance(self.out.data, xr.Dataset)
-        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()]
-        assert len(self.out.data.data_vars[self.ref_col]) == num
-        assert np.all(np.isfinite(
-            self.out.data.data_vars[self.ref_col].values))
+        assert self.ref_col in [kk for kk in self.out.variables]
+        assert len(self.out[self.ref_col]) == num
+        assert np.all(np.isfinite(self.out[self.ref_col].values))
+        assert self.out.index[0].date() == self.stime.date()
+        assert self.out.index[-1] < self.stime + einc
+        return
 
-    @pytest.mark.parametrize("lin,lout,test_out",
+    @pytest.mark.parametrize("lin, lout, test_out",
                              [([-179.0, 179.0], [-180.0, 180.0], 3),
                               ([0.5, 359.0], [0.0, 360.0], 3),
                               ([-1.0, 210.0], None,
                                'unexpected longitude range')])
     def test_lon_output(self, lin, lout, test_out):
-        """ Test the match handling with different longitude range input
-        """
+        """Test the match handling with different longitude range input."""
+
         def lon_model_load(ftime, model_inst=None, filename=None):
             mdata = match.load_model_xarray(ftime, model_inst, filename)
 
             if mdata is not None:
                 if lout is None:
-                    glon = {'glon': (('time'),
-                                     np.linspace(*lin, mdata.dims['time']))}
+                    lin.append(mdata.dims['time'])
+                    glon = {'glon': (('time'), np.linspace(*lin))}
                     mdata = mdata.assign(glon)
                 else:
-                    mdata.coords['longitude'] = np.linspace(
-                        *lin, mdata.dims['longitude'])
+                    lin.append(mdata.dims['longitude'])
+                    mdata.coords['longitude'] = np.linspace(*lin)
             return mdata
 
         self.required_kwargs['model_load_rout'] = lon_model_load
@@ -272,18 +193,16 @@ class TestUtilsMatchCollectInstModPairs:
             self.out = match.collect_inst_model_pairs(*self.input_args,
                                                       **self.required_kwargs)
 
-            assert isinstance(self.out.data, xr.Dataset)
-            assert self.ref_col in [kk for kk
-                                    in self.out.data.data_vars.keys()]
-            assert len(self.out.data.data_vars[self.ref_col]) == test_out
-            assert np.all(np.isfinite(
-                self.out.data.data_vars[self.ref_col].values))
-            assert self.out.data.data_vars['longitude'].min() >= lout[0]
-            assert self.out.data.data_vars['longitude'].max() <= lout[1]
+            assert self.ref_col in [kk for kk in self.out.variables]
+            assert len(self.out[self.ref_col]) == test_out
+            assert np.all(np.isfinite(self.out[self.ref_col].values))
+            assert self.out['longitude'].min() >= lout[0]
+            assert self.out['longitude'].max() <= lout[1]
+        return
 
     def test_success_skip_download(self):
-        """ Test the match success with skip_download key
-        """
+        """Test the match success with skip_download key."""
+
         self.required_kwargs['inst_download_kwargs'] = {'skip_download': True}
         self.required_kwargs['model_label'] = 'tmodel'
         self.required_kwargs['sel_name'] = [self.ref_col]
@@ -293,13 +212,13 @@ class TestUtilsMatchCollectInstModPairs:
         self.out = match.collect_inst_model_pairs(*self.input_args,
                                                   **self.required_kwargs)
 
-        assert isinstance(self.out.data, xr.Dataset)
-        assert self.ref_col in [kk for kk in self.out.data.data_vars.keys()]
-        assert len(self.out.data.data_vars[self.ref_col]) > 0
+        assert self.ref_col in [kk for kk in self.out.variables]
+        assert len(self.out[self.ref_col]) > 0
+        return
 
     def test__inst_download_missing(self):
-        """ Test the download data loop, which will fail to download anything
-        """
+        """Test the download data loop, which will fail to download anything."""
+
         self.input_args[0] = self.inst.files.files.index[0] - dt.timedelta(
             days=1)
         self.input_args[1] = self.inst.files.files.index[0]
@@ -308,3 +227,4 @@ class TestUtilsMatchCollectInstModPairs:
                                                   **self.required_kwargs)
 
         assert self.out is None
+        return

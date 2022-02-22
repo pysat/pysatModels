@@ -3,82 +3,29 @@
 # Copyright (C) 2019, AGB & pysat team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
-"""
-Routines to match modelled and observational data
-
-"""
-
-from __future__ import absolute_import
-from __future__ import unicode_literals
+"""Routines to match modelled and observational data."""
 
 import datetime as dt
 import numpy as np
-from os import path
 import pandas as pds
 
 import pysat
 
 import pysatModels
+from pysatModels.utils.convert import load_model_xarray
 from pysatModels.utils import extract
 
 
-def load_model_xarray(ftime, model_inst=None, filename=None):
-    """ Load and extract data from a model Instrument at the specified time
-
-    Parameters
-    ----------
-    ftime : dt.datetime
-        Desired time for model Instrument input
-    model_inst : pysat.Instrument
-        Model instrument object
-    filename : str or NoneType
-        Model filename, if the file is not include in the Instrument filelist.
-        or a filename that requires time specification from ftime
-        (default=None)
-
-    Returns
-    -------
-    model_xarray : xarray.Dataset or NoneType
-        Dataset from pysat Instrument object or None if there is no data
-
-    """
-    # Test the input
-    if not hasattr(model_inst, 'load'):
-        raise ValueError('must provide a pysat.Instrument object')
-
-    # Format the filename, if needed
-    if hasattr(ftime, 'strftime') and filename is not None:
-        fname = ftime.strftime(filename)
-    else:
-        fname = filename
-
-    # Load the model data, using the file if it exists
-    if fname is not None and path.isfile(fname):
-        model_inst.load(fname=fname)
-    else:
-        model_inst.load(date=ftime)
-
-    # Extract the xarray Dataset, returning None if there is no data
-    if model_inst.empty:
-        model_xarray = None
-    elif model_inst.pandas_format:
-        model_xarray = model_inst.data.to_xarray()
-    else:
-        model_xarray = model_inst.data
-
-    return model_xarray
-
-
-def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
+def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                              model_load_rout=load_model_xarray,
-                             model_load_kwargs={}, inst_clean_rout=None,
+                             model_load_kwargs=None, inst_clean_rout=None,
                              inst_lon_name=None, mod_lon_name=None,
-                             lon_pos='end', inst_name=[], mod_name=[],
+                             lon_pos='end', inst_name=None, mod_name=None,
                              mod_datetime_name=None, mod_time_name=None,
-                             mod_units=[], sel_name=None, time_method='min',
+                             mod_units=None, sel_name=None, time_method='min',
                              pair_method='closest', method='linear',
                              model_label='model', comp_clean='clean'):
-    """Pair instrument and model data
+    """Pair instrument and model data.
 
     Parameters
     ----------
@@ -88,63 +35,67 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
         Ending datetime
     tinc : dt.timedelta
         Time incriment for model files
-    inst : pysat.Instrument instance
-        instrument object for which modelled data will be extracted
-    inst_download_kwargs : dict
-        optional keyword arguments for downloading instrument data (default={})
-    model_load_rout : routine
+    inst : pysat.Instrument
+        Instrument object for which modelled data will be extracted
+    inst_download_kwargs : dict or NoneType
+        Optional keyword arguments for downloading instrument data
+        (default=None)
+    model_load_rout : func
         Routine to load model data into an xarray using datetime as argument
         input input and other necessary data as keyword arguments.  If the
         routine requires a time-dependent filename, ensure that the load
         routine uses the datetime input to construct the correct filename, as
         done in load_model_xarray. (default=load_model_xarray)
-    model_load_kwargs : dict
-        Keyword arguments for the model loading routine. (default={})
-    inst_clean_rout : routine
+    model_load_kwargs : dict or NoneType
+        Keyword arguments for the model loading routine. (default=None)
+    inst_clean_rout : func
         Routine to clean the instrument data
-    inst_lon_name : string
+    inst_lon_name : str
         variable name for instrument longitude
-    mod_lon_name : string
+    mod_lon_name : str
         variable name for model longitude
-    lon_pos : string or int
+    lon_pos : str or int
         Accepts zero-offset integer for list order or 'end' (default='end')
-    inst_name : list of strings
-        list of names of the data series to use for determing instrument
-        location
-    mod_name : list of strings
-        list of names of the data series to use for determing model locations
+    inst_name : list or NoneType
+        List of names of the data series to use for determing instrument
+        location. (default=None)
+    mod_name : list or NoneType
+        List of names of the data series to use for determing model locations
         in the same order as inst_name.  These must make up a regular grid.
-    mod_datetime_name : string
+        (default=None)
+    mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
-    mod_time_name : string
+    mod_time_name : str
         Name of the time coordinate in the model Dataset
-    mod_units : list of strings
+    mod_units : list or NoneType
         units for each of the mod_name location attributes.  Currently
-        supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
-    sel_name : list of strings or NoneType
+        supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm.
+        (default=None)
+    sel_name : list or NoneType
         list of names of modelled data indices to append to instrument object,
         or None to append all modelled data (default=None)
-    time_method : string
+    time_method : str
         Pair data using larger (max) or smaller (min) of the smallest
         instrument/model time increments (default='min')
-    pair_method : string
+    pair_method : str
         Find all relevent pairs ('all') or just the closest pairs ('closest').
         (default='closest')
-    method : string
+    method : str
         Interpolation method.  Supported are 'linear', 'nearest', and
         'splinef2d'.  The last is only supported for 2D data and is not
         recommended here.  (default='linear')
-    model_label : string
+    model_label : str
         name of model, used to identify interpolated data values in instrument
         (default="model")
-    comp_clean : string
+    comp_clean : str
         Clean level for the comparison data ('clean', 'dusty', 'dirty', 'none')
         (default='clean')
 
     Returns
     -------
-    matched_inst : pysat.Instrument instance
-        instrument object and paired modelled data
+    matched_inst : pysat.Instrument
+        Instrument object with observational data from `inst` and paired
+         modelled data.
 
     Raises
     ------
@@ -174,9 +125,16 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
     if mod_time_name is None:
         raise ValueError('Need time coordinate name for model data')
 
-    if len(inst_name) == 0:
+    if inst_name is None or len(inst_name) == 0:
         estr = 'Must provide instrument location attribute names as a list'
         raise ValueError(estr)
+
+    if mod_name is None:
+        estr = 'Must provide model location attribute names as a list'
+        raise ValueError(estr)
+
+    if mod_units is None:
+        raise ValueError('Must provide model units as a list')
 
     if len(inst_name) != len(mod_name):
         estr = ''.join(['Must provide the same number of instrument and ',
@@ -189,6 +147,12 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
 
     if inst_clean_rout is None:
         raise ValueError('Need routine to clean the instrument data')
+
+    if inst_download_kwargs is None:
+        inst_download_kwargs = {}
+
+    if model_load_kwargs is None:
+        model_load_kwargs = {}
 
     skip_download = False
     if "skip_download" in inst_download_kwargs.keys():
@@ -255,7 +219,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
             if inst.empty or inst.index[-1] < istart:
                 inst.load(date=istart)
 
-            if not inst.empty and inst.index[0] >= istart:
+            if not inst.empty and np.any(inst.index >= istart):
                 added_names = extract.extract_modelled_observations(
                     inst=inst, model=mdata, inst_name=inst_name,
                     mod_name=mod_name, mod_datetime_name=mod_datetime_name,
@@ -288,13 +252,10 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
 
                     # Save the clean, matched data
                     if matched_inst is None:
-                        matched_inst = pysat.Instrument()
-                        matched_inst.meta = inst.meta
+                        matched_inst = inst.copy()
                         matched_inst.data = inst[im]
                     else:
-                        idata = inst[im]
-                        matched_inst.data = inst.concat_data(
-                            [matched_inst.data, idata])
+                        matched_inst.concat_data(inst[im])
 
                     # Reset the clean flag
                     inst.clean_level = 'none'
@@ -309,14 +270,5 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs={},
                 istart += dt.timedelta(days=1)
             if istart >= start + tinc:
                 start += tinc
-
-    # Recast as xarray and add units
-    if matched_inst is not None:
-        if inst.pandas_format:
-            matched_inst.data = matched_inst.data.to_xarray()
-        for im in inst.meta.data.units.keys():
-            if im in matched_inst.data.data_vars.keys():
-                matched_inst.data.data_vars[im].attrs['units'] = \
-                    inst.meta.data.units[im]
 
     return matched_inst

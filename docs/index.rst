@@ -1,4 +1,4 @@
-.. pysatModels documentation master file.  Rembemer that it should at least
+.. pysatModels documentation main file.  Remember that it should at least
    contain the root `toctree` directive.
 
 Welcome to the pysatModels documentation
@@ -9,7 +9,7 @@ load model data as pysat.Instrument objects and utilities to perform typical
 model-oriented analysis, such as model validation.
 
 .. toctree::
-   :maxdepth: -1
+   :maxdepth: 2
 
    overview.rst
    installation.rst
