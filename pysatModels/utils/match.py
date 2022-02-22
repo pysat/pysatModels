@@ -171,7 +171,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
 
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
-    inst_lon_adjust = False
+    inst_lon_adjust = True
     while start < stop:
         # Load the model data for each time
         try:
@@ -204,12 +204,10 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                     lon_high = 180.0
 
                 # Set the range of the instrument longitude
-                ckwargs = {'low': lon_low,
+                inst.custom_attach(pysat.utils.coords.update_longitude,
+                                   kwargs={'low': lon_low,
                                            'lon_name': inst_lon_name,
-                                           'high': lon_high}
-                inst.custom.attach(pysat.utils.coords.update_longitude,
-                                   kind='modify', at_pos=lon_pos,
-                                   **ckwargs)
+                                           'high': lon_high})
                 inst.load(date=istart)
 
                 # Set flag to false now that the range has been set
