@@ -8,15 +8,19 @@
 [![Build Status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=main)](https://coveralls.io/github/pysat/pysatModels?branch=main)
 
-This module handles model centric data loading through pysat and contains a
+pysatModels handles model-centric data loading through pysat and contains a
 variety of tools to perform model-data analysis, including model validation.
 
-## Getting started
+Come join us on Slack! An invitation to the pysat workspace is available 
+in the 'About' section of the
+[pysat GitHub Repository.](https://github.com/pysat/pysat)
+
+# Installation
 
 The following instructions will allow you to install pysatModels and give some
 examples on how to use the routines
 
-### Prerequisites
+## Prerequisites
 
 pysatModels uses common Python modules, as well as modules developed by and for
 the Space Physics community.  This module officially supports Python 3.6+.
@@ -29,7 +33,13 @@ the Space Physics community.  This module officially supports Python 3.6+.
 | scipy          |                   |
 | xarray         |                   |
 
-## Installation
+## Installation through PyPi
+
+```
+pip install pysatmodels
+```
+
+## Installation from GitHub
 
 1. Clone the git repository:
    `git clone https://github.com/pysat/pysatModels.git`
@@ -44,6 +54,15 @@ the Space Physics community.  This module officially supports Python 3.6+.
    C. Install with the intent to develop locally:
       `python3 setup.py develop --user`
 
-## Examples
+# Running the code
 
-Coming soon
+To allow pysat to manage your model data, you will need to specify a directory
+to store data.  This only needs to be done the first time pysat is run.  In
+python, run:
+
+```
+pysat.params['data_dirs'] = 'path/to/directory/that/exists'
+```
+
+Examples for using the different pysatModels utilities are included in the
+[documentation](https://pysatmodels.readthedocs.io/en/latest/).
