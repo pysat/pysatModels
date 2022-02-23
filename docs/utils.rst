@@ -16,6 +16,7 @@ Convert
 
 Match
 -----
+
 .. automodule:: pysatModels.utils.match
    :members:
 
@@ -24,6 +25,7 @@ Match
 
 Extract
 -------
+
 .. automodule:: pysatModels.utils.extract
    :members:
 
@@ -32,5 +34,6 @@ Extract
 
 Compare
 -------
+
 .. automodule:: pysatModels.utils.compare
    :members:

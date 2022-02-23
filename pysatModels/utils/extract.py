@@ -867,7 +867,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     # Determine the model coordinates closest to the satellite track
     interp_shape = inst.index.shape if inst.pandas_format else \
         [inst.data.sizes[ss] for ss in inst.data.coords.keys()]
-    inst_coord = {kk: getattr(inst.data, inst_name[i]).values * inst_scale[i]
+    inst_coord = {kk: inst[inst_name[i]].values * inst_scale[i]
                   for i, kk in enumerate(mod_name)}
 
     # Initalize the interpolated data dictionary and test to ensure that the
