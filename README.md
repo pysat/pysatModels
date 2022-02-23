@@ -56,13 +56,8 @@ pip install pysatmodels
 
 # Running the code
 
-To allow pysat to manage your model data, you will need to specify a directory
-to store data.  This only needs to be done the first time pysat is run.  In
-python, run:
-
-```
-pysat.params['data_dirs'] = 'path/to/directory/that/exists'
-```
-
 Examples for using the different pysatModels utilities are included in the
 [documentation](https://pysatmodels.readthedocs.io/en/latest/).
+
+If you're unfamiliar with pysat, tutorials and examples are available in its
+[documentation](https://pysat.readthedocs.io/en/latest/).
