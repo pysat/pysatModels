@@ -23,6 +23,8 @@ import warnings
 
 import pysat
 
+from pysatModels.models.methods import general
+
 logger = pysat.logger
 
 # ----------------------------------------------------------------------------
@@ -44,6 +46,8 @@ _test_download = {'': {'': False}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
+
+clean = general.clean
 
 
 def init(self):
@@ -102,13 +106,6 @@ def init(self):
     logger.info(self.acknowledgements)
     return
 
-
-# Required method
-def clean(self):
-    """Return UCAR/TIE-GCM data cleaned to the specified level, unused."""
-
-    logger.info('Cleaning not supported or needed for TIEGCM')
-    return
 
 # ----------------------------------------------------------------------------
 # Instrument functions
