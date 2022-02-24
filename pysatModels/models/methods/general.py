@@ -5,16 +5,14 @@ import os
 import requests
 import warnings
 
-import pysat
-
-logger = pysat.logger
+import pysatModels
 
 
 def clean(inst):
     """Raise a low-level log message about lack of cleaning."""
 
-    logger.info('Cleaning not supported for {:} {:}'.format(inst.platform,
-                                                            inst.name))
+    pysatModels.logger.info('Cleaning not supported for {:} {:}'.format(
+        inst.platform, inst.name))
 
     return
 
@@ -51,7 +49,8 @@ def download_test_data(remote_url, remote_file, data_path, test_date=None,
 
     # Use pysat-compatible name
     if format_str is None or test_date is None:
-        local_fname = remote_file.split('?')[0]  # Strip potential web info
+        # Strip potential web info off the end of the remote filename
+        local_fname = os.path.join(data_path, remote_file.split('?')[0])
     else:
         local_fname = os.path.join(
             data_path, format_str.format(year=test_date.year,
