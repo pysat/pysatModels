@@ -4,7 +4,6 @@
 import datetime as dt
 import logging
 import os
-import pytest
 import sys
 import tempfile
 
@@ -36,7 +35,7 @@ class TestMethodsGeneralLogging(object):
         # Construct the expected log message
         msg = "Cleaning not supported for {:} {:}".format(self.model.platform,
                                                           self.model.name)
-        
+
         # Run the clean function and retrieve logging messages
         with caplog.at_level(logging.INFO, logger='pysatModels'):
             general.clean(self.model)
