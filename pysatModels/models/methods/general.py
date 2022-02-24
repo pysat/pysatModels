@@ -19,7 +19,7 @@ def clean(inst):
 
 def download_test_data(remote_url, remote_file, data_path, test_date=None,
                        format_str=None):
-    """Download test data from an online repository
+    """Download test data from an online repository.
 
     Parameters
     ----------

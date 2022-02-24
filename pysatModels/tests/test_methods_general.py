@@ -53,7 +53,7 @@ class TestMethodsGeneralDownload(object):
 
     def setup(self):
         """Set up the unit test environment."""
-        # TODO #100: remove if-statement when it is always triggered
+        # TODO(#100): remove if-statement when it is always triggered
         tkwargs = {}
         if sys.version_info.major >= 3 and sys.version_info.minor >= 10:
             tkwargs = {"ignore_cleanup_errors": True}
@@ -73,7 +73,7 @@ class TestMethodsGeneralDownload(object):
             os.remove(self.out_file)
 
         # Remove the temporary directory
-        # TODO #100: Remove try/except when Python 3.10 is the lowest version
+        # TODO(#100): Remove try/except when Python 3.10 is the lowest version
         try:
             self.tempdir.cleanup()
         except Exception:
