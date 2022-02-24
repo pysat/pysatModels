@@ -37,3 +37,17 @@ Compare
 
 .. automodule:: pysatModels.utils.compare
    :members:
+
+
+.. _methods:
+    
+Model Methods
+=============
+
+
+.. _methods-general:
+
+General
+-------
+.. automodule:: pysatModels.models.methods.general
+   :members:
