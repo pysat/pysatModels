@@ -29,3 +29,6 @@ logging.raiseExceptions = False
 logger = logging.getLogger('pysatModels')
 handler = logging.StreamHandler()
 handler.setFormatter(logging.Formatter('%(name)s %(levelname)s: %(message)s'))
+logger.addHandler(handler)
+
+del handler
