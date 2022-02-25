@@ -11,7 +11,7 @@ platform
 name
     'sami2'
 tag
-    ''
+    '', 'test'
 inst_id
     ''
 
@@ -19,11 +19,11 @@ inst_id
 
 import datetime as dt
 import functools
-import os
-import requests
 import warnings
 
 import pysat
+
+from pysatModels.models.methods import general
 
 logger = pysat.logger
 
@@ -34,7 +34,7 @@ platform = 'sami2py'
 name = 'sami2'
 tags = {'': 'sami2py output file',
         'test': 'Standard output of sami2py for benchmarking'}
-inst_ids = {'': ['', 'test']}
+inst_ids = {'': [tag for tag in tags.keys()]}
 
 # specify using xarray (not using pandas)
 pandas_format = False
@@ -43,11 +43,12 @@ pandas_format = False
 # Instrument test attributes
 
 _test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
-_test_download = {'': {'': False,
-                       'test': True}}
+_test_download = {'': {'': False, 'test': True}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
+
+clean = general.clean
 
 
 def init(self):
@@ -69,14 +70,6 @@ def init(self):
                                 "(Version v0.2.2). Zenodo.",
                                 "http://doi.org/10.5281/zenodo.3950564"))
     logger.info(self.acknowledgements)
-    return
-
-
-def clean(self):
-    """Return SAMI data cleaned to the specified level, unused."""
-
-    logger.info('Cleaning not supported for SAMI')
-
     return
 
 
@@ -148,30 +141,22 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     return data, meta
 
 
-def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
+def download(date_array, tag, inst_id, data_path):
     """Download sami2py data.
-
-    Note
-    ----
-    Currently only retrieves test data from github
 
     Parameters
     ----------
-    date_array : array-like or NoneType
+    date_array : array-like
         list of datetimes to download data for. The sequence of dates need not
-        be contiguous. (default=None)
-    tag : str or NoneType
+        be contiguous.
+    tag : str
         Tag identifier used for particular dataset. This input is provided by
-        pysat. (default=None)
-    inst_id : str or NoneType
+        pysat.
+    inst_id : str
         Instrument ID string identifier used for particular dataset. This input
-        is provided by pysat.  (default=None)
-    data_path : str or NoneType
-        Path to directory to download data to. (default=None)
-    **kwargs : dict
-        Additional keywords supplied by user when invoking the download
-        routine attached to a pysat.Instrument object are passed to this
-        routine via kwargs.
+        is provided by pysat.
+    data_path : str
+        Path to directory to download data to.
 
     Note
     ----
@@ -181,32 +166,30 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
     The test object generates the datetime requested by the user, which may not
     match the date of the model run.
 
+    Examples
+    --------
+    ::
+
+        import datetime as dt
+        import pysat
+
+        inst = pysat.Instrument('sami2py', 'sami2', 'test')
+        inst.download(start=dt.datetime(2020, 3, 8))
+
     """
 
     if tag == 'test':
-        date = date_array[0]
-        remote_url = 'https://github.com/sami2py/sami2py/'
-        remote_path = 'blob/main/sami2py/tests/test_data/'
+        # Define the remote file data
+        remote_url = ''.join(['https://github.com/sami2py/sami2py/blob',
+                              '/main/sami2py/tests/test_data/'])
+        fname = 'sami2py_output.nc?raw=true'  # Show raw data, not webpage ver.
 
-        # Need to tell github to show the raw data, not the webpage version
-        fname = 'sami2py_output.nc?raw=true'
-
-        # Use pysat-compatible name
+        # Construct a format string
         format_str = supported_tags[inst_id][tag]
-        saved_local_fname = os.path.join(data_path,
-                                         format_str.format(year=date.year,
-                                                           month=date.month,
-                                                           day=date.day))
-        remote_path = '/'.join((remote_url.strip('/'), remote_path.strip('/'),
-                                fname))
-        with requests.get(remote_path) as req:
-            if req.status_code != 404:
-                with open(saved_local_fname, 'wb') as open_f:
-                    open_f.write(req.content)
-            else:
-                warnings.warn(' '.join(('Unable to find remote file:',
-                                        remote_path)))
 
+        # Download the remote test file
+        general.download_test_data(remote_url, fname, data_path, date_array[0],
+                                   format_str)
     else:
         warnings.warn('Downloads currently only supported for test files.')
 

@@ -22,8 +22,12 @@ local_dir = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(local_dir, 'version.txt')) as version_file:
     __version__ = version_file.read().strip()
 
-del local_dir, version_file
-
 # Define a logger object to allow easier log handling
 logging.raiseExceptions = False
-logger = logging.getLogger('pysat.pysatModels')
+logger = logging.getLogger('pysatModels')
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(name)s %(levelname)s: %(message)s'))
+logger.addHandler(handler)
+
+# Clean up variables
+del handler, local_dir, version_file

@@ -43,11 +43,11 @@ Oceanic Technology, 20(12):1839-­1856, 2003.
 """
 import datetime as dt
 import functools
-import os
-import requests
 import warnings
 
 import pysat
+
+from pysatModels.models.methods import general
 
 logger = pysat.logger
 
@@ -67,11 +67,12 @@ pandas_format = False
 # Instrument test attributes
 
 _test_dates = {'': {tag: dt.datetime(2009, 1, 1) for tag in tags.keys()}}
-_test_download = {'': {'': False,
-                       'test': True}}
+_test_download = {'': {'': False, 'test': True}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
+
+clean = general.clean
 
 
 def init(self):
@@ -89,14 +90,6 @@ def init(self):
                     '20(12):1839-­1856, 2003'))
     self.references = refs
     logger.info(self.acknowledgements)
-    return
-
-
-def clean(self):
-    """Clean pydineof data to the specified level, unused."""
-
-    logger.info('Cleaning not supported for DINEOFs')
-
     return
 
 
@@ -162,26 +155,22 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     return data, meta
 
 
-def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
+def download(date_array, tag, inst_id, data_path):
     """Download dineof data.
 
     Parameters
     ----------
-    date_array : array-like or NoneType
+    date_array : array-like
         list of datetimes to download data for. The sequence of dates need not
-        be contiguous. (default=None)
-    tag : str or NoneType
+        be contiguous.
+    tag : str
         Tag identifier used for particular dataset. This input is provided by
-        pysat. (default=None)
-    inst_id : str or NoneType
+        pysat.
+    inst_id : str
         Instrument ID string identifier used for particular dataset. This input
-        is provided by pysat. (default=None)
-    data_path : str or NoneType
-        Path to directory to download data to. (default=None)
-    **kwargs : dict
-        Additional keywords supplied by user when invoking the download
-        routine attached to a pysat.Instrument object are passed to this
-        routine via kwargs.
+        is provided by pysat.
+    data_path : str
+        Path to directory where download data will be stored.
 
     Note
     ----
@@ -191,32 +180,30 @@ def download(date_array=None, tag=None, inst_id=None, data_path=None, **kwargs):
     The test object generates the datetime requested by the user, which may not
     match the date of the model run.
 
+    Examples
+    --------
+    ::
+
+        import datetime as dt
+        import pysat
+
+        inst = pysat.Instrument('pydineof', 'dineof', 'test')
+        inst.download(start=dt.datetime(2009, 1, 1))
+
     """
 
     if tag == 'test':
-        date = date_array[0]
-        remote_url = 'https://github.com/pysat/pysatModels/'
-        remote_path = 'blob/main/pysatModels/tests/test_data/'
-
-        # Need to tell github to show the raw data, not the webpage version.
-        fname = 'dineof-2009-01-01.nc?raw=true'
+        # Set the remote file data
+        remote_url = ''.join(['https://github.com/pysat/pysatModels/blob/',
+                              'main/pysatModels/tests/test_data/'])
+        fname = 'dineof-2009-01-01.nc?raw=true'  # Show raw data, not web vers.
 
         # Use a pysat-compatible name.
         format_str = supported_tags[inst_id][tag]
-        saved_local_fname = os.path.join(data_path,
-                                         format_str.format(year=date.year,
-                                                           month=date.month,
-                                                           day=date.day))
-        remote_path = '/'.join((remote_url.strip('/'), remote_path.strip('/'),
-                                fname))
-        with requests.get(remote_path) as req:
-            if req.status_code != 404:
-                if not os.path.isfile(saved_local_fname):
-                    with open(saved_local_fname, 'wb') as open_f:
-                        open_f.write(req.content)
-            else:
-                warnings.warn(' '.join(('Unable to find remote file:',
-                                        remote_path)))
+
+        # Download the test file
+        general.download_test_data(remote_url, fname, data_path, date_array[0],
+                                   format_str)
     else:
 
         warnings.warn('Downloads currently only supported for test files.')
