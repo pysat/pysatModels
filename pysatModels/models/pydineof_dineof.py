@@ -99,7 +99,7 @@ def init(self):
 # Use local and default pysat methods
 
 # Set the list_files routine
-fname = 'dineof_{year:04d}-{month:02d}-{day:02d}.nc'
+fname = 'dineof-{year:04d}-{month:02d}-{day:02d}.nc'
 supported_tags = {'': {'': fname, 'test': fname}}
 list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
