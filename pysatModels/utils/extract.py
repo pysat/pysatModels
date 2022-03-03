@@ -947,8 +947,10 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
                         # Set the number of cycles
                         icycles = 0
-                        ncycles = sum([len(inst.data.coords[inst_name[k]])
-                                       for k in imod_dims])
+                        ncycles = sum([
+                            len(inst.data.coords[inst_name[k]])
+                            for k in imod_dims
+                            if inst.data.coords[inst_name[k]].shape != ()])
                         cinds = np.zeros(shape=len(imod_dims), dtype=int)
 
                     # Get the instrument coordinate for this cycle
