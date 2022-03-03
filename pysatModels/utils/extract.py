@@ -977,7 +977,10 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                                     xi.append(inst_coord[kk][cinds[cind]])
                                 else:
                                     # This is an xarray variable
-                                    xi.append(inst_coord[kk][xind])
+                                    if inst_coord[kk].shape == ():
+                                        xi.append(inst_coord[kk])
+                                    else:
+                                        xi.append(inst_coord[kk][xind])
 
                         # Cycle the indices
                         if len(cinds) > 0:
