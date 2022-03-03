@@ -979,6 +979,9 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                                     # This is an xarray variable
                                     if inst_coord[kk].shape == ():
                                         xi.append(inst_coord[kk])
+                                    elif len(inst_coord[kk].shape) == 1:
+                                        # This allows time-only data
+                                        xi.append(inst_coord[kk][xind[0]])
                                     else:
                                         xi.append(inst_coord[kk][xind])
 
