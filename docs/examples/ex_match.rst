@@ -141,7 +141,7 @@ with randomly generated values that aren't realistic.
 
 ::
 
-   import matplotlib as mpl
+   import matplotlib.pyplot as plt
 
    # Initialize the figure
    fig = plt.figure()
