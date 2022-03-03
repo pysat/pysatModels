@@ -196,7 +196,7 @@ def download(date_array, tag, inst_id, data_path):
         # Set the remote file data
         remote_url = ''.join(['https://github.com/pysat/pysatModels/blob/',
                               'main/pysatModels/tests/test_data/'])
-        fname = 'dineof-2009-01-01.nc?raw=true'  # Show raw data, not web vers.
+        fname = 'dineof_2009-01-01.nc?raw=true'  # Show raw data, not web vers.
 
         # Use a pysat-compatible name.
         format_str = supported_tags[inst_id][tag]
