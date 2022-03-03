@@ -931,9 +931,9 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     # This data may have additional dimensions
                     if idims == 0:
                         # Determine the number of dimensions
-                        idims = len(inst.data.coords)
+                        idims = len(inst.data.dims)
                         idim_names = [ckey for i, ckey in
-                                      enumerate(inst.data.coords.keys())
+                                      enumerate(inst.data.dims.keys())
                                       if i > 0]
 
                         # Find relevent dimensions for cycling and slicing
