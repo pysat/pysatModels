@@ -172,6 +172,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
     # Cycle through the times, loading the model and instrument data as needed
     istart = start
     inst_lon_adjust = True
+    inst_dims = []
     while start < stop:
         # Load the model data for each time
         try:
@@ -245,8 +246,14 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                     if len(im) == 1:
                         im = im[0]
                     else:
+                        # If the dimension data hasn't been set yet, do it here
+                        if len(inst_dims) == 0:
+                            inst_dims = [inst.index.name]
+                            inst_dims.extend([dd for dd in inst.data.dims.keys()
+                                              if dd != inst.index.name])
+                        
                         im = {kk: np.unique(im[i])
-                              for i, kk in enumerate(inst.data.coords.keys())}
+                              for i, kk in enumerate(inst_dims)}
 
                     # Save the clean, matched data
                     if matched_inst is None:
