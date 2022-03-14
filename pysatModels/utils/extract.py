@@ -862,9 +862,15 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                 mind.append(mod_ind)
 
     # Determine the model coordinates closest to the satellite track
-    interp_shape = inst.index.shape if inst.pandas_format else \
-        [inst.data.sizes[ss] for ss in inst.data.coords.keys()
-         if ss in inst.data.sizes.keys()]
+    interp_dims = [inst.index.name]
+    interp_shape = [inst.index.shape[0]]
+
+    if not inst.pandas_format:
+        interp_dims.extend([ss for ss in inst.data.dims.keys()
+                            if ss != inst.index.name])
+        interp_shape.extend([inst.data.dims[ss] for ss in inst.data.dims.keys()
+                             if ss != inst.index.name])
+
     inst_coord = {kk: inst[inst_name[i]].values * inst_scale[i]
                   for i, kk in enumerate(mod_name)}
 
@@ -937,9 +943,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if idims == 0:
                         # Determine the number of dimensions
                         idims = len(inst.data.dims)
-                        idim_names = [ckey for i, ckey in
-                                      enumerate(inst.data.dims.keys())
-                                      if i > 0]
+                        idim_names = [ckey for i, ckey
+                                      in enumerate(interp_dims)]
 
                         # Find relevent dimensions for cycling and slicing
                         ind_dims = [k for k, iname in enumerate(inst_name)
@@ -964,8 +969,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                         se = [ii + 1 if k == 0 else
                               len(inst.data.coords[idim_names[k]])
                               for k in range(idims)
-                              if k == 0 or (k > 0 and
-                                            inst.data.coords[
+                              if k == 0 or (k > 0
+                                            and inst.data.coords[
                                                 idim_names[k]].shape != ())]
                         xout = [cinds[ind_dims.index(k)] if k in ind_dims
                                 else slice(ss[k], se[k]) for k in range(idims)]
