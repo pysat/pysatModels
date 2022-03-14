@@ -131,7 +131,7 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all'],
     if not np.all([iname in pairs.data_vars.keys() for iname in inst_name]):
         if not np.any([iname in pairs.data_vars.keys() for iname in inst_name]):
             raise ValueError('unknown instrument data value supplied')
-    
+
         # Remove the missing instrument data variable names
         new_inst_name = list()
         for iname in inst_name:

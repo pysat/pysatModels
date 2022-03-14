@@ -251,7 +251,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                             inst_dims = [inst.index.name]
                             inst_dims.extend([dd for dd in inst.data.dims.keys()
                                               if dd != inst.index.name])
-                        
+
                         im = {kk: np.unique(im[i])
                               for i, kk in enumerate(inst_dims)}
 
