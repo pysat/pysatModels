@@ -60,9 +60,9 @@ class TestMethodsGeneralDownload(object):
         self.tempdir = tempfile.TemporaryDirectory(**tkwargs)
         self.remote_url = ''.join(['https://github.com/pysat/pysatModels/',
                                    '/blob/main/pysatModels/tests/test_data/'])
-        self.remote_file = 'dineof-2009-01-01.nc?raw=true'
+        self.remote_file = 'dineof_2009-01-01.nc?raw=true'
         self.test_time = dt.datetime(2009, 1, 1)
-        self.out_file = os.path.join(self.tempdir.name, 'dineof-2009-01-01.nc')
+        self.out_file = os.path.join(self.tempdir.name, 'dineof_2009-01-01.nc')
 
         return
 
