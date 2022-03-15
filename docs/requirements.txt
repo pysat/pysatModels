@@ -1,4 +1,4 @@
-m2r
+m2r2
 numpy
 numpydoc
 PyForecastTools
