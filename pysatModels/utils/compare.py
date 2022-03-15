@@ -108,6 +108,11 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all'],
                                     "symmetricSignedBias"],
                        "all": list(method_rout.keys())}
 
+    # Ensure the list inputs are lists
+    inst_name = pysat.utils.listify(inst_name)
+    mod_name = pysat.utils.listify(mod_name)
+    methods = pysat.utils.listify(methods)
+
     # Replace any group method keys with the grouped methods
     for gg in [(i, mm) for i, mm in enumerate(methods)
                if mm in list(grouped_methods.keys())]:
@@ -129,10 +134,40 @@ def compare_model_and_inst(pairs, inst_name, mod_name, methods=['all'],
                                   'and model data names for comparison']))
 
     if not np.all([iname in pairs.data_vars.keys() for iname in inst_name]):
-        raise ValueError('unknown instrument data value supplied')
+        if not np.any([iname in pairs.data_vars.keys() for iname in inst_name]):
+            raise ValueError('unknown instrument data value supplied')
+
+        # Remove the missing instrument/model data variable names
+        bad_ind = list()
+        for i, iname in enumerate(inst_name):
+            if iname not in pairs.data_vars.keys():
+                bad_ind.append(i)
+
+        ps_mod.logger.warning(
+            'removed {:d} of the provided instrument variable names'.format(
+                len(inst_name) - len(bad_ind)))
+
+        for i in bad_ind:
+            inst_name.pop(i)
+            mod_name.pop(i)
 
     if not np.all([iname in pairs.data_vars.keys() for iname in mod_name]):
-        raise ValueError('unknown model data value supplied')
+        if not np.any([iname in pairs.data_vars.keys() for iname in mod_name]):
+            raise ValueError('unknown model data value supplied')
+
+        # Remove the missing instrument/model data variable names
+        bad_ind = list()
+        for i, iname in enumerate(mod_name):
+            if iname not in pairs.data_vars.keys():
+                bad_ind.append(i)
+
+        ps_mod.logger.warning(
+            'removed {:d} of the provided model variable names'.format(
+                len(mod_name) - len(bad_ind)))
+
+        for i in bad_ind:
+            inst_name.pop(i)
+            mod_name.pop(i)
 
     if not np.all([mm in list(method_rout.keys()) for mm in methods]):
         known_methods = list(method_rout.keys())
