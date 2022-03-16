@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019, AGB & pysat team
+# Copyright (C) 2022, pysat development team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
 """Routines to extract observational-style data from model output."""

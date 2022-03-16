@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = ocbpy
+SPHINXPROJ    = pysatModels
 SOURCEDIR     = .
 BUILDDIR      = .build
 
