@@ -156,7 +156,7 @@ with randomly generated values that aren't realistic.
                     c=matched_inst[ckey], s=matched_inst[dkey].abs() * 10 + 10,
                     marker='|', vmin=-vmax, vmax=vmax, lw=1,
                     cmap=mpl.cm.get_cmap('Spectral_r'))
-   cb = mpl.pyplot.colorbar(con, ax=ax)
+   cb = plt.colorbar(con, ax=ax)
 
    # Format the figure
    ax.xaxis.set_major_locator(mpl.ticker.MultipleLocator(6))
@@ -169,6 +169,8 @@ with randomly generated values that aren't realistic.
        matched_inst.meta[ckey, matched_inst.meta.labels.name],
        matched_inst.meta[ckey, matched_inst.meta.labels.units])
    cb.set_label(cb_label)
+
+   # If you can display and are not running interactivly:
    plt.show()
 
 .. image:: ../images/ex_match_dineof.png
