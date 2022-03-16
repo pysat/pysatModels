@@ -72,10 +72,10 @@ the model being used.  The DINEOFs test data applies for an entire day, so the
                    "mod_units": ["km", "deg", "deg", "h"],
                    "mod_datetime_name": "time",
                    "mod_time_name": "time",
-		   "model_label": dineofs.name,
-		   "pair_method": "all",
-		   "time_method": "max",
-		   "sel_name": "model_equator_model_data"}
+                   "model_label": dineofs.name,
+                   "pair_method": "all",
+                   "time_method": "max",
+                   "sel_name": "model_equator_model_data"}
 
 
 Next, get observational data to match with the model data.  In this example,
@@ -83,7 +83,7 @@ we will use C/NOFS-CINDI IVM data, since the DINEOFs test file contains
 meridional **E** x **B** drift values.
 
 ::
-					
+
 
    # Initialize the CINDI instrument, and ensure the best model interpolation
    # by extracting the clean data only after matching.
@@ -116,11 +116,13 @@ will check for compatibility and adjust the range as needed.
 
 The :py:func:`collect_inst_model_pairs` function returns a
 :py:class:`pysat.Instrument` object with the CINDI and DINEOFs data at the
-same longitudes and local times. The CINDI data has the same names as the normal
-:py:class:`Instrument`. The DINEOFs data has the same name as the normal
-:py:class:`Instrument`, but with ``'dineof_'`` as a prefix to prevent confusion.
-You can change this prefix using the :py:data:`model_label` keyword argument,
-allowing multiple models to be matched to the same observational data set.
+same longitudes and local times, after raising warnings for times and places
+when the observed data location lies outside of the model interpolation limits.
+The CINDI data has the same names as the normal :py:class:`pysat.Instrument`.
+The DINEOFs data has the same name as the normal :py:class:`pysat.Instrument`,
+but with ``'dineof_'`` as a prefix to prevent confusion. You can change this
+prefix using the :py:data:`model_label` keyword argument, allowing multiple
+models to be matched to the same observational data set.
    
    
 ::
@@ -138,8 +140,9 @@ drifts.  We aren't directly comparing the values, since the test file is filled
 with randomly generated values that aren't realistic.
 
 ::
-   
+
    import matplotlib as mpl
+   import matplotlib.pyplot as plt
 
    # Initialize the figure
    fig = plt.figure()
@@ -153,7 +156,7 @@ with randomly generated values that aren't realistic.
                     c=matched_inst[ckey], s=matched_inst[dkey].abs() * 10 + 10,
                     marker='|', vmin=-vmax, vmax=vmax, lw=1,
                     cmap=mpl.cm.get_cmap('Spectral_r'))
-   cb = mpl.pyplot.colorbar(con, ax=ax)
+   cb = plt.colorbar(con, ax=ax)
 
    # Format the figure
    ax.xaxis.set_major_locator(mpl.ticker.MultipleLocator(6))
@@ -164,9 +167,11 @@ with randomly generated values that aren't realistic.
    ax.set_ylim(-180, 180)
    cb_label = "{:s} ({:s})".format(
        matched_inst.meta[ckey, matched_inst.meta.labels.name],
-       matched_inst.meta[vkey, matched_inst.meta.labels.units])
+       matched_inst.meta[ckey, matched_inst.meta.labels.units])
    cb.set_label(cb_label)
 
+   # If you can display and are not running interactivly:
+   plt.show()
 
 .. image:: ../images/ex_match_dineof.png
     :align: right
