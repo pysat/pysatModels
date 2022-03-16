@@ -141,6 +141,7 @@ with randomly generated values that aren't realistic.
 
 ::
 
+   import matplotlib as mpl
    import matplotlib.pyplot as plt
 
    # Initialize the figure
@@ -168,7 +169,7 @@ with randomly generated values that aren't realistic.
        matched_inst.meta[ckey, matched_inst.meta.labels.name],
        matched_inst.meta[ckey, matched_inst.meta.labels.units])
    cb.set_label(cb_label)
-
+   plt.show()
 
 .. image:: ../images/ex_match_dineof.png
     :align: right
