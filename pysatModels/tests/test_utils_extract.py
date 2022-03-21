@@ -14,44 +14,6 @@ import pysatModels.utils.extract as extract
 
 
 @pytest.mark.skip("input requires a regular grid for the model")
-class TestUtilsExtractObsViewModel(object):
-    """Unit tests for utils.extract.sat_view_through_model."""
-
-    def setup(self):
-        """Set up the unit test environment for each method."""
-
-        self.args = [pysat.Instrument(platform='pysat', name='testing',
-                                      num_samples=12),
-                     pysat.Instrument(platform='pysat', name='testing',
-                                      num_samples=6),
-                     ['latitude', 'longitude'], ['dummy1', 'dummy2']]
-        return
-
-    def teardown(self):
-        """Clean up the unit test environment after each method."""
-
-        del self.args
-        return
-
-    def test_str_coords(self):
-        """Test string coordinate input."""
-
-        self.args[2] = self.args[2][0]
-        extract.instrument_view_through_model(*self.args)
-
-        for label in self.args[3]:
-            assert "model_{:s}".format(label) in self.args[1].data.columns
-        return
-
-    def test_str_obs(self):
-        """Test string model observation input."""
-
-        self.args[3] = self.args[3][0]
-        extract.instrument_view_through_model(*self.args)
-
-        assert "model_{:s}".format(self.args[3]) in self.args[1].data.columns
-        return
-
 
 class TestUtilsExtractModObs(object):
     """Unit tests for `utils.extract.extract_modelled_observations`."""
@@ -360,7 +322,7 @@ class TestUtilsExtractInstModView(object):
 
 
 @pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    < pack_version.Version('3.1.0'),
+                    < pack_version.Version('3.0.2'),
                     reason=''.join(('Requires test model in pysat ',
                                     ' v3.1 or later.')))
 class TestUtilsAltitudePressure(object):
