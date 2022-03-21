@@ -101,7 +101,7 @@ class TestUtilsMatchCollectInstModPairs(object):
         with pytest.raises(ValueError, match=err_msg):
             match.collect_inst_model_pairs(*self.input_args,
                                            **self.required_kwargs)
-
+return
     @pytest.mark.parametrize("cng_key,bad_val,err_msg",
                              [("mod_lon_name", "glon",
                                "unknown name for model longitude"),
@@ -118,7 +118,7 @@ class TestUtilsMatchCollectInstModPairs(object):
         return
 
     def test_bad_time(self):
-        """Test the match routine the times prevent any data from loading."""
+        """Test the match routine when times prevent any data from loading."""
 
         self.input_args[1] = self.input_args[0]
 

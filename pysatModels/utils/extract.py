@@ -230,7 +230,7 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     ----------
     inst : pysat.Instrument
         Instrument object with observational data
-    model : xarray
+    model : xarray.Dataset
         Modelled data
     inst_name : array-like
         List of variable names containing the observational data coordinates
@@ -267,8 +267,8 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     ValueError
         For incorrect input arguments
 
-    Notes
-    -----
+    Note
+    ----
     Updates the inst Instrument with interpolated data from the model
     Instrument. The interpolation is performed via the RegularGridInterpolator
     for quick performance.
@@ -476,7 +476,7 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
         interpolated onto inst. The coordinate dimensions for these variables
         must correspond to those in `mod_irreg_var`.
     model_label : str
-        name of model, used to identify interpolated data values in instrument
+        Name of model, used to identify interpolated data values in instrument
         (default="model")
 
     Returns
@@ -701,21 +701,21 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     Parameters
     ----------
     inst : pysat.Instrument
-        instrument object for which modelled data will be extracted
+        Instrument object for which modelled data will be extracted
     model : xarray.Dataset
-        modelled data set
+        Modelled data set
     inst_name : array-like
-        list of names of the data series to use for determining instrument
+        List of names of the data series to use for determining instrument
         location
     mod_name : array-like
-        list of names of the data series to use for determining model locations
+        List of names of the data series to use for determining model locations
         in the same order as inst_name.  These must make up a regular grid.
     mod_datetime_name : str
         Name of the data series in the model Dataset containing datetime info
     mod_time_name : str
         Name of the time coordinate in the model Dataset
     mod_units : list of strings
-        units for each of the mod_name location attributes.  Currently
+        Units for each of the mod_name location attributes.  Currently
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm
     sel_name : array-like or NoneType
         list of names of modelled data indices to append to instrument object,

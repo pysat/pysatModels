@@ -49,7 +49,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
     model_load_kwargs : dict or NoneType
         Keyword arguments for the model loading routine. (default=None)
     inst_clean_rout : func
-        Routine to clean the instrument data
+        Routine to clean the instrument data. (default=None)
     inst_lon_name : str
         variable name for instrument longitude
     mod_lon_name : str
@@ -68,7 +68,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
     mod_time_name : str
         Name of the time coordinate in the model Dataset
     mod_units : list or NoneType
-        units for each of the mod_name location attributes.  Currently
+        Units for each of the mod_name location attributes.  Currently
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm.
         (default=None)
     sel_name : list or NoneType
@@ -102,8 +102,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
     ValueError
         If input is incorrect
 
-    Notes
-    -----
+    Note
+    ----
     Perform the data cleaning after finding the times and locations where the
     observations and model align.
 
