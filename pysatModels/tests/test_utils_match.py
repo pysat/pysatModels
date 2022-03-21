@@ -53,7 +53,16 @@ class TestUtilsMatchCollectInstModPairs(object):
                              [("verr", None), ("ierr", None),
                               ("other", "Unacceptable model load error")])
     def test_model_load_failure(self, mkey, mout):
-        """Test for expected failure when unable to load model data."""
+        """Test for expected failure when unable to load model data.
+
+        Parameters
+        ----------
+        mkey : str
+            Model key
+        mout : any type
+            Model output
+
+        """
 
         def model_load_rout(stime, verr=False, ierr=False):
             if verr:
@@ -94,7 +103,16 @@ class TestUtilsMatchCollectInstModPairs(object):
                               ("mod_time_name", "Need time coordinate"),
                               ("inst_clean_rout", "Need routine to clean")])
     def test_input_failure(self, del_key, err_msg):
-        """Test for expected failure when missing requried input from kwargs."""
+        """Test for expected failure when missing requried input from kwargs.
+
+        Parameters
+        ----------
+        del_key : str
+            Key to delete
+        err_msg : str
+            Expected error message
+
+        """
 
         del self.required_kwargs[del_key]
 
@@ -108,7 +126,18 @@ return
                               ("mod_datetime_name", "dt",
                                "unknown model name for datetime"), ])
     def test_bad_input(self, cng_key, bad_val, err_msg):
-        """Test for expected failure with bad input."""
+        """Test for expected failure with bad input.
+
+        Parameters
+        ----------
+        cng_key : str
+            Key whose value will be changed
+        bad_val : any type
+            Bad value for provided key
+        err_msg : str
+            Expected error message
+
+        """
 
         self.required_kwargs[cng_key] = bad_val
 
@@ -131,7 +160,18 @@ return
                               (dt.timedelta(days=2), dt.timedelta(days=1), 3),
                               (dt.timedelta(days=1), dt.timedelta(days=2), 6)])
     def test_tinc_success(self, tinc_val, einc, num):
-        """Test the match success with different time increments."""
+        """Test the match success with different time increments.
+
+        Parameters
+        ----------
+        tinc_val : dt.timedelta
+            Time increment
+        einc : dt.timedelta
+            Ending increment
+        num : int
+            Expected number of matched values
+
+        """
 
         self.input_args[1] = self.stime + einc
         self.input_args[2] = tinc_val
@@ -156,7 +196,18 @@ return
                               ([-1.0, 210.0], None,
                                'unexpected longitude range')])
     def test_lon_output(self, lin, lout, test_out):
-        """Test the match handling with different longitude range input."""
+        """Test the match handling with different longitude range input.
+
+        Parameters
+        ----------
+        lin : list
+            Input list
+        lout : list or NoneType
+            Output list
+        test_out : int or str
+            Expected number of matched points or error message raised
+
+        """
 
         def lon_model_load(ftime, model_inst=None, filename=None):
             mdata = match.load_model_xarray(ftime, model_inst, filename)
@@ -215,7 +266,7 @@ return
         assert len(self.out[self.ref_col]) > 0
         return
 
-    def test__inst_download_missing(self):
+    def test_inst_download_missing(self):
         """Test the download data loop, which will fail to download anything."""
 
         self.input_args[0] = self.inst.files.files.index[0] - dt.timedelta(
