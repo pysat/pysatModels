@@ -10,7 +10,7 @@ DINEOF
 ------
 
 Supports the pyDINEOF model output.  pyDINEOF is a Python implementation of the
-Data INtrepolating Emperical Orthogonal Function method. Information about this
+Data INterpolating Emperical Orthogonal Function method. Information about this
 package can obtained by contacting
 `Russell Stoneback <https://github.com/rstoneback>`_.
 
@@ -23,7 +23,7 @@ package can obtained by contacting
 SAMI2
 -----
 
-Supports the SAMI2 (Sami2 is Another Model of the Ionosphere) model through the
+Supports the SAMI2 (Sami2 is Another Model of the Ionosphere 2) model through the
 sami2py interface. Sami2py is a python module that runs the SAMI2 model, as well
 as archives, loads and plots the resulting modeled values. SAMI2 is a model
 developed by the Naval Research Laboratory to simulate the motions of plasma

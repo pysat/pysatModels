@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Supports loading data from files generated using the sami2py model.
+"""Support loading data from files generated using the sami2py model.
 
 sami2py file is a netCDF file with multiple dimensions for some variables.
 The sami2py project is at https://www.github.com/sami2py/sami2py
@@ -94,10 +94,10 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     Parameters
     ----------
     fnames : array-like
-        iterable of filename strings, full path, to data files to be loaded.
+        Iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
     tag : str or NoneType
-        tag name used to identify particular data set to be loaded.
+        Tag name used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself. (default=None)
     inst_id : str or NoneType
         Instrument ID used to identify particular data set to be loaded.
@@ -135,7 +135,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
                     for val in data['ut'].values]
-    # Manually close link to file
+    # Manually close link to file for peace of mind
     data.close()
 
     return data, meta
@@ -147,7 +147,7 @@ def download(date_array, tag, inst_id, data_path):
     Parameters
     ----------
     date_array : array-like
-        list of datetimes to download data for. The sequence of dates need not
+        List of datetimes to download data for. The sequence of dates need not
         be contiguous.
     tag : str
         Tag identifier used for particular dataset. This input is provided by

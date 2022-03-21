@@ -21,7 +21,7 @@ Match Data by Location
 In the example below, we load a DINEOFs file created for testing purposes and
 pair it with C/NOFS IVM data.  This is a global example for a single time,
 since in this instance DINEOFs was used to create a day-specific emperical
-moodel.  Comparisons with output from a global circulation model would look
+model.  Comparisons with output from a global circulation model would look
 different, as one would be more likely to desire the the closest observations
 to the model time rather than all observations within the model time.
 
@@ -93,6 +93,7 @@ meridional **E** x **B** drift values.
    try:
        cindi.files.files[stime]
    except KeyError:
+       # Desired date not on filesystem, download missing data.
        cindi.download(stime, stime)
 
    # Set the input keyword args for the CINDI data

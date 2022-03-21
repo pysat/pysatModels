@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Supports loading data from files generated using TIEGCM model.
+"""Support loading data from files generated using TIEGCM model.
 
 TIEGCM (Thermosphere Ionosphere Electrodynamics General Circulation Model)
 file is a netCDF file with multiple dimensions for some variables.
@@ -126,10 +126,10 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     Parameters
     ----------
     fnames : array-like
-        iterable of filename strings, full path, to data files to be loaded.
+        Iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
     tag : str or NoneType
-        tag name used to identify particular data set to be loaded.
+        Tag name used to identify particular data set to be loaded.
         This input is nominally provided by pysat itself. (default=None)
     inst_id : str or NoneType
         Instrument ID used to identify particular data set to be loaded.
@@ -183,7 +183,7 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
     Parameters
     ----------
     date_array : array-like
-        list of datetimes to download data for. The sequence of dates need not
+        List of datetimes to download data for. The sequence of dates need not
         be contiguous.
     tag : str
         Tag identifier used for particular dataset. This input is provided by
