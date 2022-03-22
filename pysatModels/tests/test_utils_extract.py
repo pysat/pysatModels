@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (C) 2022, pysat development team
+# Full license can be found in License.md
+# -----------------------------------------------------------------------------
 """Unit tests for `pysatModels.utils.extract`."""
 
 from io import StringIO
@@ -14,7 +19,6 @@ import pysatModels.utils.extract as extract
 
 
 @pytest.mark.skip("input requires a regular grid for the model")
-
 class TestUtilsExtractModObs(object):
     """Unit tests for `utils.extract.extract_modelled_observations`."""
 

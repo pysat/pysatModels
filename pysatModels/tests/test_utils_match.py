@@ -119,7 +119,8 @@ class TestUtilsMatchCollectInstModPairs(object):
         with pytest.raises(ValueError, match=err_msg):
             match.collect_inst_model_pairs(*self.input_args,
                                            **self.required_kwargs)
-return
+        return
+
     @pytest.mark.parametrize("cng_key,bad_val,err_msg",
                              [("mod_lon_name", "glon",
                                "unknown name for model longitude"),
