@@ -1,4 +1,8 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Copyright (C) 2022, pysat development team
+# Full license can be found in License.md
+# -----------------------------------------------------------------------------
 """Support loading data from files generated using the sami2py model.
 
 sami2py file is a netCDF file with multiple dimensions for some variables.
