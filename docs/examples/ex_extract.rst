@@ -198,7 +198,8 @@ from the :py:class:`pysat.Instrument` object. The final presented input ::
 is a list of model variables that will be interpolated onto :py:var:`inst`.
 
 The results of ::
-    # Use the same time range as the prior example
+
+        # Use the same time range as the prior example
     ylabel = 'Dummy Variable'
     inst[stime:etime, new_data_keys].plot(title='Interpolation Example',
                                           ylabel=ylabel)
@@ -390,7 +391,7 @@ and the first model time.
 
 
 To interpolate against the irregular variable, the
-:py:func:`pysatModels.utils.extract.unterp_inst_w_irregular_model_coord`
+:py:func:`pysatModels.utils.extract.interp_inst_w_irregular_model_coord`
 function should be used. Generalized irregular interpolation can take
 significant computational resources, so we start this example by loading
 smaller :py:class:`pysat.Instrument` objects.
