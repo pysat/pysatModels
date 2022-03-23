@@ -71,7 +71,9 @@ pysat, check out the `quickstart guide
 is set up, you may choose to register the the :py:mod:`pysatModel` model
 :py:class:`Instruments` sub-modules by:
 
-::
+.. code:: python
+
+	  
    import pysat
    import pysatModels as pymod
 
