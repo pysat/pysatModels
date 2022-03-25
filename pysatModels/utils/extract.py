@@ -918,8 +918,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
             if not get_coords:
                 try:
-                    interp_data[attr_name] = np.full(shape=interp_shape,
-                                                     fill_value=values)
+                    interp_data[attr_name][ii] = values
                 except ValueError:
                     del interp_data[attr_name]
 
@@ -1005,7 +1004,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                             k = 0
                             cinds[k] += 1
 
-                            while cinds[k] > inst.data.coords.dims[
+                            while cinds[k] >= inst.data.coords.dims[
                                     inst_name[imod_dims[k]]]:
                                 k += 1
                                 if k < len(cinds):
