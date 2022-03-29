@@ -876,9 +876,18 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     # Initalize the interpolated data dictionary and test to ensure that the
     # instrument data doesn't already have the interpolated data
-    interp_data = {"{:s}_{:s}".format(model_label, mdat):
-                   np.full(shape=interp_shape, fill_value=np.nan)
-                   for mdat in sel_name}
+    interp_data = dict()
+    interp_data_dims = dict()
+    for mdat in sel_name:
+        attr_name = "{:s}_{:s}".format(model_label, mdat)
+        ishape = list()
+        interp_data_dims[attr_name] = list()
+        for idim in model[mdat].dims:
+            if idim in interp_dims:
+                ishape.append(interp_shape[interp_dims.index(idim)])
+                interp_data_dims[attr_name].append(idim)
+
+        interp_data[attr_name] = np.full(shape=ishape, fill_value=np.nan)
 
     del_list = list()
     for mdat in interp_data.keys():
@@ -940,14 +949,12 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                 else:
                     # This data may have additional dimensions
                     if idims == 0:
-                        # Determine the number of dimensions
-                        idims = len(inst.data.dims)
-                        idim_names = [ckey for i, ckey
-                                      in enumerate(interp_dims)]
+                        # Determine the number of dimensions for this data value
+                        idims = len(interp_data_dims[attr_name])
 
                         # Find relevent dimensions for cycling and slicing
                         ind_dims = [k for k, iname in enumerate(inst_name)
-                                    if iname in idim_names]
+                                    if iname in interp_data_dims[attr_name]]
                         imod_dims = [k for k in ind_dims
                                      if mod_name[k] in dims]
                         coord_keys = [ckey for ckey in inst.data.coords.keys()]
@@ -966,11 +973,12 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if icycles < ncycles or icycles == 0:
                         ss = [ii if k == 0 else 0 for k in range(idims)]
                         se = [ii + 1 if k == 0 else
-                              len(inst.data.coords[idim_names[k]])
-                              for k in range(idims)
-                              if k == 0 or (k > 0
-                                            and inst.data.coords[
-                                                idim_names[k]].shape != ())]
+                              len(inst.data.coords[
+                                  interp_data_dims[attr_name][k]])
+                              for k in range(idims) if k == 0 or (
+                                      k > 0 and inst.data.coords[
+                                          interp_data_dims[attr_name][k]].shape
+                                      != ())]
                         xout = [cinds[ind_dims.index(k)] if k in ind_dims
                                 else slice(ss[k], se[k]) for k in range(idims)]
                         xind = [cinds[ind_dims.index(k)] if k in ind_dims
@@ -1053,7 +1061,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         if inst.pandas_format:
             inst[mdat] = pds.Series(interp_data[mdat], index=inst.index)
         else:
-            inst.data = inst.data.assign({mdat: (interp_dims,
+            inst.data = inst.data.assign({mdat: (interp_data_dims[mdat],
                                                  interp_data[mdat])})
 
     return interp_data.keys()
