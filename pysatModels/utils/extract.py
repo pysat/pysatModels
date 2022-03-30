@@ -980,10 +980,9 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                         se = [ii + 1 if k == 0 else
                               len(inst.data.coords[
                                   interp_data_dims[attr_name][k]])
-                              for k in range(idims) if k == 0 or (
-                                      k > 0 and inst.data.coords[
-                                          interp_data_dims[attr_name][k]].shape
-                                      != ())]
+                              for k in range(idims) if k == 0
+                              or (k > 0 and inst.data.coords[
+                                  interp_data_dims[attr_name][k]].shape != ())]
                         xout = [cinds[ind_dims.index(k)] if k in ind_dims
                                 else slice(ss[k], se[k]) for k in range(idims)]
                         xind = [cinds[ind_dims.index(k)] if k in ind_dims
