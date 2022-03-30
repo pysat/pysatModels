@@ -14,11 +14,145 @@ modeled values.
 Regular Grid Models
 -------------------
 
-:py:func:`pysatModels.utils.extract.extract_modeled_observations` supports
-extracting values from models on a regular grid. The function can linearly
-interpolate model values onto instrument locations or use the nearest modeled
-location. Uses :py:func:`scipy.interpolate.interpn` as the underlying
-interpolation function.
+:py:func:`pysatModels.utils.extract.extract_modelled_observations` supports
+extracting values from models on a regular grid onto observed locations. The
+function can linearly interpolate model values onto instrument locations or use
+the nearest modeled location. Uses :py:func:`scipy.interpolate.interpn` as the
+underlying interpolation function. This function can handle either
+:py:mod:`pandas` or :py:mod:`xarray` formatted :py:class:`pysat.Instrument`
+observational data.  Because multi-dimensional data can be more complicated,
+let's use `Jicamarca ISR drift data <https://pysatmadrigal.readthedocs.io/en/latest/supported_instruments.html#jro-isr>`_ as an example.
+
+.. code:: python
+
+   import datetime as dt
+   import pandas as pds
+   import pysat
+   from pysatMadrigal.instruments import jro_isr
+   import pysatModels
+
+   stime = dt.datetime(2021, 1, 3)
+   jro = pysat.Instrument(inst_module=jro_isr, tag='drifts', user='Your Name',
+                          password='your.email@inst.type')
+
+    # Download data if necessary and then load it
+    if stime not in jro.files.files:
+        jro.download(start=stime)
+    jro.load(date=stime)
+
+    # Get fake model data from the pysat model test instrument
+    mod_drange = pds.date_range(stime, stime + dt.timedelta(days=1), freq='1D')
+    model = pysat.Instrument('pysat', 'testmodel', tag='',
+                             file_date_range=mod_drange)
+    model.load(date=stime)
+
+    # Check the loaded variables
+    print(jro.variables, model.variables)
+
+This yeilds:
+
+.. code:: python
+
+   ['time', 'gdalt', 'gdlatr', 'gdlonr', 'kindat', 'kinst', 'nwlos', 'range',
+    'vipn', 'dvipn', 'vipe', 'dvipe', 'vi7', 'dvi7', 'vi8', 'dvi8', 'paiwl',
+    'pacwl', 'pbiwl', 'pbcwl', 'pciel', 'pccel', 'pdiel', 'pdcel', 'jro10',
+    'jro11', 'year', 'month', 'day', 'hour', 'min', 'sec', 'spcst', 'pl',
+    'cbadn', 'inttms', 'azdir7', 'eldir7', 'azdir8', 'eldir8', 'jro14',
+    'jro15', 'jro16', 'ut1_unix', 'ut2_unix', 'recno'] ['uts', 'time',
+    'latitude', 'longitude', 'altitude', 'slt', 'mlt', 'dummy1', 'dummy2']
+
+To extract the desired data points, you need to specify the model time variable
+names, the matching observation and model coordinate names and dimensions, the
+variables you want to select for extraction, and the extraction method.  For
+this example, we'll be matching the vertical drift from JRO (``'vipn'``) to
+the fake model variable with the appropriate dimensions (``'dummy2'``).
+
+.. code:: python
+
+   # Set the model dummy variable units
+   model.meta['dummy2'] = {model.meta.labels.units: 'm/s'}
+
+   # Get the xarray data from the model instrument, with metadata attached
+   model_data = pysatModels.utils.convert.convert_pysat_to_xarray(model)
+
+   # Set the extract input parameters
+   input_args = [jro, model_data, ["gdlonr", "gdlatr", "gdalt"],
+                 ["longitude", "latitude", "altitude"], "time", "time",
+                 ["deg", "deg", "km"]]
+   input_kwargs = {'sel_name': ['dummy2']}
+
+   # Run the extract function
+   added_vars = pysatModels.utils.extract.extract_modelled_observations(
+       *input_args, **input_kwargs)
+
+The output from this function will let you know the variable names that were
+added to the observational data :py:class:`~pysat.Instrument`.  If we plot this
+data, we can visualize how the selection occurred.
+
+
+.. code:: pysat
+
+   import matplotlib as mpl
+   import matplotlib.pyplot as plt
+   import numpy as np
+   
+   # Initialize a figure with two subplots
+   fig = plt.figure()
+   ax_alt = fig.add_subplot(211)
+   ax_loc = fig.add_subplot(212)
+
+   # Create plottable model locations
+   mlon, mlat = np.meshgrid(model['longitude'], model['latitude'])
+   mtime, malt = np.meshgrid(model.index, model['altitude'])
+
+   # Get the paired and unpaired JRO indices
+   igood = np.where(~np.isnan(jro[added_vars[0]]))
+   ibad = np.where(np.isnan(jro[added_vars[0]]))
+
+   # Plot the altitude/time data
+   ax_alt.plot(jro.index[ibad[0]], jro['gdalt'][ibad[1]], 'm*',
+               label='JRO unpaired')
+   ax_alt.plot(mtime, malt, 'k.')
+   ax_alt.plot(jro.index[igood[0]], jro['gdalt'][igood[1]], 'r*',
+               label='JRO Pairs')
+
+   # Plot the the lat/lon data
+   ax_loc.plot(mlon, mlat, 'k.')
+   ax_loc.plot(jro['gdlonr'], jro['gdlatr'], 'r*')
+
+   # Format the figure
+   ax_loc.set_xlim(0, 360)
+   ax_loc.xaxis.set_major_locator(mpl.ticker.MultipleLocator(60))
+   ax_loc.set_xlabel('{:} ({:})'.format(
+       model.meta['longitude', model.meta.labels.name],
+       model.meta['longitude', model.meta.labels.units]))
+   ax_loc.set_ylabel('{:} ({:})'.format(
+       model.meta['latitude', model.meta.labels.name],
+       model.meta['latitude', model.meta.labels.units]))
+
+   ax_alt.lines[1].set_label('Model')
+   ax_alt.legend(loc=2)
+   ax_alt.set_xlabel('UT')
+   ax_alt.set_xlim(stime, stime + dt.timedelta(days=1))
+   ax_alt.xaxis.set_major_formatter(mpl.dates.DateFormatter('%H:%M'))
+   ax_alt.set_ylabel('{:} ({:})'.format(
+       model.meta['altitude', model.meta.labels.name],
+       model.meta['altitude', model.meta.labels.units]))
+
+   fig.suptitle('JRO-Test Model Comparison: {:}'.format(
+       stime.strftime('%d %b %Y')))
+   fig.subplots_adjust(hspace=.3)
+
+   # If not working interactively
+   plt.show()
+
+
+And this should show the figure below.
+
+.. image:: ../images/ex_extract_jro_pair.png
+    :width: 800px
+    :align: center
+    :alt: Demonstrate Model-Observation pairing.
 
 
 :py:func:`pysatModels.utils.extract.instrument_view_through_model` supports
