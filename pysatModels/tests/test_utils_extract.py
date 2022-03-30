@@ -340,6 +340,42 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
     def setup(self):
         """Set up the unit test environment for each method."""
 
+        self.inst = pysat.Instrument(platform='pysat', name='testing_xarray')
+        self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
+        self.inst.load(date=pysat_testmodel._test_dates[''][''],
+                       use_header=True)
+        self.model.load(date=pysat_testmodel._test_dates[''][''],
+                        use_header=True)
+        self.input_args = [self.inst, self.model.data,
+                           ["longitude", "latitude", "altitude"],
+                           ["longitude", "latitude", "altitude"],
+                           "time", "time", ["deg", "deg", "km"]]
+        self.input_kwargs = {"sel_name":
+                             [kk for kk in self.model.data.data_vars
+                              if len([dd for dd
+                                      in self.model.data.data_vars[kk].dims
+                                      if dd in self.input_args[3]])]}
+        self.func = extract.extract_modelled_observations
+        self.out = []
+        return
+
+    def teardown(self):
+        """Clean up the unit test environment after each method."""
+
+        del self.inst, self.model, self.input_args, self.out, self.input_kwargs
+        return
+
+
+@pytest.mark.skipif(pack_version.Version(pysat.__version__)
+                    <= pack_version.Version('3.0.1'),
+                    reason=''.join(('Requires test model in pysat ',
+                                    ' v3.0.2 or later.')))
+class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
+    """Xarray unit tests for `utils.extract.extract_modelled_observations`."""
+
+    def setup(self):
+        """Set up the unit test environment for each method."""
+
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
         self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
         self.inst.load(date=pysat_testmodel._test_dates[''][''],
