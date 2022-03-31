@@ -1,7 +1,6 @@
 """Unit tests for `pysatModels.utils.match`."""
 
 import datetime as dt
-from io import StringIO
 import logging
 import numpy as np
 import pytest
@@ -25,7 +24,7 @@ class TestUtilsMatchCollectInstModPairs(object):
                            dt.timedelta(days=1), self.inst]
         self.ref_col = 'dummy1'
         self.model = pysat.Instrument(platform='pysat', name='testmodel',
-                                      num_samples=10)
+                                      tag='', num_samples=10)
         self.required_kwargs = {"model_load_kwargs":
                                 {"model_inst": self.model},
                                 "inst_clean_rout": lambda x: True,
@@ -36,9 +35,6 @@ class TestUtilsMatchCollectInstModPairs(object):
                                 "mod_datetime_name": "time",
                                 "mod_time_name": "time",
                                 "mod_units": ["deg", "deg"]}
-        self.log_capture = StringIO()
-        ps_mod.logger.addHandler(logging.StreamHandler(self.log_capture))
-        ps_mod.logger.setLevel(logging.INFO)
         self.out = None
         return
 
@@ -46,13 +42,13 @@ class TestUtilsMatchCollectInstModPairs(object):
         """Clean up the unit test environment after each method."""
 
         del self.input_args, self.required_kwargs, self.inst, self.model
-        del self.out, self.log_capture, self.stime
+        del self.out, self.stime
         return
 
     @pytest.mark.parametrize("mkey,mout",
                              [("verr", None), ("ierr", None),
                               ("other", "Unacceptable model load error")])
-    def test_model_load_failure(self, mkey, mout):
+    def test_model_load_failure(self, mkey, mout, caplog):
         """Test for expected failure when unable to load model data.
 
         Parameters
@@ -76,9 +72,11 @@ class TestUtilsMatchCollectInstModPairs(object):
 
         if mkey in ['verr', 'ierr']:
             self.required_kwargs['model_load_kwargs'] = {mkey: True}
-            self.out = match.collect_inst_model_pairs(*self.input_args,
-                                                      **self.required_kwargs)
-            lout = self.log_capture.getvalue()
+
+            with caplog.at_level(logging.INFO, "pysatModels"):
+                self.out = match.collect_inst_model_pairs(
+                    *self.input_args, **self.required_kwargs)
+            lout = caplog.text
 
             assert self.out is mout
             assert lout.find('unable to load model data at') >= 0
