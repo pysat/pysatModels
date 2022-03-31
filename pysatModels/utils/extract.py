@@ -932,7 +932,10 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
             if not get_coords:
                 try:
-                    interp_data[attr_name][ii] = values
+                    if interp_data[attr_name][ii].shape == ():
+                        interp_data[attr_name] = values
+                    else:
+                        interp_data[attr_name][ii] = values
                 except ValueError:
                     del interp_data[attr_name]
 
