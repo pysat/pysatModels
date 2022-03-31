@@ -949,7 +949,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                 if inst.pandas_format:
                     # This data iterates only by time
                     xout = ii
-                    xi = [inst_coord[kk][ii] for kk in dims if kk in mod_name]
+                    xi.append([inst_coord[kk][ii]
+                               for kk in dims if kk in mod_name])
                     get_coords = False
                 else:
                     # This data may have additional dimensions
