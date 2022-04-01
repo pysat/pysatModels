@@ -7,7 +7,6 @@ import pytest
 
 import pysat
 
-import pysatModels as ps_mod
 import pysatModels.utils.match as match
 
 
