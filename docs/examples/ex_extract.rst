@@ -489,6 +489,11 @@ model coordinates, the interpolation results are affected.
 
 .. code:: python
 
+    keys = pysatModels.utils.extract.instrument_altitude_to_model_pressure(inst,
+                 model.data, ["altitude", "latitude", "longitude"],
+                 ["ilev", "latitude", "longitude"],
+                 "time", "time", ['', "deg", "deg"],
+                 'altitude', 'altitude', 'cm')
     new_data_keys = pysatModels.utils.extract.instrument_view_through_model(
         inst, model.data, ['model_pressure', 'latitude', 'longitude'],
         ['ilev', 'latitude', 'longitude'], 'time', 'time', ['', 'deg', 'deg'],
