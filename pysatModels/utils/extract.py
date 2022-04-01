@@ -15,6 +15,64 @@ import pysat.utils as pyutils
 import pysatModels as ps_mod
 
 
+def compare_mod_name_coordinates(data, mod_name):
+    """Compare ordering of mod_name against data coordinates, ignoring time.
+
+    First coordinate for `data` needs to be the main DateTimeIndex.
+
+    Parameters
+    ----------
+    data : xarray.Dataseries
+        Variable from xarray to compare against `mod_name`.
+    mod_name : list
+        List of coordinate names.
+
+    Raises
+    ------
+    ValueError if `mod_name` and `data` aren't consistent.
+
+    """
+
+    # Get a list of all spatial coordinates, time is presumed to be first.
+    # Coordinates aren't in actual data ordering though :(
+    # Get the ordering of coordinates by using the ordering of data.dims.
+    # Collect dims for coordinates and then use that association with data.dims
+    # to construct correct order for data coordinates.
+    raw_coords = list(data.coords)
+    coord_dims = []
+    for coord in raw_coords:
+        coord_dims.append(data[coord].dims[0])
+
+    dims = list(data.dims)[1:]
+
+    coords = []
+    for dim in dims:
+        for i, coord in enumerate(coord_dims):
+            if dim == coord:
+                coords.append(raw_coords[i])
+
+    # Check actual coordinates all present in `mod_name`
+    missing_coords = []
+    for coord in coords:
+        if coord not in mod_name:
+            missing_coords.append(coord)
+
+    if len(missing_coords) > 0:
+        estr = ''.join(['Provided coordinates {} are not all within variable ',
+                        'coordinates {}.']).format(mod_name, missing_coords)
+        raise ValueError(estr)
+
+    # Check order for both sets of coordinates
+    for i, name in enumerate(mod_name):
+        if name != coords[i]:
+            estr = ''.join(['Provided coordinates {} not in same order as ',
+                            'variable coordinates {}.']).format(mod_name,
+                                                                coords)
+            raise ValueError(estr)
+
+    return
+
+
 def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
                                           mod_datetime_name, mod_time_name,
                                           mod_units, inst_alt, mod_alt,
@@ -139,6 +197,9 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     else:
         raise ValueError("".join(["unknown model name for datetime: ",
                                   mod_datetime_name]))
+
+    # Check input `mod_name` against actual data ordering for `mod_alt`
+    compare_mod_name_coordinates(model[mod_alt], mod_name)
 
     # Create initial fake regular grid index in inst
     inst_model_coord = inst[inst_name[0]] * 0
@@ -388,6 +449,10 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     elif len(del_list) > 0:
         sel_name = keep_list
 
+    # Check input `mod_name` against actual data ordering for `sel_name`
+    for sname in sel_name:
+        compare_mod_name_coordinates(model[sname], mod_name)
+
     # Create inst input based upon provided dimension names
     coords = [inst[coord_name] for coord_name in inst_name]
 
@@ -602,6 +667,10 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
     else:
         raise ValueError("".join(["unknown model name for datetime: ",
                                   mod_datetime_name]))
+
+    # Check input `mod_name` against actual data ordering for `sel_name`
+    for sname in sel_name:
+        compare_mod_name_coordinates(model[sname], mod_name)
 
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
