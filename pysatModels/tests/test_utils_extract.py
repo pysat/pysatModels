@@ -180,7 +180,7 @@ class TestUtilsExtractInstThroughMod(object):
 
         # Run through twice
         with caplog.at_level(logging.INFO, logger='pysatModels'):
-            for i, selected in enumerate([all_sel[1:], all_sel]):
+            for i, selected in enumerate([all_sel[:-1], all_sel]):
                 self.input_kwargs['sel_name'] = selected
                 self.input_kwargs['methods'] = ['linear'] * len(selected)
                 self.func(*self.input_args, **self.input_kwargs)
@@ -189,7 +189,7 @@ class TestUtilsExtractInstThroughMod(object):
             assert self.out.find('model data already interpolated') >= 0
 
         # Evaluate output
-        self.input_kwargs['sel_name'] = pysat.utils.listify(all_sel[1])
+        self.input_kwargs['sel_name'] = pysat.utils.listify(all_sel[0])
         self.eval_output()
         return
 
