@@ -75,9 +75,8 @@ def compare_mod_name_coordinates(data, mod_name):
     # Check order for both sets of coordinates
     for i, name in enumerate(mod_name):
         if name != coords[i]:
-            estr = ''.join(['Provided coordinates {} not in same order as ',
-                            'variable coordinates {}.']).format(mod_name,
-                                                                coords)
+            estr = ''.join(['Provided coordinates ', repr(mod_name), ' not in same order as ',
+                            'variable coordinates ', repr(coords)])
             raise ValueError(estr)
 
     return
