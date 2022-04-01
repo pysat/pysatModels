@@ -39,15 +39,13 @@ class TestUtilsExtractInstThroughMod(object):
                            ["latitude", "longitude", "altitude"],
                            ["latitude", "longitude", "altitude"],
                            "time", "time", ["deg", "deg", "km"]]
-        self.input_kwargs = {"sel_name":
-                             [kk for kk in self.model.data.data_vars
-                              if len([dd for dd
-                                      in self.model.data.data_vars[kk].dims
-                                      if dd in self.input_args[3]])
-                              and (len(self.model.data.data_vars[kk].dims)
-                                   == len(self.input_args[3]) + 1)]}
-        self.input_kwargs['methods'] = [
-            'linear' for i in self.input_kwargs['sel_name']]
+        sel_name = [kk for kk in self.model.data.data_vars
+                    if len([dd for dd in self.model.data.data_vars[kk].dims
+                            if dd in self.input_args[3]])
+                    and (len(self.model.data.data_vars[kk].dims)
+                         == len(self.input_args[3]) + 1)]
+        self.input_kwargs = {"sel_name": sel_name,
+                             'methods': ['linear' for i in sel_name]}
         self.func = extract.instrument_view_through_model
         self.out = []
         return
@@ -224,11 +222,10 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
                            ["longitude", "latitude", "altitude"],
                            ["longitude", "latitude", "altitude"],
                            "time", "time", ["deg", "deg", "km"]]
-        self.input_kwargs = {"sel_name":
-                             [kk for kk in self.model.data.data_vars
-                              if len([dd for dd
-                                      in self.model.data.data_vars[kk].dims
-                                      if dd in self.input_args[3]])]}
+        sel_name = [kk for kk in self.model.data.data_vars
+                    if len([dd for dd in self.model.data.data_vars[kk].dims
+                            if dd in self.input_args[3]])]
+        self.input_kwargs = {"sel_name": sel_name}
         self.func = extract.extract_modelled_observations
         self.out = []
         return
@@ -371,11 +368,10 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
                            ["longitude", "latitude", "altitude"],
                            ["longitude", "latitude", "altitude"],
                            "time", "time", ["deg", "deg", "km"]]
-        self.input_kwargs = {"sel_name":
-                             [kk for kk in self.model.data.data_vars
-                              if len([dd for dd
-                                      in self.model.data.data_vars[kk].dims
-                                      if dd in self.input_args[3]])]}
+        sel_name = [kk for kk in self.model.data.data_vars
+                    if len([dd for dd in self.model.data.data_vars[kk].dims
+                            if dd in self.input_args[3]])]
+        self.input_kwargs = {"sel_name": sel_name}
         self.func = extract.extract_modelled_observations
         self.out = []
         return
@@ -414,11 +410,10 @@ class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
                            ["longitude", "latitude", "altitude"],
                            ["longitude", "latitude", "altitude"],
                            "time", "time", ["deg", "deg", "km"]]
-        self.input_kwargs = {"sel_name":
-                             [kk for kk in self.model.data.data_vars
-                              if len([dd for dd
-                                      in self.model.data.data_vars[kk].dims
-                                      if dd in self.input_args[3]])]}
+        sel_name = [kk for kk in self.model.data.data_vars
+                    if len([dd for dd in self.model.data.data_vars[kk].dims
+                            if dd in self.input_args[3]])]
+        self.input_kwargs = {"sel_name": sel_name}
         self.func = extract.extract_modelled_observations
         self.out = []
         return
@@ -453,13 +448,12 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
                            ["latitude", "longitude", "altitude"],
                            ["latitude", "longitude", "altitude"],
                            "time", "time", ["deg", "deg", "km"]]
-        self.input_kwargs = {"sel_name":
-                             [kk for kk in self.model.data.data_vars
-                              if len([dd for dd
-                                      in self.model.data.data_vars[kk].dims
-                                      if dd in self.input_args[3]])
-                              and (len(self.model.data.data_vars[kk].dims)
-                                   == len(self.input_args[3]) + 1)]}
+        sel_name = [kk for kk in self.model.data.data_vars
+                    if len([dd for dd in self.model.data.data_vars[kk].dims
+                            if dd in self.input_args[3]])
+                    and (len(self.model.data.data_vars[kk].dims)
+                         == len(self.input_args[3]) + 1)]
+        self.input_kwargs = {"sel_name": sel_name}
         self.input_kwargs['methods'] = ['linear'] * len(
             self.input_kwargs['sel_name'])
         self.func = extract.instrument_view_through_model
