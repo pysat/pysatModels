@@ -160,8 +160,7 @@ class TestUtilsExtractInstThroughMod(object):
         # Run everything again, raising a value error
         with caplog.at_level(logging.INFO, "pysatModels"):
             with pytest.raises(ValueError) as err:
-                extract.extract_modelled_observations(*self.input_args,
-                                                      **self.input_kwargs)
+                self.func(*self.input_args, **self.input_kwargs)
 
         # Evaluate the logging messages and error messages
         self.out = caplog.text
