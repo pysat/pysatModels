@@ -154,6 +154,21 @@ class TestUtilsExtractInstThroughMod(object):
         assert str(err).find(err_msg) >= 0
         return
 
+    def test_failure_non_timelike_time(self):
+        """Test the failure when first dimension not timelike."""
+
+        if self.func != extract.extract_modelled_observations:
+
+            self.model['time'] = np.arange(0, len(self.model['time']))
+
+            # Run, raising a value error
+            with pytest.raises(ValueError) as err:
+                self.func(*self.input_args, **self.input_kwargs)
+
+            assert str(err).find('does not appear to be a time dimension') >= 0
+
+        return
+
     def test_failure_for_already_ran_data(self, caplog):
         """Test the failure for all model variables already extracted."""
 
@@ -715,13 +730,14 @@ class TestUtilsExtractInstModIrregView(object):
                               (5, [], "Must provide units for each "),
                               (4, "naname", "unknown model name for datetime"),
                               (6, "lev", "mod_reg_dim must be a coordinate "),
-                              (3, "lev", "mod_name must contain coordinate"),
                               (7, "not", "Unknown irregular model"),
                               (7, "lev", "Coordinate dimensions must"),
                               (8, [], "Must provide mod_var_delta "),
                               (8, ['hi'], 'Must provide the same number of'),
                               (3, ['longitude', 'latitude', 'ilev'],
                                'not in same order as'),
+                              (3, ['latitude', 'longitude', 'lev'],
+                               'are not all within variable'),
                               (3, ['whatsthat', 'latitude', 'ilev'],
                                'are not all within variable')])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):

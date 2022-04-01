@@ -18,7 +18,7 @@ import pysatModels as ps_mod
 def compare_mod_name_coordinates(data, mod_name):
     """Compare ordering of mod_name against data coordinates, ignoring time.
 
-    First coordinate for `data` needs to be the main DateTimeIndex.
+    First dimension for `data` needs to be the main DateTimeIndex.
 
     Parameters
     ----------
@@ -36,14 +36,23 @@ def compare_mod_name_coordinates(data, mod_name):
     # Get a list of all spatial coordinates, time is presumed to be first.
     # Coordinates aren't in actual data ordering though :(
     # Get the ordering of coordinates by using the ordering of data.dims.
-    # Collect dims for coordinates and then use that association with data.dims
+    # Collect dims for coordinates and then find the association with data.dims
     # to construct correct order for data coordinates.
     raw_coords = list(data.coords)
     coord_dims = []
     for coord in raw_coords:
         coord_dims.append(data[coord].dims[0])
 
-    dims = list(data.dims)[1:]
+    dims = list(data.dims)
+
+    # Check first dimension is full of datetime data
+    if str(data[data.dims[0]].data.dtype).find('datetime') < 0:
+        estr = ''.join(['First dimension of ', data.dims[0], ' does not ',
+                        'appear to be a time dimension.'])
+        raise ValueError(estr)
+    else:
+        # Drop time-like dimension
+        dims = dims[1:]
 
     coords = []
     for dim in dims:
@@ -629,12 +638,6 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
         estr = 'mod_reg_dim must be a coordinate dimension for mod_irreg_var.'
         raise ValueError(estr)
 
-    for mname in mod_name:
-        if mname not in model[mod_irreg_var].dims:
-            estr = ' '.join(('mod_name must contain coordinate dimension',
-                             'labels for mod_irreg_var.'))
-            raise ValueError(estr)
-
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
     for i, iname in enumerate(inst_name):
@@ -671,6 +674,9 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
     # Check input `mod_name` against actual data ordering for `sel_name`
     for sname in sel_name:
         compare_mod_name_coordinates(model[sname], mod_name)
+
+    # Perform same check against `mod_irreg_var`
+    compare_mod_name_coordinates(model[mod_irreg_var], mod_name)
 
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
