@@ -190,7 +190,7 @@ class TestUtilsExtractInstThroughMod(object):
                                                       True)])
     def test_compare_model_name_coordinates_failue(self, var, coords, msg,
                                                    flag):
-        """Ensure `compare_model_name_coordinates` works for proper inputs.
+        """Ensure `compare_mod_name_coordinates` works for proper inputs.
 
         Parameters
         ----------
