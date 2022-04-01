@@ -43,6 +43,7 @@ def compare_mod_name_coordinates(data, mod_name):
     for coord in raw_coords:
         coord_dims.append(data[coord].dims[0])
 
+    # Get list of dimension names
     dims = list(data.dims)
 
     # Check first dimension is full of datetime data
@@ -68,15 +69,17 @@ def compare_mod_name_coordinates(data, mod_name):
             missing_coords.append(coord)
 
     if len(missing_coords) > 0:
-        estr = ''.join(['Provided coordinates {} are not all within variable ',
-                        'coordinates {}.']).format(mod_name, missing_coords)
+        estr = ''.join(['Provided coordinates ', repr(mod_name), ' are not ',
+                        'all within variable coordinates ',
+                        repr(missing_coords), '.'])
         raise ValueError(estr)
 
     # Check order for both sets of coordinates
     for i, name in enumerate(mod_name):
         if name != coords[i]:
-            estr = ''.join(['Provided coordinates ', repr(mod_name), ' not in same order as ',
-                            'variable coordinates ', repr(coords)])
+            estr = ''.join(['Provided coordinates ', repr(mod_name),
+                            ' not in same order as variable coordinates ',
+                            repr(coords)])
             raise ValueError(estr)
 
     return
