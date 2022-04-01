@@ -24,10 +24,17 @@ class TestUtilsExtractInstThroughMod(object):
 
         self.inst = pysat.Instrument(platform='pysat', name='testing')
         self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
-        self.inst.load(date=pysat_testmodel._test_dates[''][''],
-                       use_header=True)
-        self.model.load(date=pysat_testmodel._test_dates[''][''],
-                        use_header=True)
+
+        # Load the data in the instruments
+        load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
+        if(pack_version.Version(pysat.__version__)
+           > pack_version.Version('3.0.1')):
+            load_kwargs['use_header'] = True
+
+        self.inst.load(**load_kwargs)
+        self.model.load(**load_kwargs)
+
+        # Define the inputs
         self.input_args = [self.inst, self.model.data,
                            ["latitude", "longitude", "altitude"],
                            ["latitude", "longitude", "altitude"],
@@ -202,10 +209,17 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
 
         self.inst = pysat.Instrument(platform='pysat', name='testing')
         self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
-        self.inst.load(date=pysat_testmodel._test_dates[''][''],
-                       use_header=True)
-        self.model.load(date=pysat_testmodel._test_dates[''][''],
-                        use_header=True)
+
+        # Load the data in the instruments
+        load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
+        if(pack_version.Version(pysat.__version__)
+           > pack_version.Version('3.0.1')):
+            load_kwargs['use_header'] = True
+
+        self.inst.load(**load_kwargs)
+        self.model.load(**load_kwargs)
+
+        # Define the inputs
         self.input_args = [self.inst, self.model.data,
                            ["longitude", "latitude", "altitude"],
                            ["longitude", "latitude", "altitude"],
@@ -342,10 +356,17 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
 
         self.inst = pysat.Instrument(platform='pysat', name='testing_xarray')
         self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
-        self.inst.load(date=pysat_testmodel._test_dates[''][''],
-                       use_header=True)
-        self.model.load(date=pysat_testmodel._test_dates[''][''],
-                        use_header=True)
+
+        # Load the data in the instruments
+        load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
+        if(pack_version.Version(pysat.__version__)
+           > pack_version.Version('3.0.1')):
+            load_kwargs['use_header'] = True
+
+        self.inst.load(**load_kwargs)
+        self.model.load(**load_kwargs)
+
+        # Define the inputs
         self.input_args = [self.inst, self.model.data,
                            ["longitude", "latitude", "altitude"],
                            ["longitude", "latitude", "altitude"],
@@ -378,10 +399,17 @@ class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
         self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
-        self.inst.load(date=pysat_testmodel._test_dates[''][''],
-                       use_header=True)
-        self.model.load(date=pysat_testmodel._test_dates[''][''],
-                        use_header=True)
+
+        # Load the data in the instruments
+        load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
+        if(pack_version.Version(pysat.__version__)
+           > pack_version.Version('3.0.1')):
+            load_kwargs['use_header'] = True
+
+        self.inst.load(**load_kwargs)
+        self.model.load(**load_kwargs)
+
+        # Define the inputs
         self.input_args = [self.inst, self.model.data,
                            ["longitude", "latitude", "altitude"],
                            ["longitude", "latitude", "altitude"],
@@ -410,8 +438,17 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
         self.model = pysat.Instrument(inst_module=pysat_testmodel)
-        self.inst.load(date=pysat_testmodel._test_dates[''][''])
-        self.model.load(date=pysat_testmodel._test_dates[''][''])
+
+        # Load the data in the instruments
+        load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
+        if(pack_version.Version(pysat.__version__)
+           > pack_version.Version('3.0.1')):
+            load_kwargs['use_header'] = True
+
+        self.inst.load(**load_kwargs)
+        self.model.load(**load_kwargs)
+
+        # Define the inputs
         self.input_args = [self.inst, self.model.data,
                            ["latitude", "longitude", "altitude"],
                            ["latitude", "longitude", "altitude"],
@@ -451,11 +488,17 @@ class TestUtilsAltitudePressure(object):
         self.inst = pysat.Instrument(platform='pysat', name='testing')
         self.model = pysat.Instrument(inst_module=pysat_testmodel,
                                       tag='pressure_levels')
-        self.inst.load(date=pysat_testmodel._test_dates[''][''],
-                       use_header=True)
-        self.model.load(date=pysat_testmodel._test_dates[''][''],
-                        use_header=True)
 
+        # Load the data in the instruments
+        load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
+        if(pack_version.Version(pysat.__version__)
+           > pack_version.Version('3.0.1')):
+            load_kwargs['use_header'] = True
+
+        self.inst.load(**load_kwargs)
+        self.model.load(**load_kwargs)
+
+        # Define the inputs
         self.input_args = [self.inst, self.model.data,
                            ["altitude", "latitude", "longitude"],
                            ["ilev", "latitude", "longitude"],
@@ -574,11 +617,17 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
         self.model = pysat.Instrument(inst_module=pysat_testmodel,
                                       tag='pressure_levels')
-        self.inst.load(date=pysat_testmodel._test_dates[''][''],
-                       use_header=True)
-        self.model.load(date=pysat_testmodel._test_dates[''][''],
-                        use_header=True)
 
+        # Load the data in the instruments
+        load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
+        if(pack_version.Version(pysat.__version__)
+           > pack_version.Version('3.0.1')):
+            load_kwargs['use_header'] = True
+
+        self.inst.load(**load_kwargs)
+        self.model.load(**load_kwargs)
+
+        # Define the inputs
         self.input_args = [self.inst, self.model.data,
                            ["altitude", "latitude", "longitude"],
                            ["ilev", "latitude", "longitude"],
@@ -612,10 +661,17 @@ class TestUtilsExtractInstModIrregView(object):
         self.model = pysat.Instrument(inst_module=pysat_testmodel,
                                       tag='pressure_levels',
                                       num_samples=96)
-        self.inst.load(date=pysat_testmodel._test_dates[''][''],
-                       use_header=True)
-        self.model.load(date=pysat_testmodel._test_dates[''][''],
-                        use_header=True)
+
+        # Load the data in the instruments
+        load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
+        if(pack_version.Version(pysat.__version__)
+           > pack_version.Version('3.0.1')):
+            load_kwargs['use_header'] = True
+
+        self.inst.load(**load_kwargs)
+        self.model.load(**load_kwargs)
+
+        # Define the inputs
         self.input_args = [self.inst, self.model.data,
                            ["altitude", "latitude", "longitude"],
                            ["ilev", "latitude", "longitude"],
@@ -713,10 +769,17 @@ class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
         self.model = pysat.Instrument(inst_module=pysat_testmodel,
                                       tag='pressure_levels',
                                       num_samples=96)
-        self.inst.load(date=pysat_testmodel._test_dates[''][''],
-                       use_header=True)
-        self.model.load(date=pysat_testmodel._test_dates[''][''],
-                        use_header=True)
+
+        # Load the data in the instruments
+        load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
+        if(pack_version.Version(pysat.__version__)
+           > pack_version.Version('3.0.1')):
+            load_kwargs['use_header'] = True
+
+        self.inst.load(**load_kwargs)
+        self.model.load(**load_kwargs)
+
+        # Define the inputs
         self.input_args = [self.inst, self.model.data,
                            ["altitude", "latitude", "longitude"],
                            ["ilev", "latitude", "longitude"],
