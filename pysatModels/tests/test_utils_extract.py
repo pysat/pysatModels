@@ -169,6 +169,52 @@ class TestUtilsExtractInstThroughMod(object):
 
         return
 
+    def test_compare_model_name_coordinates_success(self):
+        """Ensure `compare_model_name_coordinates` works for proper inputs."""
+
+        extract.compare_mod_name_coordinates(self.model['dummy1'],
+                                             ['latitude', 'longitude'])
+        return
+
+    @pytest.mark.parametrize("var,coords,msg,flag", [('dummy1',
+                                                      ['longitude', 'latitude'],
+                                                      'not in same order as',
+                                                      False),
+                                                     ('dummy1',
+                                                      ['wrong', 'latitude'],
+                                                      'not all within variable',
+                                                      False),
+                                                     ('dummy1',
+                                                      ['latitude', 'longitude'],
+                                                      'appear to be a time',
+                                                      True)])
+    def test_compare_model_name_coordinates_failue(self, var, coords, msg,
+                                                   flag):
+        """Ensure `compare_model_name_coordinates` works for proper inputs.
+
+        Parameters
+        ----------
+        var : str
+            Variable to test.
+        coords : list
+            List of coordinate variable names.
+        msg : str
+            Failure message to test for.
+        flag : bool
+            If True, replace time index with integers.
+
+        """
+
+        if flag:
+            self.model['time'] = np.arange(0, len(self.model['time']))
+
+        with pytest.raises(ValueError) as err:
+            extract.compare_mod_name_coordinates(self.model[var], coords)
+
+        assert str(err).find(msg) >= 0
+
+        return
+
     def test_failure_for_already_ran_data(self, caplog):
         """Test the failure for all model variables already extracted."""
 
