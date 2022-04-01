@@ -29,8 +29,8 @@ class TestUtilsExtractInstThroughMod(object):
         self.model.load(date=pysat_testmodel._test_dates[''][''],
                         use_header=True)
         self.input_args = [self.inst, self.model.data,
-                           ["longitude", "latitude", "altitude"],
-                           ["longitude", "latitude", "altitude"],
+                           ["latitude", "longitude", "altitude"],
+                           ["latitude", "longitude", "altitude"],
                            "time", "time", ["deg", "deg", "km"]]
         self.input_kwargs = {"sel_name":
                              [kk for kk in self.model.data.data_vars
@@ -185,7 +185,7 @@ class TestUtilsExtractInstThroughMod(object):
             assert self.out.find('model data already interpolated') >= 0
 
         # Evaluate output
-        self.input_kwargs['sel_name'] = all_sel
+        self.input_kwargs['sel_name'] = pysat.utils.listify(all_sel[1])
         self.eval_output()
         return
 
