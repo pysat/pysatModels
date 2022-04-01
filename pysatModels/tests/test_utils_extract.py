@@ -188,8 +188,8 @@ class TestUtilsExtractInstThroughMod(object):
                                                       ['latitude', 'longitude'],
                                                       'appear to be a time',
                                                       True)])
-    def test_compare_model_name_coordinates_failue(self, var, coords, msg,
-                                                   flag):
+    def test_compare_model_name_coordinates_failure(self, var, coords, msg,
+                                                    flag):
         """Ensure `compare_mod_name_coordinates` works for proper inputs.
 
         Parameters
