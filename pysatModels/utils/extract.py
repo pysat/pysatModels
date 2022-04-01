@@ -54,6 +54,7 @@ def compare_mod_name_coordinates(data, mod_name):
         # Drop time-like dimension
         dims = dims[1:]
 
+    # Construct dim order for coordinates
     coords = []
     for dim in dims:
         for i, coord in enumerate(coord_dims):
