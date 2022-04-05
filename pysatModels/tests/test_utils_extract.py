@@ -801,5 +801,3 @@ class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
         del self.inst, self.model, self.input_args, self.out, self.in_kwargs
 
         return
-
-
