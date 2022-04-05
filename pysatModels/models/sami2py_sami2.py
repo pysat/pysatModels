@@ -133,12 +133,18 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     """
 
     # Load data
-    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
+    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False,
+                                          epoch_name='ut')
 
-    # Add time variable for pysat compatibilty
+    # Add time variable for pysat compatibility
+    if 'time' in data:
+        label = 'time'
+    elif 'ut' in data:
+        label = 'ut'
     data['time'] = [dt.datetime(2019, 1, 1)
                     + dt.timedelta(seconds=int(val * 3600.0))
-                    for val in data['ut'].values]
+                    for val in data[label].values]
+
     # Manually close link to file for peace of mind
     data.close()
 
