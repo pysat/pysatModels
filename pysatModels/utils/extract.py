@@ -13,7 +13,7 @@ import pandas as pds
 import pysat.utils as pyutils
 
 import pysatModels as ps_mod
-from pysatModels.tests.test_utils_extract import compare_mod_name_coordinates
+from pysatModels.utils.testing import compare_mod_name_coordinates
 
 
 def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
