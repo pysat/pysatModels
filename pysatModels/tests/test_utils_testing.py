@@ -39,33 +39,6 @@ class TestUtilsCompareModName(object):
         del self.model
         return
 
-    def test_failure_non_timelike_time(self):
-        """Test the failure when first dimension not timelike."""
-
-        # Replace time values with integers
-        self.model['time'] = np.arange(0, len(self.model['time']))
-
-        # Run, raising a value error
-        with pytest.raises(ValueError) as err:
-            compare_mod_name_coordinates(self.model['dummy1'],
-                                         ['latitude', 'longitude'])
-
-        assert str(err).find('does not appear to be a time dimension') >= 0
-
-        return
-
-    def test_failure_too_many(self):
-        """Test the failure when `mod_name` too long."""
-
-        # Run, raising a value error
-        with pytest.raises(ValueError) as err:
-            compare_mod_name_coordinates(self.model['dummy1'],
-                                         ['latitude', 'longitude', 'altitude'])
-
-        assert str(err).find('Provided too many ') >= 0
-
-        return
-
     def test_compare_model_name_coordinates_success(self):
         """Ensure `compare_model_name_coordinates` works for proper inputs."""
 
@@ -84,7 +57,13 @@ class TestUtilsCompareModName(object):
                                                      ('dummy1',
                                                       ['latitude', 'longitude'],
                                                       'appear to be a time',
-                                                      True)])
+                                                      True),
+                                                     ('dummy1',
+                                                      ['latitude', 'longitude',
+                                                       'altitude'],
+                                                      'Provided too many ',
+                                                      False)
+                                                     ])
     def test_compare_model_name_coordinates_failure(self, var, coords, msg,
                                                     flag):
         """Ensure `compare_mod_name_coordinates` fails for improper inputs.
