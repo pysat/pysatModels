@@ -74,7 +74,7 @@ class TestModels(InstTestClass):
 
 
 class TestSAMIPysatVersion(object):
-    """Test SAMI load code for pysat version differences across v3.0.2"""
+    """Test SAMI load code for pysat version differences across v3.0.2."""
 
     def setup_class(self):
         """Initialize the testing setup once before all tests are run."""
@@ -100,8 +100,7 @@ class TestSAMIPysatVersion(object):
         return
 
     def test_against_version(self):
-        """Test for SAMI load failure for pysat version opposite v3.0.2.
-        """
+        """Test for SAMI load failure for pysat version opposite v3.0.2."""
 
         if (pack_version.Version(pysat.__version__)
                 >= pack_version.Version('3.0.2')):
