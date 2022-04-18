@@ -23,7 +23,7 @@ inst_id
 
 import datetime as dt
 import functools
-import pack_version
+from packaging import version as pack_version
 import warnings
 
 import pysat
