@@ -75,7 +75,7 @@ class TestMethodsGeneralDownload(object):
         # TODO(#100): Remove try/except when Python 3.10 is the lowest version
         try:
             self.tempdir.cleanup()
-        except:  # noqa E722
+        except Exception:
             pass
 
         del self.tempdir, self.remote_url, self.remote_file, self.out_file

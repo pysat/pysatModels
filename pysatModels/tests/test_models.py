@@ -8,6 +8,7 @@ Imports test methods from pysat.tests.instrument_test_class
 
 from packaging import version as pack_version
 import pytest
+import sys
 import tempfile
 
 import pysat
@@ -80,7 +81,12 @@ class TestSAMIPysatVersion(object):
         """Initialize the testing setup once before all tests are run."""
         # Make sure to use a temporary directory so that the user setup is not
         # altered
-        self.tempdir = tempfile.TemporaryDirectory()
+
+        # TODO(#100): remove if-statement when it is always triggered
+        tkwargs = {}
+        if sys.version_info.major >= 3 and sys.version_info.minor >= 10:
+            tkwargs = {"ignore_cleanup_errors": True}
+        self.tempdir = tempfile.TemporaryDirectory(**tkwargs)
         self.saved_path = pysat.params['data_dirs']
         self.saved_ver = pysat.__version__
         pysat.params.data['data_dirs'] = [self.tempdir.name]
@@ -95,7 +101,13 @@ class TestSAMIPysatVersion(object):
         pysat.params.data['data_dirs'] = self.saved_path
         pysat.__version__ = self.saved_ver
 
-        self.tempdir.cleanup()
+        # Remove the temporary directory
+        # TODO(#100): Remove try/except when Python 3.10 is the lowest version
+        try:
+            self.tempdir.cleanup()
+        except Exception:
+            pass
+
         del self.inst_loc, self.saved_path, self.tempdir, self.saved_ver
         return
 
