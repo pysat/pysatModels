@@ -61,21 +61,21 @@ create one.  This testing uses pytest, which will run tests on any python
 file in the test directory that starts with ``test_``.
 
 - When you're done making changes, run all the checks from the
-   ``pysatModels/tests`` directory to ensure that nothing is broken on your
-   local system.  You may need to install
-   [pytest](https://docs.pytest.org/en/latest/) and
-   [pytest-flake8](https://pypi.org/project/pytest-flake8/) first. ::
+  ``pysatModels/tests`` directory to ensure that nothing is broken on your
+  local system.  You may need to install
+  [pytest](https://docs.pytest.org/en/latest/) and
+  [pytest-flake8](https://pypi.org/project/pytest-flake8/) first. ::
 
 
        python -m pytest -vs --flake8
 
 - Update or add documentation (in ``docs``), if relevant.  If you have added
-   a new routine, you will need to add an example in the ``docs/examples``
-   folder.
+  a new routine, you will need to add an example in the ``docs/examples``
+  folder.
 
 - Commit your changes and push your branch to GitHub.  Our commit statements
-   follow the basic rules in the
-   [Numpy/SciPy workflow](https://docs.scipy.org/doc/numpy-1.15.1/dev/gitwash/development_workflow.html)::
+  follow the basic rules in the
+  [Numpy/SciPy workflow](https://docs.scipy.org/doc/numpy-1.15.1/dev/gitwash/development_workflow.html)::
 
 
        git add .
@@ -83,7 +83,7 @@ file in the test directory that starts with ``test_``.
        git push origin name-of-your-bugfix-or-feature
 
 - Submit a pull request through the GitHub website. Pull requests should be
-   made to the ``develop`` branch.
+  made to the ``develop`` branch.
 
 Pull Request Guidelines
 -----------------------
