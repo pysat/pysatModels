@@ -6,7 +6,7 @@
 """Support loading data from files generated using the sami2py model.
 
 sami2py file is a netCDF file with multiple dimensions for some variables.
-The sami2py project is at https://www.github.com/sami2py/sami2py
+The sami2py project is at https://github.com/sami2py/sami2py
 
 Properties
 ----------
