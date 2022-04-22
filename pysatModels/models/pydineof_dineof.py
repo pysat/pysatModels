@@ -3,8 +3,7 @@
 # Copyright (C) 2022, pysat development team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
-"""
-Support exported model data from pyDINEOF.
+"""Support exported model data from pyDINEOF.
 
 Properties
 ----------
@@ -82,17 +81,16 @@ clean = general.clean
 def init(self):
     """Initialize the Instrument object with instrument specific values."""
 
-    acks = ''.join(('The original DINEOF model code may be found at ',
-                    'http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF.',
-                    'pyDINEOFs is stored online in a private repository at ',
-                    'https://github.com/PhotonAudioLab/pyDINEOF'))
-    self.acknowledgements = acks
+    self.acknowledgements = ''.join((
+        'The original DINEOF model code may be found at ',
+        'http://modb.oce.ulg.ac.be/mediawiki/index.php/DINEOF. ',
+        'pyDINEOFs is stored online in a private repository at ',
+        'https://github.com/PhotonAudioLab/pyDINEOF'))
+    self.references = ''.join((
+        'J.-M. Beckers and M. Rixen. EOF calculations and data filling from ',
+        'incomplete oceanographic data sets. Journal of Atmospheric and ',
+        'Oceanic Technology, 20(12):1839-­1856, 2003'))
 
-    refs = ''.join(('J.-M. Beckers and M. Rixen. EOF calculations and data ',
-                    'filling from incomplete oceanographic data sets. ',
-                    'Journal of Atmospheric and Oceanic Technology, ',
-                    '20(12):1839-­1856, 2003'))
-    self.references = refs
     logger.info(self.acknowledgements)
     return
 
@@ -109,7 +107,7 @@ list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
 
-def load(fnames, tag=None, inst_id=None, **kwargs):
+def load(fnames, tag='', inst_id='', **kwargs):
     """Load pydineof data using xarray.
 
     Parameters
@@ -117,12 +115,12 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     fnames : array-like
         Iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
-    tag : str or NoneType
+    tag : str
         Tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
-    inst_id : str or NoneType
+        This input is nominally provided by pysat itself. (default='')
+    inst_id : str
         Instrument ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
+        This input is nominally provided by pysat itself. (default='')
     **kwargs : dict
         Pass-through for additional keyword arguments specified when
         instantiating an Instrument object. These additional keywords
@@ -132,7 +130,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     -------
     data : xarray.Dataset
         pysat formatted xarray Dataset
-    meta : pysat.Metadata
+    meta : pysat.Meta
         Model run meta data
 
     Note
@@ -149,8 +147,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     """
 
-    # netCDF4 files were produced by xarray.
-    # returning an xarray.Dataset.
+    # netCDF4 files were produced by xarray, this returns an xarray.Dataset.
     data, meta = pysat.utils.load_netcdf4(fnames, epoch_name='time',
                                           pandas_format=False)
     # Manually close link to file.
@@ -160,7 +157,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
 
 def download(date_array, tag, inst_id, data_path):
-    """Download dineof data.
+    """Download pydineof data.
 
     Parameters
     ----------
@@ -209,7 +206,6 @@ def download(date_array, tag, inst_id, data_path):
         general.download_test_data(remote_url, fname, data_path, date_array[0],
                                    format_str)
     else:
-
         warnings.warn('Downloads currently only supported for test files.')
 
     return

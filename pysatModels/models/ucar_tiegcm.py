@@ -53,8 +53,9 @@ clean = general.clean
 def init(self):
     """Initialize the Instrument object with instrument specific values."""
 
-    ack = " ".join(["References and information about TIEGCM are available at",
-                    "https://www.hao.ucar.edu/modeling/tgcm/index.php"])
+    self.acknowledgements = "".join([
+        "References and information about TIEGCM are available at ",
+        "https://www.hao.ucar.edu/modeling/tgcm/index.php"])
     refs = [" ".join(("Dickinson, R. E., E. C. Ridley and R. G. Roble, A",
                       "three-dimensional general circulation model of the",
                       "thermosphere, J. Geophys. Res., 86, 1499-1512, 1981.")),
@@ -101,17 +102,14 @@ def init(self):
                       "Modeling the Ionosphere-Thermosphere System, AGU",
                       "Geophysical Monograph Series, 2014."))]
 
-    self.acknowledgements = ack
     self.references = "\n".join((refs))
     logger.info(self.acknowledgements)
     return
-
 
 # ----------------------------------------------------------------------------
 # Instrument functions
 #
 # Use local and default pysat methods
-
 
 # Set the list_files routine
 fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
