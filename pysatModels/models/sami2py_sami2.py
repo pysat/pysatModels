@@ -134,21 +134,20 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     """
 
     # Load data
-    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False,
-                                          epoch_name='ut')
+    if pack_version.Version(pysat.__version__) < pack_version.Version('3.0.2'):
+        data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False,
+                                              epoch_name='ut')
 
-    # Add time variable for pysat compatibility. For pysat <= v3.0.1, time
-    # from sami files will be loaded as 'ut'. For pysat >= v3.0.2, support
-    # for `epoch_name` and xarray results in the disk variable 'ut' being named
-    # 'time' when returned from `load_netcdf4` above.
-    if pack_version.Version(pysat.__version__) >= pack_version.Version('3.0.2'):
-        label = 'time'
+        # Create datetimes from 'ut' variable
+        data['time'] = [dt.datetime(2019, 1, 1)
+                        + dt.timedelta(seconds=int(val * 3600.0))
+                        for val in data['ut'].values]
     else:
-        label = 'ut'
-
-    data['time'] = [dt.datetime(2019, 1, 1)
-                    + dt.timedelta(seconds=int(val * 3600.0))
-                    for val in data[label].values]
+        epoch = dt.datetime(2019, 1, 1)
+        data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False,
+                                              epoch_name='ut',
+                                              epoch_origin=epoch,
+                                              epoch_unit='h')
 
     # Manually close link to file for peace of mind
     data.close()
