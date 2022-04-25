@@ -109,17 +109,20 @@ class TestSAMIPysatVersion(object):
 
             # Replace reported version with one before 3.0.2
             vlabel = '3.0.1'
+
+            issue = KeyError
         else:
             # Define target error variable label
-            label = 'time'
+            label = 'epoch_origin'
 
+            issue = TypeError
             # Replace reported version with one including 3.0.2
             vlabel = '3.0.2'
 
         # Update reported pysat version
         pysat.__version__ = vlabel
 
-        with pytest.raises(KeyError) as verr:
+        with pytest.raises(issue) as verr:
             inst = pysat.Instrument(inst_module=self.inst_loc.sami2py_sami2,
                                     tag='test')
             inst.download(self.inst_loc.sami2py_sami2._test_dates['']['test'],
