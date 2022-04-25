@@ -110,12 +110,15 @@ class TestSAMIPysatVersion(object):
             # Replace reported version with one before 3.0.2
             vlabel = '3.0.1'
 
+            # Expected error
             issue = KeyError
         else:
             # Define target error variable label
             label = 'epoch_origin'
 
+            # Expected error
             issue = TypeError
+
             # Replace reported version with one including 3.0.2
             vlabel = '3.0.2'
 
