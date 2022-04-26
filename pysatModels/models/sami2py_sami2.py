@@ -44,6 +44,9 @@ inst_ids = {'': [tag for tag in tags.keys()]}
 # specify using xarray (not using pandas)
 pandas_format = False
 
+# Epoch origin for constructing time from sami files.
+_epoch_origin = dt.datetime(2019, 1, 1)
+
 # ----------------------------------------------------------------------------
 # Instrument test attributes
 
@@ -134,19 +137,19 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     """
 
     # Load data
+    # TODO(#112) Remove backwards compatibility
     if pack_version.Version(pysat.__version__) < pack_version.Version('3.0.2'):
         data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False,
                                               epoch_name='ut')
 
         # Create datetimes from 'ut' variable
-        data['time'] = [dt.datetime(2019, 1, 1)
+        data['time'] = [_epoch_origin
                         + dt.timedelta(seconds=int(val * 3600.0))
                         for val in data['ut'].values]
     else:
-        epoch = dt.datetime(2019, 1, 1)
         data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False,
                                               epoch_name='ut',
-                                              epoch_origin=epoch,
+                                              epoch_origin=_epoch_origin,
                                               epoch_unit='h')
 
     # Manually close link to file for peace of mind
