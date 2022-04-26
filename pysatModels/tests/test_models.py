@@ -99,8 +99,8 @@ class TestSAMIPysatVersion(object):
         del self.inst_loc, self.saved_path, self.tempdir, self.saved_ver
         return
 
-    def test_against_version(self):
-        """Test for SAMI load failure for pysat version opposite v3.0.2."""
+    def test_load_failure(self):
+        """Test for SAMI load failure when faking a different pysat version."""
 
         if (pack_version.Version(pysat.__version__)
                 >= pack_version.Version('3.0.2')):
@@ -111,13 +111,13 @@ class TestSAMIPysatVersion(object):
             vlabel = '3.0.1'
 
             # Expected error
-            issue = KeyError
+            error = KeyError
         else:
             # Define target error variable label
             label = 'epoch_origin'
 
             # Expected error
-            issue = TypeError
+            error = TypeError
 
             # Replace reported version with one including 3.0.2
             vlabel = '3.0.2'
@@ -125,7 +125,7 @@ class TestSAMIPysatVersion(object):
         # Update reported pysat version
         pysat.__version__ = vlabel
 
-        with pytest.raises(issue) as verr:
+        with pytest.raises(error) as verr:
             inst = pysat.Instrument(inst_module=self.inst_loc.sami2py_sami2,
                                     tag='test')
             inst.download(self.inst_loc.sami2py_sami2._test_dates['']['test'],
