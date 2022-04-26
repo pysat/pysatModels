@@ -89,7 +89,7 @@ list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
 
-def load(fnames, tag=None, inst_id=None, **kwargs):
+def load(fnames, tag='', inst_id='', **kwargs):
     """Load sami2py data using xarray.
 
     This routine is called as needed by pysat. It is not intended
@@ -100,12 +100,12 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     fnames : array-like
         Iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
-    tag : str or NoneType
+    tag : str
         Tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
-    inst_id : str or NoneType
+        This input is nominally provided by pysat itself. (default='')
+    inst_id : str
         Instrument ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
+        This input is nominally provided by pysat itself. (default='')
     **kwargs : dict
         Passthrough for additional keyword arguments specified when
         instantiating an Instrument object. These additional keywords
