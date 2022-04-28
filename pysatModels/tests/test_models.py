@@ -202,14 +202,13 @@ class TestSAMILoadMultipleDays(object):
 
         inst = pysat.Instrument(inst_module=self.inst_loc.sami2py_sami2,
                                 tag='test')
-        inst.download(self.inst_loc.sami2py_sami2._test_dates['']['test'],
-                      self.inst_loc.sami2py_sami2._test_dates['']['test'])
+        test_date = self.inst_loc.sami2py_sami2._test_dates['']['test']
+        inst.download(test_date, test_date)
         dl_file = os.path.join(inst.files.data_path, inst.files.files.values[0])
 
         # Create a second file, increment day.
         tmpl = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
-        date = self.inst_loc.sami2py_sami2._test_dates['']['test'] \
-               + dt.timedelta(days=1)
+        date = test_date + dt.timedelta(days=1)
         cp_file = os.path.join(inst.files.data_path,
                                tmpl.format(year=date.year, month=date.month,
                                            day=date.day))
@@ -219,17 +218,25 @@ class TestSAMILoadMultipleDays(object):
         inst.files.refresh()
 
         # Load both files
-        inst.load(date=self.inst_loc.sami2py_sami2._test_dates['']['test'],
-                  end_date=date + dt.timedelta(days=1))
+        inst.load(date=test_date, end_date=date + dt.timedelta(days=1))
         data_two_days = inst.data
         meta_two_days = inst.meta
 
         # Load original download file
-        inst.load(date=self.inst_loc.sami2py_sami2._test_dates['']['test'])
+        inst.load(date=test_date)
         data_one_days = inst.data
         meta_one_days = inst.meta
 
+        # Confirm longer date range is longer data
         assert len(data_two_days['slt']) == 2 * len(data_one_days['slt'])
+
+        # Confirm metadata came out ok
         assert meta_two_days == meta_one_days
+
+        # Confirm time index information
+        assert data_two_days.indexes['time'].is_monotonic
+        assert data_two_days.indexes['time'][0] >= test_date
+        assert data_two_days.indexes['time'][0] < date
+        assert data_two_days.indexes['time'][-1] > date
 
         return

@@ -155,15 +155,12 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
         if pack_version.Version(pysat.__version__) < pack_version.Version(vstr):
             data, meta = pysat.utils.load_netcdf4([fname], pandas_format=False,
                                                   epoch_name='ut')
+            data = data.rename({"ut": "time"})
 
             # Create datetimes from 'ut' variable
             data['time'] = [epoch
                             + dt.timedelta(seconds=int(val * 3600.0))
-                            for val in data['ut'].values]
-
-            # Drop UT data for consistency across versions
-            data = data.drop('ut')
-
+                            for val in data['time'].values]
             loaded_data.append(data)
             loaded_meta.append(meta)
         else:
