@@ -210,9 +210,9 @@ class TestSAMILoadMultipleDays(object):
         tmpl = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
         date = self.inst_loc.sami2py_sami2._test_dates['']['test'] \
                + dt.timedelta(days=1)
-        cp_file = os.path.join(inst.files.data_path, tmpl.format(year=date.year,
-                                                                 month=date.month,
-                                                                 day=date.day))
+        cp_file = os.path.join(inst.files.data_path,
+                               tmpl.format(year=date.year, month=date.month,
+                                           day=date.day))
         shutil.copy(dl_file, cp_file)
 
         # Update file list
