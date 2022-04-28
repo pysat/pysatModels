@@ -57,7 +57,11 @@ class TestModels(InstTestClass):
         """Initialize the testing setup once before all tests are run."""
         # Make sure to use a temporary directory so that the user setup is not
         # altered
-        self.tempdir = tempfile.TemporaryDirectory()
+        # TODO(#100): remove if-statement when it is always triggered
+        tkwargs = {}
+        if sys.version_info.major >= 3 and sys.version_info.minor >= 10:
+            tkwargs = {"ignore_cleanup_errors": True}
+        self.tempdir = tempfile.TemporaryDirectory(**tkwargs)
         self.saved_path = pysat.params['data_dirs']
         pysat.params.data['data_dirs'] = [self.tempdir.name]
 
@@ -69,7 +73,13 @@ class TestModels(InstTestClass):
         """Clean up downloaded files and parameters from tests."""
 
         pysat.params.data['data_dirs'] = self.saved_path
-        self.tempdir.cleanup()
+
+        # TODO(#100): Remove try/except when Python 3.10 is the lowest version
+        try:
+            self.tempdir.cleanup()
+        except Exception:
+            pass
+
         del self.inst_loc, self.saved_path, self.tempdir
         return
 
