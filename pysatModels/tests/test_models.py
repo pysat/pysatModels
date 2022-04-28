@@ -218,7 +218,8 @@ class TestSAMILoadMultipleDays(object):
         inst.files.refresh()
 
         # Load both files
-        inst.load(date=test_date, end_date=date + dt.timedelta(days=1))
+        end_date = date + dt.timedelta(days=1)
+        inst.load(date=test_date, end_date=end_date)
         data_two_days = inst.data
         meta_two_days = inst.meta
 
@@ -238,5 +239,6 @@ class TestSAMILoadMultipleDays(object):
         assert data_two_days.indexes['time'][0] >= test_date
         assert data_two_days.indexes['time'][0] < date
         assert data_two_days.indexes['time'][-1] > date
+        assert data_two_days.indexes['time'][-1] < end_date
 
         return
