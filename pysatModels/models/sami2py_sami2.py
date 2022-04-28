@@ -25,6 +25,7 @@ import datetime as dt
 import functools
 from packaging import version as pack_version
 import warnings
+import xarray as xr
 
 import pysat
 
@@ -43,9 +44,6 @@ inst_ids = {'': [tag for tag in tags.keys()]}
 
 # specify using xarray (not using pandas)
 pandas_format = False
-
-# Epoch origin for constructing time from sami files.
-_epoch_origin = dt.datetime(2019, 1, 1)
 
 # ----------------------------------------------------------------------------
 # Instrument test attributes
@@ -87,8 +85,8 @@ def init(self):
 # Use local and default pysat methods
 
 # Set the list_files routine
-fname = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
-supported_tags = {'': {'': fname, 'test': fname}}
+sami_format = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
+supported_tags = {'': {'': sami_format, 'test': sami_format}}
 list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
@@ -136,24 +134,54 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     """
 
-    # Load data
-    # TODO(#112) Remove backwards compatibility
-    if pack_version.Version(pysat.__version__) < pack_version.Version('3.0.2'):
-        data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False,
-                                              epoch_name='ut')
+    # SAMI files only contain hours relative to the day in the time information.
+    # Pull out dates from requested filenames and then use those dates
+    # to construct a proper time.
 
-        # Create datetimes from 'ut' variable
-        data['time'] = [_epoch_origin
-                        + dt.timedelta(seconds=int(val * 3600.0))
-                        for val in data['ut'].values]
-    else:
-        data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False,
-                                              epoch_name='ut',
-                                              epoch_origin=_epoch_origin,
-                                              epoch_unit='h')
+    # SAMI template string defined as `sami_format` above.
+    file_info = pysat.utils.files.parse_fixed_width_filenames(fnames,
+                                                              sami_format)
+    epochs = []
+    for year, month, day in zip(file_info['year'], file_info['month'],
+                                file_info['day']):
+        epochs.append(dt.datetime(year, month, day))
 
-    # Manually close link to file for peace of mind
-    data.close()
+    vstr = '3.0.2'
+    loaded_data = []
+    loaded_meta = []
+    for epoch, fname in zip(epochs, fnames):
+        # Load data
+        # TODO(#112) Remove backwards compatibility
+        if pack_version.Version(pysat.__version__) < pack_version.Version(vstr):
+            data, meta = pysat.utils.load_netcdf4([fname], pandas_format=False,
+                                                  epoch_name='ut')
+
+            # Create datetimes from 'ut' variable
+            data['time'] = [epoch
+                            + dt.timedelta(seconds=int(val * 3600.0))
+                            for val in data['ut'].values]
+
+            # Drop UT data for consistency across versions
+            data = data.drop('ut')
+
+            loaded_data.append(data)
+            loaded_meta.append(meta)
+        else:
+            data, meta = pysat.utils.load_netcdf4([fname], pandas_format=False,
+                                                  epoch_name='ut',
+                                                  epoch_origin=epoch,
+                                                  epoch_unit='h')
+            loaded_data.append(data)
+            loaded_meta.append(meta)
+
+        # Manually close link to file for peace of mind
+        data.close()
+
+    data = xr.combine_by_coords(loaded_data)
+
+    # Combine metadata
+    for loop_meta in loaded_meta[:-1]:
+        meta.merge(loop_meta)
 
     return data, meta
 
