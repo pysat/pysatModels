@@ -177,6 +177,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
         # Manually close link to file for peace of mind
         data.close()
 
+    # Combine multiple datasets
     data = xr.combine_by_coords(loaded_data)
 
     # Combine metadata
