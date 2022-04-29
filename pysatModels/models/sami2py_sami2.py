@@ -146,7 +146,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
                                 file_info['day']):
         epochs.append(dt.datetime(year, month, day))
 
-    vstr = '3.0.2'
+    vstr = '3.0.2'  # TODO(#112) Remove support for backwards compatibility
     loaded_data = []
     loaded_meta = []
     for epoch, fname in zip(epochs, fnames):
