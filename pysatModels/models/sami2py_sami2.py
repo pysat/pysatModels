@@ -161,15 +161,15 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
             data['time'] = [epoch
                             + dt.timedelta(seconds=int(val * 3600.0))
                             for val in data['time'].values]
-            loaded_data.append(data)
-            loaded_meta.append(meta)
         else:
             data, meta = pysat.utils.load_netcdf4([fname], pandas_format=False,
                                                   epoch_name='ut',
                                                   epoch_origin=epoch,
                                                   epoch_unit='h')
-            loaded_data.append(data)
-            loaded_meta.append(meta)
+
+        # Store data/meta for each loop
+        loaded_data.append(data)
+        loaded_meta.append(meta)
 
         # Manually close link to file for peace of mind
         data.close()
