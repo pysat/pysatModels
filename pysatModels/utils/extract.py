@@ -13,6 +13,7 @@ import pandas as pds
 import pysat.utils as pyutils
 
 import pysatModels as ps_mod
+from pysatModels.utils.testing import compare_mod_name_coordinates
 
 
 def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
@@ -139,6 +140,9 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     else:
         raise ValueError("".join(["unknown model name for datetime: ",
                                   mod_datetime_name]))
+
+    # Check input `mod_name` against actual data ordering for `mod_alt`
+    compare_mod_name_coordinates(model[mod_alt], mod_name)
 
     # Create initial fake regular grid index in inst
     inst_model_coord = inst[inst_name[0]] * 0
@@ -388,6 +392,10 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     elif len(del_list) > 0:
         sel_name = keep_list
 
+    # Check input `mod_name` against actual data ordering for `sel_name`
+    for sname in sel_name:
+        compare_mod_name_coordinates(model[sname], mod_name)
+
     # Create inst input based upon provided dimension names
     coords = [inst[coord_name] for coord_name in inst_name]
 
@@ -564,12 +572,6 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
         estr = 'mod_reg_dim must be a coordinate dimension for mod_irreg_var.'
         raise ValueError(estr)
 
-    for mname in mod_name:
-        if mname not in model[mod_irreg_var].dims:
-            estr = ' '.join(('mod_name must contain coordinate dimension',
-                             'labels for mod_irreg_var.'))
-            raise ValueError(estr)
-
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
     for i, iname in enumerate(inst_name):
@@ -602,6 +604,13 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
     else:
         raise ValueError("".join(["unknown model name for datetime: ",
                                   mod_datetime_name]))
+
+    # Check input `mod_name` against actual data ordering for `sel_name`
+    for sname in sel_name:
+        compare_mod_name_coordinates(model[sname], mod_name)
+
+    # Perform same check against `mod_irreg_var`
+    compare_mod_name_coordinates(model[mod_irreg_var], mod_name)
 
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale

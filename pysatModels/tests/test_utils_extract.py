@@ -98,7 +98,10 @@ class TestUtilsExtractInstThroughMod(object):
         (3, ['hi'], "Must provide the same number"),
         (6, [], "Must provide units for each "),
         (4, "naname", "unknown model name for datetime"),
-        (5, "naname", "Unknown model time coordinate")])
+        (5, "naname", "Unknown model time coordinate"),
+        (3, ['longitude', 'latitude', 'altitude'], 'not in same order as'),
+        (3, ['whatsthat', 'latitude', 'altitude'],
+         'are not all within variable')])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
         """Test for expected failure with bad input arguments.
 
@@ -520,7 +523,11 @@ class TestUtilsAltitudePressure(object):
                               (4, "naname", "unknown model name for datetime"),
                               (5, "naname", "Unknown model time coordinate"),
                               (7, 'navar', 'Unknown Instrument altitude key'),
-                              (8, 'navar', 'Unknown Model altitude key')])
+                              (8, 'navar', 'Unknown Model altitude key'),
+                              (3, ['longitude', 'latitude', 'ilev'],
+                               'not in same order as'),
+                              (3, ['whatsthat', 'latitude', 'ilev'],
+                               'are not all within variable')])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
         """Test for expected failure with bad input arguments."""
 
@@ -708,11 +715,16 @@ class TestUtilsExtractInstModIrregView(object):
                               (5, [], "Must provide units for each "),
                               (4, "naname", "unknown model name for datetime"),
                               (6, "lev", "mod_reg_dim must be a coordinate "),
-                              (3, "lev", "mod_name must contain coordinate"),
                               (7, "not", "Unknown irregular model"),
                               (7, "lev", "Coordinate dimensions must"),
                               (8, [], "Must provide mod_var_delta "),
-                              (8, ['hi'], 'Must provide the same number of')])
+                              (8, ['hi'], 'Must provide the same number of'),
+                              (3, ['longitude', 'latitude', 'ilev'],
+                               'not in same order as'),
+                              (3, ['latitude', 'longitude', 'lev'],
+                               'are not all within variable'),
+                              (3, ['whatsthat', 'latitude', 'ilev'],
+                               'are not all within variable')])
     def test_bad_arg_input(self, bad_index, bad_input, err_msg):
         """Test for expected failure with bad input arguments."""
 
