@@ -36,8 +36,6 @@ data gaps, and extract a series of basis functions that optimally reproduce
 the input data. The quality of the reconstruction is primarily determined
 by the quantity and quality of the input data.
 
-http://www.dineof.net/DINEOF/
-
 References
 ----------
 J.-M. Beckers and M. Rixen. EOF calculations and data filling from
