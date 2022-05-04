@@ -31,14 +31,14 @@ let's use `Jicamarca ISR drift data <https://pysatmadrigal.readthedocs.io/en/lat
    from pysatMadrigal.instruments import jro_isr
    import pysatModels
 
+   # Initalize the observed data
    stime = dt.datetime(2021, 1, 3)
    jro = pysat.Instrument(inst_module=jro_isr, tag='drifts', user='Your Name',
                           password='your.email@inst.type')
 
-    # Download data if necessary and then load it
+    # Download data if necessary
     if stime not in jro.files.files:
         jro.download(start=stime)
-    jro.load(date=stime)
 
     # Get fake model data from the pysat model test instrument
     mod_drange = pds.date_range(stime, stime + dt.timedelta(days=1), freq='1D')
@@ -46,7 +46,22 @@ let's use `Jicamarca ISR drift data <https://pysatmadrigal.readthedocs.io/en/lat
                              file_date_range=mod_drange)
     model.load(date=stime)
 
-    # Check the loaded variables, you may receive a warning for unknown data variables.
+    # Get the model longitude range, and make sure the loaded data has the
+    # same range
+    if model['longitude'].min() >= 0 and model['longitude'].max() > 180:
+        min_lon = 0.0
+	max_lon = 360.0
+    else:
+        min_lon = -180.0
+	max_lon = 180.0
+
+    jro.custom_attach(pysat.utils.coords.update_longitude,
+                      kwargs={'lon_name': 'gdlonr', 'high': max_lon,
+		              'low': min_lon})
+    jro.load(date=stime)
+	
+    # Check the loaded variables, you may receive a warning for unknown data
+    # variables (this is ok).
     print(jro.variables, model.variables)
 
 This yeilds:
