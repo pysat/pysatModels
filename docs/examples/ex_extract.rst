@@ -46,7 +46,7 @@ let's use `Jicamarca ISR drift data <https://pysatmadrigal.readthedocs.io/en/lat
                              file_date_range=mod_drange)
     model.load(date=stime)
 
-    # Check the loaded variables
+    # Check the loaded variables, you may receive a warning for unknown data variables.
     print(jro.variables, model.variables)
 
 This yeilds:
