@@ -13,6 +13,7 @@ import pandas as pds
 import pysat.utils as pyutils
 
 import pysatModels as ps_mod
+from pysatModels.utils.testing import compare_mod_name_coordinates
 
 
 def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
@@ -139,6 +140,9 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
     else:
         raise ValueError("".join(["unknown model name for datetime: ",
                                   mod_datetime_name]))
+
+    # Check input `mod_name` against actual data ordering for `mod_alt`
+    compare_mod_name_coordinates(model[mod_alt], mod_name)
 
     # Create initial fake regular grid index in inst
     inst_model_coord = inst[inst_name[0]] * 0
@@ -388,6 +392,10 @@ def instrument_view_through_model(inst, model, inst_name, mod_name,
     elif len(del_list) > 0:
         sel_name = keep_list
 
+    # Check input `mod_name` against actual data ordering for `sel_name`
+    for sname in sel_name:
+        compare_mod_name_coordinates(model[sname], mod_name)
+
     # Create inst input based upon provided dimension names
     coords = [inst[coord_name] for coord_name in inst_name]
 
@@ -434,7 +442,7 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
                                         mod_reg_dim, mod_irreg_var,
                                         mod_var_delta, sel_name=None,
                                         model_label='model'):
-    """Interpolate model data onto Instrument path using an irregular coordinate.
+    """Interpolate irregular-coordinate model data onto Instrument path.
 
     Parameters
     ----------
@@ -564,12 +572,6 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
         estr = 'mod_reg_dim must be a coordinate dimension for mod_irreg_var.'
         raise ValueError(estr)
 
-    for mname in mod_name:
-        if mname not in model[mod_irreg_var].dims:
-            estr = ' '.join(('mod_name must contain coordinate dimension',
-                             'labels for mod_irreg_var.'))
-            raise ValueError(estr)
-
     # Determine the scaling between model and instrument data
     inst_scale = np.ones(shape=len(inst_name), dtype=float)
     for i, iname in enumerate(inst_name):
@@ -602,6 +604,13 @@ def interp_inst_w_irregular_model_coord(inst, model, inst_name, mod_name,
     else:
         raise ValueError("".join(["unknown model name for datetime: ",
                                   mod_datetime_name]))
+
+    # Check input `mod_name` against actual data ordering for `sel_name`
+    for sname in sel_name:
+        compare_mod_name_coordinates(model[sname], mod_name)
+
+    # Perform same check against `mod_irreg_var`
+    compare_mod_name_coordinates(model[mod_irreg_var], mod_name)
 
     # First, model locations for interpolation (regulargrid)
     coords = [model[dim].values / temp_scale
@@ -738,8 +747,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
 
     Returns
     -------
-    interp_data.keys() : dict_keys
-        Keys of modelled data added to the instrument
+    interp_data.keys() : list
+        List of keys of modelled data added to the instrument
 
     Raises
     ------
@@ -826,8 +835,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
     if len(dtime) == 0:
         tm_sec = np.inf
     else:
-        tm_sec = dtime.min()
-        tm_sec /= np.timedelta64(1, 's')
+        tm_sec = dtime.min() / np.timedelta64(1, 's')
 
     # Casting as values creates an array of numpy.timedelta64 objects in ns
     dtime = inst.index.values[1:] - inst.index.values[:-1]
@@ -862,23 +870,38 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                 mind.append(mod_ind)
 
     # Determine the model coordinates closest to the satellite track
-    interp_dims = [inst.index.name]
+    interp_dims = [mod_time_name]
     interp_shape = [inst.index.shape[0]]
 
     if not inst.pandas_format:
-        interp_dims.extend([ss for ss in inst.data.dims.keys()
-                            if ss != inst.index.name])
-        interp_shape.extend([inst.data.dims[ss] for ss in inst.data.dims.keys()
-                             if ss != inst.index.name])
+        for ss in model.dims.keys():
+            if ss != mod_time_name:
+                inst_dim = inst_name[mod_name.index(ss)]
+                if inst_dim in inst.data.dims:
+                    interp_dims.append(ss)
+                    interp_shape.append(inst.data.dims[inst_dim])
 
     inst_coord = {kk: inst[inst_name[i]].values * inst_scale[i]
                   for i, kk in enumerate(mod_name)}
 
     # Initalize the interpolated data dictionary and test to ensure that the
     # instrument data doesn't already have the interpolated data
-    interp_data = {"{:s}_{:s}".format(model_label, mdat):
-                   np.full(shape=interp_shape, fill_value=np.nan)
-                   for mdat in sel_name}
+    interp_data = dict()
+    interp_data_dims = dict()
+    for mdat in sel_name:
+        attr_name = "{:s}_{:s}".format(model_label, mdat)
+        ishape = list()
+        interp_data_dims[attr_name] = list()
+        for idim in model[mdat].dims:
+            if idim in interp_dims:
+                ishape.append(interp_shape[interp_dims.index(idim)])
+                if idim == mod_time_name:
+                    adim = inst.index.name
+                else:
+                    adim = inst_name[mod_name.index(idim)]
+                interp_data_dims[attr_name].append(adim)
+
+        interp_data[attr_name] = np.full(shape=ishape, fill_value=np.nan)
 
     del_list = list()
     for mdat in interp_data.keys():
@@ -914,12 +937,14 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             values = model[indices][mdat].data
             points = [model.coords[kk].data for kk in dims if kk in mod_name]
             get_coords = True if len(points) > 0 else False
-            idims = 0
+            xi = list()
 
             if not get_coords:
                 try:
-                    interp_data[attr_name] = np.full(shape=interp_shape,
-                                                     fill_value=values)
+                    if interp_data[attr_name].shape == ():
+                        interp_data[attr_name] = values
+                    else:
+                        interp_data[attr_name][ii] = values
                 except ValueError:
                     del interp_data[attr_name]
 
@@ -936,19 +961,18 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                 if inst.pandas_format:
                     # This data iterates only by time
                     xout = ii
-                    xi = [inst_coord[kk][ii] for kk in dims if kk in mod_name]
+                    xi.append([inst_coord[kk][ii]
+                               for kk in dims if kk in mod_name])
                     get_coords = False
                 else:
                     # This data may have additional dimensions
-                    if idims == 0:
-                        # Determine the number of dimensions
-                        idims = len(inst.data.dims)
-                        idim_names = [ckey for i, ckey
-                                      in enumerate(interp_dims)]
+                    if len(xi) == 0:
+                        # Determine the number of dimensions for this data value
+                        idims = len(interp_data_dims[attr_name])
 
                         # Find relevent dimensions for cycling and slicing
                         ind_dims = [k for k, iname in enumerate(inst_name)
-                                    if iname in idim_names]
+                                    if iname in interp_data_dims[attr_name]]
                         imod_dims = [k for k in ind_dims
                                      if mod_name[k] in dims]
                         coord_keys = [ckey for ckey in inst.data.coords.keys()]
@@ -967,11 +991,11 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if icycles < ncycles or icycles == 0:
                         ss = [ii if k == 0 else 0 for k in range(idims)]
                         se = [ii + 1 if k == 0 else
-                              len(inst.data.coords[idim_names[k]])
-                              for k in range(idims)
-                              if k == 0 or (k > 0
-                                            and inst.data.coords[
-                                                idim_names[k]].shape != ())]
+                              len(inst.data.coords[
+                                  interp_data_dims[attr_name][k]])
+                              for k in range(idims) if k == 0
+                              or (k > 0 and inst.data.coords[
+                                  interp_data_dims[attr_name][k]].shape != ())]
                         xout = [cinds[ind_dims.index(k)] if k in ind_dims
                                 else slice(ss[k], se[k]) for k in range(idims)]
                         xind = [cinds[ind_dims.index(k)] if k in ind_dims
@@ -979,33 +1003,35 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                         xout = tuple(xout)
                         xind = tuple(xind)
 
-                        xi = list()
+                        # Add another coordinate set to the `xi` list
+                        xi_new = list()
                         for kk in dims:
                             if kk in mod_name:
                                 # This is the next instrument coordinate
                                 k = mod_name.index(kk)
                                 if inst_coord[kk].shape == ():
-                                    xi.append(inst_coord[kk])
+                                    xi_new.append(inst_coord[kk])
                                 elif k in imod_dims:
                                     # This is an xarray coordiante
                                     cind = imod_dims.index(k)
-                                    xi.append(inst_coord[kk][cinds[cind]])
+                                    xi_new.append(inst_coord[kk][cinds[cind]])
                                 else:
                                     # This is an xarray variable
                                     if inst_coord[kk].shape == ():
-                                        xi.append(inst_coord[kk])
+                                        xi_new.append(inst_coord[kk])
                                     elif len(inst_coord[kk].shape) == 1:
                                         # This allows time-only data
-                                        xi.append(inst_coord[kk][xind[0]])
+                                        xi_new.append(inst_coord[kk][xind[0]])
                                     else:
-                                        xi.append(inst_coord[kk][xind])
+                                        xi_new.append(inst_coord[kk][xind])
+                        xi.append(xi_new)
 
                         # Cycle the indices
                         if len(cinds) > 0:
                             k = 0
                             cinds[k] += 1
 
-                            while cinds[k] > inst.data.coords.dims[
+                            while cinds[k] >= inst.data.dims[
                                     inst_name[imod_dims[k]]]:
                                 k += 1
                                 if k < len(cinds):
@@ -1020,27 +1046,30 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
                     if icycles >= ncycles:
                         get_coords = False
 
-                # Interpolate the desired value
-                try:
-                    yi = interpolate.interpn(points, values, xi, method=method)
-                except ValueError as verr:
-                    if str(verr).find("requested xi is out of bounds") > 0:
-                        # This is acceptable, pad the interpolated data with
-                        # NaN
-                        ps_mod.logger.warning(
-                            "{:} for {:s} data at {:}".format(verr, mdat, xi))
-                        yi = [np.nan]
-                    else:
-                        raise ValueError(verr)
+                # Interpolate the desired values
+                for xcoord in xi:
+                    try:
+                        yi = interpolate.interpn(points, values, xcoord,
+                                                 method=method)
+                    except ValueError as verr:
+                        if str(verr).find("requested xi is out of bounds") > 0:
+                            # This is acceptable, pad the interpolated data
+                            # with NaN
+                            ps_mod.logger.warning(
+                                "{:} for {:s} data at {:}".format(verr, mdat,
+                                                                  xcoord))
+                            yi = [np.nan]
+                        else:
+                            raise ValueError(verr)
 
-                # Save the output
-                try:
-                    interp_data[attr_name][xout] = yi[0]
-                except TypeError as terr:
-                    ps_mod.logger.error(''.join(['check mod_name input ',
-                                                 'against dimensions for ',
-                                                 mdat, ' in model data']))
-                    raise TypeError(terr)
+                    # Save the output
+                    try:
+                        interp_data[attr_name][xout] = yi[0]
+                    except TypeError as terr:
+                        ps_mod.logger.error(''.join(['check mod_name input ',
+                                                     'against dimensions for ',
+                                                     mdat, ' in model data']))
+                        raise TypeError(terr)
 
     # Update the instrument object and attach units to the metadata
     for mdat in interp_data.keys():
@@ -1054,7 +1083,7 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
         if inst.pandas_format:
             inst[mdat] = pds.Series(interp_data[mdat], index=inst.index)
         else:
-            inst.data = inst.data.assign({mdat: (interp_dims,
+            inst.data = inst.data.assign({mdat: (interp_data_dims[mdat],
                                                  interp_data[mdat])})
 
-    return interp_data.keys()
+    return list(interp_data.keys())

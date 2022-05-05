@@ -231,9 +231,16 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                     inst.clean_level = comp_clean
                     inst_clean_rout(inst)
 
+                    check_name = "_".join([model_label, mod_datetime_name])
                     im = list()
+                    imbase = None
                     for aname in added_names:
-                        # Determine the number of good points
+                        if aname == check_name:
+                            # There is a baseline for the names
+                            imbase = np.where(
+                                np.isfinite(inst[check_name].values))
+
+                        # Determine the number of good points for this data
                         imnew = np.where(np.isfinite(inst[aname].values))
 
                         # Some data types are higher dimensions than others,
@@ -241,6 +248,13 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                         # so that we don't accidently throw away paired data
                         if len(im) == 0 or len(im[0]) < len(imnew[0]):
                             im = imnew
+
+                    # Check the data against the baseline
+                    if imbase is not None:
+                        if len(im[0]) > len(imbase[0]):
+                            ikeep = [i for i, ind in enumerate(im[0])
+                                     if ind in imbase[0]]
+                            im = [imnew[ikeep] for imnew in list(im)]
 
                     # If the data is 1D, save it as a list instead of a tuple
                     if len(im) == 1:
