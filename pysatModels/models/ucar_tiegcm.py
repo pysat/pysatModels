@@ -24,7 +24,6 @@ import datetime as dt
 import functools
 import os
 import tempfile
-import warnings
 import zipfile
 
 import pysat
