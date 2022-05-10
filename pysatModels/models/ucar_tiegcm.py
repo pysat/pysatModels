@@ -4,6 +4,9 @@
 TIEGCM (Thermosphere Ionosphere Electrodynamics General Circulation Model)
 file is a netCDF file with multiple dimensions for some variables.
 
+Download support is provided for TIEGCM files generated as part of the
+NASA Ionospheric CONnections (ICON) Explorer.
+
 Properties
 ----------
 platform
@@ -19,11 +22,15 @@ inst_id
 
 import datetime as dt
 import functools
+import os
+import tempfile
 import warnings
+import zipfile
 
 import pysat
 
 from pysatModels.models.methods import general
+from pysatNASA.instruments.methods import cdaweb as cdw
 
 logger = pysat.logger
 
@@ -35,13 +42,13 @@ name = 'tiegcm'
 tags = {'': 'UCAR TIE-GCM file'}
 inst_ids = {'': ['']}
 
-# specify using xarray (not using pandas)
+# Specify using xarray (not using pandas)
 pandas_format = False
 
 # ----------------------------------------------------------------------------
 # Instrument test attributes
 
-_test_dates = {'': {'': dt.datetime(2019, 1, 1)}}
+_test_dates = {'': {'': dt.datetime(2020, 1, 10)}}
 _test_download = {'': {'': False}}
 
 # ----------------------------------------------------------------------------
@@ -108,12 +115,20 @@ def init(self):
 
 
 # ----------------------------------------------------------------------------
-# Instrument functions
+# Instrument functions.
 #
-# Use local and default pysat methods
+# Use local and default pysat methods.
 
-# Set the list_files routine
-fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
+# Set the list_files routine. CDAWeb files have an intermediate day directory.
+# Accounted for with the leading '*'.
+fname = ''.join(['ICON_L4-3_TIEGCM_{year:04d}-{month:02d}-{day:02d}_',
+                 'v{version:02d}r{revision:03d}.NC'])
+fname = os.path.join('*', fname)
+
+# Remote filenames are different than final model filenames.
+remote_fname = ''.join(['icon_l4-3_tiegcm_{year:04d}-{month:02d}-{day:02d}_',
+                        'v{version:02d}r{revision:03d}.zip'])
+
 supported_tags = {'': {'': fname}}
 list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
@@ -164,21 +179,27 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     # Move misc parameters from xarray to the Instrument object via Meta
     # doing this after the meta ensures all metadata is still kept
-    # even for moved variables
+    # even for moved variables.
     meta.p0 = data['p0']
     meta.p0_model = data['p0_model']
     meta.grav = data['grav']
     meta.mag = data['mag']
     meta.timestep = data['timestep']
 
-    # Remove these variables from xarray
+    # Remove these variables from xarray.
     data = data.drop(['p0', 'p0_model', 'grav', 'mag', 'timestep'])
 
     return data, meta
 
 
+# Set the download routine
+basic_tag = {'remote_dir': '/pub/data/icon/l4/tiegcm/{year:04d}/',
+             'fname': remote_fname}
+download_tags = {'': {'': basic_tag}}
+
+
 def download(date_array, tag, inst_id, data_path=None, **kwargs):
-    """Download UCAR TIE-GCM (placeholder). Doesn't do anything.
+    """Download UCAR TIE-GCM from NASA CDAWeb.
 
     Parameters
     ----------
@@ -205,5 +226,24 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
 
     """
 
-    warnings.warn('Not implemented in this version.')
+    # Set up temporary directory for zip files.
+    temp_dir = tempfile.TemporaryDirectory()
+
+    # Download using NASA CDAWeb methods in pysatNASA.
+    cdw.download(date_array, tag, inst_id, data_path=temp_dir.name,
+                 supported_tags=download_tags)
+
+    # Get a list of files in `temp_dir`.
+    dl_files = pysat.Files.from_os(temp_dir.name, format_str=remote_fname)
+
+    # Decompress files.
+    for dl_fname in dl_files.values:
+        dl_fname = os.path.split(dl_fname)[1]
+        with zipfile.ZipFile(os.path.join(temp_dir.name, dl_fname),
+                             'r') as open_zip:
+            open_zip.extractall(data_path)
+
+    # Cleanup temporary directory.
+    temp_dir.cleanup()
+
     return
