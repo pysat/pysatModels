@@ -64,7 +64,7 @@ let's use `Jicamarca ISR drift data <https://pysatmadrigal.readthedocs.io/en/lat
     # variables (this is ok).
     print(jro.variables, model.variables)
 
-This yeilds:
+This yields:
 
 .. code:: python
 
