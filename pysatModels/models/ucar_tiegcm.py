@@ -24,6 +24,7 @@ import datetime as dt
 import functools
 import os
 import tempfile
+import warnings
 import zipfile
 
 import pysat
@@ -38,8 +39,8 @@ logger = pysat.logger
 
 platform = 'ucar'
 name = 'tiegcm'
-tags = {'': 'UCAR TIE-GCM file'}
-inst_ids = {'': ['']}
+tags = {'': 'UCAR TIE-GCM file', 'icon': 'UCAR TIE-GCM file produced for ICON.'}
+inst_ids = {'': ['', 'icon']}
 
 # Specify using xarray (not using pandas)
 pandas_format = False
@@ -47,8 +48,9 @@ pandas_format = False
 # ----------------------------------------------------------------------------
 # Instrument test attributes
 
-_test_dates = {'': {'': dt.datetime(2020, 1, 10)}}
-_test_download = {'': {'': False}}
+_test_dates = {'': {'': dt.datetime(2019, 1, 1),
+                    'icon': dt.datetime(2020, 1, 10)}}
+_test_download_ci = {'': {'': False, 'icon': False}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
@@ -120,15 +122,18 @@ def init(self):
 
 # Set the list_files routine. CDAWeb files have an intermediate day directory.
 # Accounted for with the leading '*'.
-fname = ''.join(['ICON_L4-3_TIEGCM_{year:04d}-{month:02d}-{day:02d}_',
-                 'v{version:02d}r{revision:03d}.NC'])
-fname = os.path.join('*', fname)
+icon_fname = ''.join(['ICON_L4-3_TIEGCM_{year:04d}-{month:02d}-{day:02d}_',
+                      'v{version:02d}r{revision:03d}.NC'])
+icon_fname = os.path.join('*', icon_fname)
+
+# Files from UCAR.
+ucar_fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
 
 # Remote filenames are different than final model filenames.
 remote_fname = ''.join(['icon_l4-3_tiegcm_{year:04d}-{month:02d}-{day:02d}_',
                         'v{version:02d}r{revision:03d}.zip'])
 
-supported_tags = {'': {'': fname}}
+supported_tags = {'': {'': ucar_fname, 'icon': icon_fname}}
 list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
@@ -194,7 +199,7 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 # Set the download routine
 basic_tag = {'remote_dir': '/pub/data/icon/l4/tiegcm/{year:04d}/',
              'fname': remote_fname}
-download_tags = {'': {'': basic_tag}}
+download_tags = {'': {'icon': basic_tag}}
 
 
 def download(date_array, tag, inst_id, data_path=None, **kwargs):
@@ -225,24 +230,60 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
 
     """
 
-    # Set up temporary directory for zip files.
-    temp_dir = tempfile.TemporaryDirectory()
+    if tag == '':
+        warnings.warn('Not implemented in this version.')
+    elif tag == 'icon':
+        # Set up temporary directory for zip files.
+        temp_dir = tempfile.TemporaryDirectory()
 
-    # Download using NASA CDAWeb methods in pysatNASA.
-    cdw.download(date_array, tag, inst_id, data_path=temp_dir.name,
-                 supported_tags=download_tags)
+        # Download using NASA CDAWeb methods in pysatNASA.
+        cdw.download(date_array, tag, inst_id, data_path=temp_dir.name,
+                     supported_tags=download_tags)
 
-    # Get a list of files in `temp_dir`.
-    dl_files = pysat.Files.from_os(temp_dir.name, format_str=remote_fname)
+        # Get a list of files in `temp_dir`.
+        dl_files = pysat.Files.from_os(temp_dir.name, format_str=remote_fname)
 
-    # Decompress files.
-    for dl_fname in dl_files.values:
-        dl_fname = os.path.split(dl_fname)[1]
-        with zipfile.ZipFile(os.path.join(temp_dir.name, dl_fname),
-                             'r') as open_zip:
-            open_zip.extractall(data_path)
+        # Decompress files.
+        for dl_fname in dl_files.values:
+            dl_fname = os.path.split(dl_fname)[1]
+            with zipfile.ZipFile(os.path.join(temp_dir.name, dl_fname),
+                                 'r') as open_zip:
+                open_zip.extractall(data_path)
 
-    # Cleanup temporary directory.
-    temp_dir.cleanup()
+        # Cleanup temporary directory.
+        temp_dir.cleanup()
 
     return
+
+# Set the list_remote_files routine
+def list_remote_files(tag='', inst_id='', start=None, stop=None):
+    """Return a Pandas Series of every file for chosen remote data.
+
+    Parameters
+    ----------
+    tag : str
+        Denotes type of file to load. (default='')
+    inst_id : str
+        Specifies the instrument ID. (default='')
+    start : dt.datetime or NoneType
+        Starting time for file list. A None value will start with the first
+        file found. (default=None)
+    stop : dt.datetime or NoneType
+        Ending time for the file list.  A None value will stop with the last
+        file found. (default=None)
+
+    Returns
+    -------
+    files : pds.Series
+        A series containing the verified available files.
+
+    """
+
+    if tag == '':
+        warnings.warn('Not implemented in this version.')
+        files = pds.Series([], dtype='a')
+    elif tag == 'icon':
+        files = cdw.list_remote_files(tag=tag, inst_id=inst_id, start=start,
+                                      stop=stop, supported_tags=download_tags)
+
+    return files
