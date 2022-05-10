@@ -23,6 +23,7 @@ inst_id
 import datetime as dt
 import functools
 import os
+import pandas as pds
 import tempfile
 import warnings
 import zipfile
@@ -254,6 +255,7 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
         temp_dir.cleanup()
 
     return
+
 
 # Set the list_remote_files routine
 def list_remote_files(tag='', inst_id='', start=None, stop=None):
