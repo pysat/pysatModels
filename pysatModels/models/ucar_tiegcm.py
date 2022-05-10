@@ -159,7 +159,8 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     """
 
-    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
+    data, meta = pysat.utils.io.load_netcdf(fnames, pandas_format=False,
+                                            epoch_name='time')
 
     # Move misc parameters from xarray to the Instrument object via Meta
     # doing this after the meta ensures all metadata is still kept
