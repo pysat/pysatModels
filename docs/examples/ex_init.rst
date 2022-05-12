@@ -22,7 +22,7 @@ TIE-GCM data file from `UCAR <https://www.hao.ucar.edu/modeling/tgcm/tie.php>`_.
    import pysatModels as ps_mod
 
    filename = 'tiegcm_filename.nc'
-   tiegcm = pysat.Instrument(platform='ucar', name='tiegcm')
+   tiegcm = pysat.Instrument(inst_module=ps_mod.models.ucar_tiegcm)
    tiegcm.load(fname=filename)
 
 
