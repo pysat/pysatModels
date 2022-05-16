@@ -160,12 +160,12 @@ def load(fnames, tag='', inst_id='', **kwargs):
     """
 
     # TODO(#114): eventually remove support for multiple pysat versions
-    if hasattr(pysat.utils, 'load_netcdf4'):
-        data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
-    else:
+    if hasattr(pysat.utils.io, 'load_netcdf'):
         data, meta = pysat.utils.io.load_netcdf(fnames, pandas_format=False,
                                                 epoch_name='time',
                                                 decode_times=True)
+    else:
+        data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
 
     # Move misc parameters from xarray to the Instrument object via Meta
     # doing this after the meta ensures all metadata is still kept
