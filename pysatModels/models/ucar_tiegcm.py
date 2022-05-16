@@ -119,7 +119,7 @@ list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
 
-def load(fnames, tag=None, inst_id=None, **kwargs):
+def load(fnames, tag='', inst_id='', **kwargs):
     """Load TIE-GCM data using xarray.
 
     Parameters
@@ -127,12 +127,12 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     fnames : array-like
         Iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
-    tag : str or NoneType
+    tag : str
         Tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
-    inst_id : str or NoneType
+        This input is nominally provided by pysat itself. (default='')
+    inst_id : str
         Instrument ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
+        This input is nominally provided by pysat itself. (default='')
     **kwargs : dict
         Passthrough for additional keyword arguments specified when
         instantiating an Instrument object. These additional keywords
@@ -159,7 +159,13 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     """
 
-    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
+    # TODO(#114): eventually remove support for multiple pysat versions
+    if hasattr(pysat.utils, 'load_netcdf4'):
+        data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
+    else:
+        data, meta = pysat.utils.io.load_netcdf(fnames, pandas_format=False,
+                                                epoch_name='time',
+                                                decode_times=True)
 
     # Move misc parameters from xarray to the Instrument object via Meta
     # doing this after the meta ensures all metadata is still kept
