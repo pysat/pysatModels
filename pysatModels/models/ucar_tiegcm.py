@@ -160,7 +160,7 @@ def load(fnames, tag='', inst_id='', **kwargs):
     """
 
     # TODO(#114): eventually remove support for multiple pysat versions
-    if hasattr(pysat.utils.io, 'load_netcdf'):
+    if hasattr(pysat.utils, 'io'):
         data, meta = pysat.utils.io.load_netcdf(fnames, pandas_format=False,
                                                 epoch_name='time',
                                                 decode_times=True)
