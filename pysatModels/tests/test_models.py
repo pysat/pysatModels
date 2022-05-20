@@ -136,7 +136,7 @@ class TestSAMIPysatVersion(object):
             vlabel = '3.0.1'
 
             # Expected error
-            error = KeyError
+            error = ValueError
         else:
             # Define target error variable label
             label = 'epoch_origin'
