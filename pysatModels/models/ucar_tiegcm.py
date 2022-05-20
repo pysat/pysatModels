@@ -118,9 +118,9 @@ def init(self):
 
 
 # ----------------------------------------------------------------------------
-# Instrument functions.
+# Instrument functions
 #
-# Use local and default pysat methods.
+# Use local and default pysat methods
 
 # Set the list_files routine. CDAWeb files have an intermediate day directory.
 # Accounted for with the leading '*'.
@@ -128,10 +128,10 @@ icon_fname = ''.join(['ICON_L4-3_TIEGCM_{year:04d}-{month:02d}-{day:02d}_',
                       'v{version:02d}r{revision:03d}.NC'])
 icon_fname = os.path.join('*', icon_fname)
 
-# Files from UCAR.
+# Files from UCAR
 ucar_fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
 
-# Remote filenames are different than final model filenames.
+# Remote filenames are different than final model filenames
 remote_fname = ''.join(['icon_l4-3_tiegcm_{year:04d}-{month:02d}-{day:02d}_',
                         'v{version:02d}r{revision:03d}.zip'])
 
@@ -197,7 +197,7 @@ def load(fnames, tag='', inst_id='', **kwargs):
     meta.mag = data['mag']
     meta.timestep = data['timestep']
 
-    # Remove these variables from xarray.
+    # Remove these variables from xarray
     data = data.drop(['p0', 'p0_model', 'grav', 'mag', 'timestep'])
 
     return data, meta
@@ -240,14 +240,14 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
     if tag == '':
         warnings.warn('Not implemented in this version.')
     elif tag == 'icon':
-        # Set up temporary directory for zip files.
+        # Set up temporary directory for zip files
         temp_dir = tempfile.TemporaryDirectory()
 
-        # Download using NASA CDAWeb methods in pysatNASA.
+        # Download using NASA CDAWeb methods in pysatNASA
         cdw.download(date_array, tag, inst_id, data_path=temp_dir.name,
                      supported_tags=download_tags)
 
-        # Get a list of files in `temp_dir`.
+        # Get a list of files in `temp_dir`
         dl_files = pysat.Files.from_os(temp_dir.name, format_str=remote_fname)
 
         # Decompress files.
@@ -257,7 +257,7 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
                                  'r') as open_zip:
                 open_zip.extractall(data_path)
 
-        # Cleanup temporary directory.
+        # Cleanup temporary directory
         temp_dir.cleanup()
 
     return
