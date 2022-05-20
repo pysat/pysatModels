@@ -22,7 +22,7 @@ TIE-GCM data file from `UCAR <https://www.hao.ucar.edu/modeling/tgcm/tie.php>`_.
    import pysatModels as ps_mod
 
    filename = 'tiegcm_filename.nc'
-   tiegcm = pysat.Instrument(platform='ucar', name='tiegcm')
+   tiegcm = pysat.Instrument(inst_module=ps_mod.models.ucar_tiegcm)
    tiegcm.load(fname=filename)
 
 
@@ -46,9 +46,15 @@ In this example, the time is irrelevent because a full filename is provided:
    import pysat
    import pysatModels as ps_mod
 
+   # Data directory definition is needed if you don't save the TIE-GCM file
+   # to your pysat_data/ucar/tiegcm/ directory.  This definition assumes the
+   # file specified by `filename` lives in your current working directory.
+   data_dir = '.'
+
+   # Define the file name, time, and initialize the instrument
    ftime = dt.datetime(2010, 1, 1)
    filename = 'tiegcm_filename.nc'
-   tiegcm = pysat.Instrument(platform='ucar', name='tiegcm')
+   tiegcm = pysat.Instrument(platform='ucar', name='tiegcm', data_dir=data_dir)
 
    tg_dataset = ps_mod.utils.match.load_model_xarray(ftime, tiegcm, filename)
 

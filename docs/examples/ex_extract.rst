@@ -36,35 +36,35 @@ let's use `Jicamarca ISR drift data <https://pysatmadrigal.readthedocs.io/en/lat
    jro = pysat.Instrument(inst_module=jro_isr, tag='drifts', user='Your Name',
                           password='your.email@inst.type')
 
-    # Download data if necessary
-    if stime not in jro.files.files:
-        jro.download(start=stime)
+   # Download data if necessary
+   if stime not in jro.files.files:
+       jro.download(start=stime)
 
-    # Get fake model data from the pysat model test instrument
-    mod_drange = pds.date_range(stime, stime + dt.timedelta(days=1), freq='1D')
-    model = pysat.Instrument('pysat', 'testmodel', tag='',
-                             file_date_range=mod_drange)
-    model.load(date=stime)
+   # Get fake model data from the pysat model test instrument
+   mod_drange = pds.date_range(stime, stime + dt.timedelta(days=1), freq='1D')
+   model = pysat.Instrument('pysat', 'testmodel', tag='',
+                            file_date_range=mod_drange)
+   model.load(date=stime)
 
-    # Get the model longitude range, and make sure the loaded data has the
-    # same range
-    if model['longitude'].min() >= 0 and model['longitude'].max() > 180:
-        min_lon = 0.0
-	max_lon = 360.0
-    else:
-        min_lon = -180.0
-	max_lon = 180.0
+   # Get the model longitude range, and make sure the loaded data has the
+   # same range
+   if model['longitude'].min() >= 0 and model['longitude'].max() > 180:
+       min_lon = 0.0
+       max_lon = 360.0
+   else:
+       min_lon = -180.0
+       max_lon = 180.0
 
-    jro.custom_attach(pysat.utils.coords.update_longitude,
-                      kwargs={'lon_name': 'gdlonr', 'high': max_lon,
-		              'low': min_lon})
-    jro.load(date=stime)
+   jro.custom_attach(pysat.utils.coords.update_longitude,
+                     kwargs={'lon_name': 'gdlonr', 'high': max_lon,
+                     'low': min_lon})
+   jro.load(date=stime)
 	
-    # Check the loaded variables, you may receive a warning for unknown data
-    # variables (this is ok).
-    print(jro.variables, model.variables)
+   # Check the loaded variables, you may receive a warning for unknown data
+   # variables (this is ok).
+   print(jro.variables, model.variables)
 
-This yeilds:
+This yields:
 
 .. code:: python
 
@@ -441,6 +441,9 @@ function.
     2009-01-01 23:59:58    2.494794
     2009-01-01 23:59:59    2.494776
     Name: model_pressure, Length: 86400, dtype: float64
+
+
+.. code:: python
 
     # Calculate difference between interpolation techniques
     inst['model_altitude'] - inst['altitude']

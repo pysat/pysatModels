@@ -13,6 +13,7 @@ The :py:data:`matched_inst` object at this point should display as shown below.
 .. code:: python
 
 	  print(matched_inst)
+
 	  pysat Instrument object
 	  -----------------------
 	  Platform: 'cnofs'
