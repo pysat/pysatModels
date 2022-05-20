@@ -36,16 +36,28 @@ the Space Physics community.  This module officially supports Python 3.6+.
 Installation Options
 --------------------
 
-1. Clone the git repository
+You may now obtain pysatModels from PyPi, Zenodo, or the GitHub repository.  If
+you use PyPi, simply call:
+
+::
+
+   pip install pysatModels
+
+
+If you use GitHub or Zenodo, you need to first obtain the package and then
+install it.
+
+1. Clone the git repository or download the repository from Zenodo and unzip
+   the compressed files.  To clone the git repository, use the command below.
 ::
 
 
    git clone https://github.com/pysat/pysatModels.git
 
 
-2. Install pysatModels:
-   Change directories into the repository folder and run the setup.py file.
-   There are a few ways you can do this:
+2. Install pysatModels from the repository folder, once it is in the desired
+   location. Change directories into the repository folder and run the setup.py
+   file. There are a few ways you can do this:
 
    A. Install on the system (root privileges required)::
 
