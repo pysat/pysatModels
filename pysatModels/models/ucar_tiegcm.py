@@ -250,7 +250,7 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
         # Get a list of files in `temp_dir`
         dl_files = pysat.Files.from_os(temp_dir.name, format_str=remote_fname)
 
-        # Decompress files.
+        # Decompress files
         for dl_fname in dl_files.values:
             dl_fname = os.path.split(dl_fname)[1]
             with zipfile.ZipFile(os.path.join(temp_dir.name, dl_fname),
