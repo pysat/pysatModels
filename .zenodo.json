@@ -1,0 +1,31 @@
+{
+    "creators": [
+      {
+        "affiliation": "U.S. Naval Research Laboratory", 
+        "name": "Burrell, Angeline G.",
+        "orcid": "0000-0001-8875-9326"
+      }, 
+      {
+        "affiliation": "Goddard Space Flight Center",
+        "name": "Klenzing, Jeff",
+        "orcid": "0000-0001-8321-6074"
+      }, 
+      {
+        "affiliation": "Stoneris", 
+        "name": "Stoneback, Russell",
+        "orcid": "0000-0001-7216-4336"  
+      }
+    ],
+    "keywords": [
+	"Models",
+	"Model Validation",
+	"Validation",
+	"Comparison",
+	"Ionosphere",
+	"Thermosphere",
+	"TIE-CGM",
+	"SAMI2",
+	"Heliophysics",
+	"DINEOF"
+    ]
+}
