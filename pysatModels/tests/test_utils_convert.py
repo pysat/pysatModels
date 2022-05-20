@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019, pysat team
+# Copyright (C) 2022, pysat development team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
 """Unit tests for pysatModels.utils.convert."""
@@ -128,7 +128,7 @@ class TestUtilsConvertLoadModelXarray(object):
 
 
 class TestUtilsConvertPysatXarray(object):
-    """Unit tests for utils.convert.convert_pydat_to_xarray."""
+    """Unit tests for utils.convert.convert_pysat_to_xarray."""
 
     def setup(self):
         """Create a clean testing setup before each method."""

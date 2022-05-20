@@ -11,8 +11,8 @@ reproducibility of your presented results.
 pysatModels
 -----------
 
-* Burrell, A. G., R. Stoneback, and J. H. Klenzing. (2020). pysat/pysatModels:
-  Alpha Release (Version 0.1). https://github.com/pysat/pysatModels
+* Burrell, A. G., et al. (2022). pysat/pysatModels:
+  Alpha Release (Version 0.1.0). https://github.com/pysat/pysatModels
 
 .. code-block:: latex
    

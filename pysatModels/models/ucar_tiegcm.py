@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Supports loading data from files generated using TIEGCM model.
+"""Support loading data from files generated using TIEGCM model.
 
 TIEGCM (Thermosphere Ionosphere Electrodynamics General Circulation Model)
 file is a netCDF file with multiple dimensions for some variables.
@@ -53,8 +53,9 @@ clean = general.clean
 def init(self):
     """Initialize the Instrument object with instrument specific values."""
 
-    ack = " ".join(["References and information about TIEGCM are available at",
-                    "https://www.hao.ucar.edu/modeling/tgcm/index.php"])
+    self.acknowledgements = "".join([
+        "References and information about TIEGCM are available at ",
+        "https://www.hao.ucar.edu/modeling/tgcm/index.php"])
     refs = [" ".join(("Dickinson, R. E., E. C. Ridley and R. G. Roble, A",
                       "three-dimensional general circulation model of the",
                       "thermosphere, J. Geophys. Res., 86, 1499-1512, 1981.")),
@@ -101,7 +102,6 @@ def init(self):
                       "Modeling the Ionosphere-Thermosphere System, AGU",
                       "Geophysical Monograph Series, 2014."))]
 
-    self.acknowledgements = ack
     self.references = "\n".join((refs))
     logger.info(self.acknowledgements)
     return
@@ -112,7 +112,6 @@ def init(self):
 #
 # Use local and default pysat methods
 
-
 # Set the list_files routine
 fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
 supported_tags = {'': {'': fname}}
@@ -120,20 +119,20 @@ list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
 
-def load(fnames, tag=None, inst_id=None, **kwargs):
+def load(fnames, tag='', inst_id='', **kwargs):
     """Load TIE-GCM data using xarray.
 
     Parameters
     ----------
     fnames : array-like
-        iterable of filename strings, full path, to data files to be loaded.
+        Iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
-    tag : str or NoneType
-        tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
-    inst_id : str or NoneType
+    tag : str
+        Tag name used to identify particular data set to be loaded.
+        This input is nominally provided by pysat itself. (default='')
+    inst_id : str
         Instrument ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
+        This input is nominally provided by pysat itself. (default='')
     **kwargs : dict
         Passthrough for additional keyword arguments specified when
         instantiating an Instrument object. These additional keywords
@@ -160,7 +159,13 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     """
 
-    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
+    # TODO(#114): eventually remove support for multiple pysat versions
+    if hasattr(pysat.utils, 'io'):
+        data, meta = pysat.utils.io.load_netcdf(fnames, pandas_format=False,
+                                                epoch_name='time',
+                                                decode_times=True)
+    else:
+        data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
 
     # Move misc parameters from xarray to the Instrument object via Meta
     # doing this after the meta ensures all metadata is still kept
@@ -183,7 +188,7 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
     Parameters
     ----------
     date_array : array-like
-        list of datetimes to download data for. The sequence of dates need not
+        List of datetimes to download data for. The sequence of dates need not
         be contiguous.
     tag : str
         Tag identifier used for particular dataset. This input is provided by

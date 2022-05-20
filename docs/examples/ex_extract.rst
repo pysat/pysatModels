@@ -14,11 +14,160 @@ modeled values.
 Regular Grid Models
 -------------------
 
-:py:func:`pysatModels.utils.extract.extract_modeled_observations` supports
-extracting values from models on a regular grid. The function can linearly
-interpolate model values onto instrument locations or use the nearest modeled
-location. Uses :py:func:`scipy.interpolate.interpn` as the underlying
-interpolation function.
+:py:func:`pysatModels.utils.extract.extract_modelled_observations` supports
+extracting values from models on a regular grid onto observed locations. The
+function can linearly interpolate model values onto instrument locations or use
+the nearest modeled location. Uses :py:func:`scipy.interpolate.interpn` as the
+underlying interpolation function. This function can handle either
+:py:mod:`pandas` or :py:mod:`xarray` formatted :py:class:`pysat.Instrument`
+observational data.  Because multi-dimensional data can be more complicated,
+let's use `Jicamarca ISR drift data <https://pysatmadrigal.readthedocs.io/en/latest/supported_instruments.html#jro-isr>`_ as an example.
+
+.. code:: python
+
+   import datetime as dt
+   import pandas as pds
+   import pysat
+   from pysatMadrigal.instruments import jro_isr
+   import pysatModels
+
+   # Initalize the observed data
+   stime = dt.datetime(2021, 1, 3)
+   jro = pysat.Instrument(inst_module=jro_isr, tag='drifts', user='Your Name',
+                          password='your.email@inst.type')
+
+   # Download data if necessary
+   if stime not in jro.files.files:
+       jro.download(start=stime)
+
+   # Get fake model data from the pysat model test instrument
+   mod_drange = pds.date_range(stime, stime + dt.timedelta(days=1), freq='1D')
+   model = pysat.Instrument('pysat', 'testmodel', tag='',
+                            file_date_range=mod_drange)
+   model.load(date=stime)
+
+   # Get the model longitude range, and make sure the loaded data has the
+   # same range
+   if model['longitude'].min() >= 0 and model['longitude'].max() > 180:
+       min_lon = 0.0
+       max_lon = 360.0
+   else:
+       min_lon = -180.0
+       max_lon = 180.0
+
+   jro.custom_attach(pysat.utils.coords.update_longitude,
+                     kwargs={'lon_name': 'gdlonr', 'high': max_lon,
+                     'low': min_lon})
+   jro.load(date=stime)
+	
+   # Check the loaded variables, you may receive a warning for unknown data
+   # variables (this is ok).
+   print(jro.variables, model.variables)
+
+This yields:
+
+.. code:: python
+
+   ['time', 'gdalt', 'gdlatr', 'gdlonr', 'kindat', 'kinst', 'nwlos', 'range',
+    'vipn', 'dvipn', 'vipe', 'dvipe', 'vi7', 'dvi7', 'vi8', 'dvi8', 'paiwl',
+    'pacwl', 'pbiwl', 'pbcwl', 'pciel', 'pccel', 'pdiel', 'pdcel', 'jro10',
+    'jro11', 'year', 'month', 'day', 'hour', 'min', 'sec', 'spcst', 'pl',
+    'cbadn', 'inttms', 'azdir7', 'eldir7', 'azdir8', 'eldir8', 'jro14',
+    'jro15', 'jro16', 'ut1_unix', 'ut2_unix', 'recno'] ['uts', 'time',
+    'latitude', 'longitude', 'altitude', 'slt', 'mlt', 'dummy1', 'dummy2']
+
+To extract the desired data points, you need to specify the model time variable
+names, the matching observation and model coordinate names and dimensions, the
+variables you want to select for extraction, and the extraction method.  For
+this example, we'll be matching the vertical drift from JRO (``'vipn'``) to
+the fake model variable with the appropriate dimensions (``'dummy2'``).
+
+.. code:: python
+
+   # Set the model dummy variable units
+   model.meta['dummy2'] = {model.meta.labels.units: 'm/s'}
+
+   # Get the xarray data from the model instrument, with metadata attached
+   model_data = pysatModels.utils.convert.convert_pysat_to_xarray(model)
+
+   # Set the extract input parameters
+   input_args = [jro, model_data, ["gdlonr", "gdlatr", "gdalt"],
+                 ["longitude", "latitude", "altitude"], "time", "time",
+                 ["deg", "deg", "km"]]
+   input_kwargs = {'sel_name': ['dummy2']}
+
+   # Run the extract function
+   added_vars = pysatModels.utils.extract.extract_modelled_observations(
+       *input_args, **input_kwargs)
+
+The output from this function will let you know the variable names that were
+added to the observational data :py:class:`~pysat.Instrument`.  If we plot this
+data, we can visualize how the selection occurred.
+
+
+.. code:: pysat
+
+   import matplotlib as mpl
+   import matplotlib.pyplot as plt
+   import numpy as np
+   
+   # Initialize a figure with two subplots
+   fig = plt.figure()
+   ax_alt = fig.add_subplot(211)
+   ax_loc = fig.add_subplot(212)
+
+   # Create plottable model locations
+   mlon, mlat = np.meshgrid(model['longitude'], model['latitude'])
+   mtime, malt = np.meshgrid(model.index, model['altitude'])
+
+   # Get the paired and unpaired JRO indices
+   igood = np.where(~np.isnan(jro[added_vars[0]]))
+   ibad = np.where(np.isnan(jro[added_vars[0]]))
+
+   # Plot the altitude/time data
+   ax_alt.plot(jro.index[ibad[0]], jro['gdalt'][ibad[1]], 'm*',
+               label='JRO unpaired')
+   ax_alt.plot(mtime, malt, 'k.')
+   ax_alt.plot(jro.index[igood[0]], jro['gdalt'][igood[1]], 'r*',
+               label='JRO Pairs')
+
+   # Plot the the lat/lon data
+   ax_loc.plot(mlon, mlat, 'k.')
+   ax_loc.plot(jro['gdlonr'], jro['gdlatr'], 'r*')
+
+   # Format the figure
+   ax_loc.set_xlim(0, 360)
+   ax_loc.xaxis.set_major_locator(mpl.ticker.MultipleLocator(60))
+   ax_loc.set_xlabel('{:} ({:})'.format(
+       model.meta['longitude', model.meta.labels.name],
+       model.meta['longitude', model.meta.labels.units]))
+   ax_loc.set_ylabel('{:} ({:})'.format(
+       model.meta['latitude', model.meta.labels.name],
+       model.meta['latitude', model.meta.labels.units]))
+
+   ax_alt.lines[1].set_label('Model')
+   ax_alt.legend(loc=2)
+   ax_alt.set_xlabel('UT')
+   ax_alt.set_xlim(stime, stime + dt.timedelta(days=1))
+   ax_alt.xaxis.set_major_formatter(mpl.dates.DateFormatter('%H:%M'))
+   ax_alt.set_ylabel('{:} ({:})'.format(
+       model.meta['altitude', model.meta.labels.name],
+       model.meta['altitude', model.meta.labels.units]))
+
+   fig.suptitle('JRO-Test Model Comparison: {:}'.format(
+       stime.strftime('%d %b %Y')))
+   fig.subplots_adjust(hspace=.3)
+
+   # If not working interactively
+   plt.show()
+
+
+And this should show the figure below.
+
+.. image:: ../images/ex_extract_jro_pair.png
+    :width: 800px
+    :align: center
+    :alt: Demonstrate Model-Observation pairing.
 
 
 :py:func:`pysatModels.utils.extract.instrument_view_through_model` supports
@@ -61,13 +210,13 @@ regular.
        dummy1     (time, latitude, longitude) float64 0.0 0.0 0.0 ... 0.0 3.0 6.0
        dummy2     (time, latitude, longitude, altitude) float64 0.0 0.0 ... 18.0
 
-The coordinates are :py:var:`time`, :py:var:`latitude`, :py:var:`longitude`,
-and :py:var:`altitude`, and are all one-dimensional and directly relevant to a
+The coordinates are ``time``, ``latitude``, ``longitude``,
+and ``altitude``, and are all one-dimensional and directly relevant to a
 physical satellite location. The equivalent satellite variables are
-:py:var:`latitude`, :py:var:`longitude`, and :py:var:`altitude`, with
-:py:var:`time` taken from the associated :py:class:`Instrument` time index
-(:py:attr:`Instrument.data.index`). The output from :py:var:`inst.variables`
-and :py:var:`inst.data.index` should be
+``latitude``, ``longitude``, and ``altitude``, with
+``time`` taken from the associated :py:class:`Instrument` time index
+(:py:attr:`Instrument.data.index`). The output from :py:attr:`inst.variables`
+and :py:attr:`inst.data.index` should be
 
 
 .. code:: python
@@ -91,7 +240,7 @@ and :py:var:`inst.data.index` should be
                  dtype='datetime64[ns]', name='Epoch', length=86400, freq=None)
 
 
-Interpolating :py:var:`model` data onto :py:var:`inst` is accomplished via
+Interpolating ``model`` data onto ``inst`` is accomplished via
 
 .. code:: python
 
@@ -99,7 +248,7 @@ Interpolating :py:var:`model` data onto :py:var:`inst` is accomplished via
                               model.data, ['longitude'], ['longitude'], 'time',
                               'time', ['deg'], ['mlt'])
 
-where :py:var:`inst` and :py:attr:`model.data` provide the required
+where ``inst`` and :py:attr:`model.data` provide the required
 :py:class:`pysat.Instrument` object and :py:class:`xarray.Dataset`. The ::
 
    ['longitude']
@@ -121,12 +270,12 @@ be the same, as here, or different). The ::
    ['deg']
 
 term covers the units for the model dimensions (longitude).
-Units for the corresponding information from :py:var:`inst` are taken directly
+Units for the corresponding information from ``inst`` are taken directly
 from the :py:class:`pysat.Instrument` object. The final presented input ::
 
     ['mlt']
 
-is a list of model variables that will be interpolated onto :py:var:`inst`. By
+is a list of model variables that will be interpolated onto ``inst``. By
 default a linear interpolation is performed but a nearest neighbor option is
 also supported.
 
@@ -190,15 +339,16 @@ terms cover the model labels used for time variable and coordinate. The ::
    ['deg', 'deg', 'km']
 
 term covers the units for the model dimensions (latitude/longitude/altitude).
-Units for the corresponding information from :py:var:`inst` are taken directly
+Units for the corresponding information from ``inst`` are taken directly
 from the :py:class:`pysat.Instrument` object. The final presented input ::
 
     ['dummy2']
 
-is a list of model variables that will be interpolated onto :py:var:`inst`.
+is a list of model variables that will be interpolated onto ``inst``.
 
 The results of ::
-    # Use the same time range as the prior example
+
+        # Use the same time range as the prior example
     ylabel = 'Dummy Variable'
     inst[stime:etime, new_data_keys].plot(title='Interpolation Example',
                                           ylabel=ylabel)
@@ -239,15 +389,15 @@ the coordinates of interest. Consider an alternative model data set,
         mlt           (time, longitude) float64 12.2 12.37 12.53 ... 10.87 11.03
         dummy1        (time, latitude, longitude) float64 0.0 0.0 0.0 ... 0.0 9.0
 
-Model variables, such as :py:var:`dummy_drifts`, are regular over
-:py:var:`(time, ilev, latitude, longitude)`, where :py:var:`ilev` is a constant
-pressure level. Unfortunately, the observational data in :py:var:`inst` doesn't
+Model variables, such as ``dummy_drifts``, are regular over
+``(time, ilev, latitude, longitude)``, where ``ilev`` is a constant
+pressure level. Unfortunately, the observational data in ``inst`` doesn't
 contain pressure level as a simulated/measured parameter. However,
-:py:var:`altitude` is present in the model data but varies over all four
-coordinates. Interpolating :py:var:`dummy_drifts` onto :py:var:`inst` requires
-either adding an appropriate value for :py:var:`ilev` into :py:var:`inst`, or
-interpolating model variables using the irregular variable :py:var:`altitude`
-instead of :py:var:`ilev`.
+``altitude`` is present in the model data but varies over all four
+coordinates. Interpolating ``dummy_drifts`` onto ``inst`` requires
+either adding an appropriate value for ``ilev`` into ``inst``, or
+interpolating model variables using the irregular variable ``altitude``
+instead of ``ilev``.
 
 Altitude to Pressure
 ^^^^^^^^^^^^^^^^^^^^
@@ -266,12 +416,12 @@ supplied altitude in an observational-like data set.
                 "time", "time", ['', "deg", "deg"],
                 'altitude', 'altitude', 'cm')
 
-The function will guess a pressure level for all locations in :py:var:`inst`
+The function will guess a pressure level for all locations in ``inst``
 and then use the regular mapping from pressure to altitude to obtain the
 equivalent altitude from the model. The pressure is adjusted up/down an
 increment based upon the comparison and the process is repeated until the
 target tolerance (default is 1 km) is achieved. The keys for the model derived
-pressure and altitude values added to :py:var:`inst` are returned from the
+pressure and altitude values added to ``inst`` are returned from the
 function.
 
 .. code:: python
@@ -292,6 +442,9 @@ function.
     2009-01-01 23:59:59    2.494776
     Name: model_pressure, Length: 86400, dtype: float64
 
+
+.. code:: python
+
     # Calculate difference between interpolation techniques
     inst['model_altitude'] - inst['altitude']
 
@@ -309,8 +462,8 @@ function.
     2009-01-01 23:59:59   -0.610749
     Length: 86400, dtype: float64
 
-Using the added :py:var:`model_pressure` information model values may be
-interpolated onto :py:var:`inst` using regular grid methods.
+Using the added ``model_pressure`` information model values may be
+interpolated onto ``inst`` using regular grid methods.
 
 .. code:: python
 
@@ -346,11 +499,11 @@ Irregular Variable
 More generally,
 :py:func:`pysatModels.utils.extract.interp_inst_w_irregular_model_coord` can
 deal with irregular coordinates when interpolating onto an observational-like
-data set using :py:func:`scipy.interpolate.griddata`. The :py:var:`model`
+data set using :py:func:`scipy.interpolate.griddata`. The ``model``
 loaded above is regular against pressure level, latitude, and longitude.
 However, it is irregular with respect to altitude.
 
-Here is a sample distribution of the :py:var:`model['altitude']` for `ilev=0`
+Here is a sample distribution of the ``model['altitude']`` for ``ilev=0``
 and the first model time.
 
 .. code:: python
@@ -390,7 +543,7 @@ and the first model time.
 
 
 To interpolate against the irregular variable, the
-:py:func:`pysatModels.utils.extract.unterp_inst_w_irregular_model_coord`
+:py:func:`pysatModels.utils.extract.interp_inst_w_irregular_model_coord`
 function should be used. Generalized irregular interpolation can take
 significant computational resources, so we start this example by loading
 smaller :py:class:`pysat.Instrument` objects.
@@ -431,14 +584,14 @@ smaller :py:class:`pysat.Instrument` objects.
     2009-01-01 00:01:39    23.642492
     Name: model_dummy_drifts, Length: 100, dtype: float64
 
-In the interpolation function, :py:var:`inst` and :py:attr:`model.data` provide
+In the interpolation function, ``inst`` and :py:attr:`model.data` provide
 the required data through the :py:class:`pysat.Instrument` and
 :py:class:`xarray.Dataset` objects. The ::
 
    ["altitude", "latitude", "longitude"]
 
 term provides the content and ordering of the spatial locations for
-:py:var:`inst`. The subsequent ::
+``inst``. The subsequent ::
 
    ["ilev", "latitude", "longitude"]
 
@@ -454,12 +607,12 @@ terms cover the model label used for the datetime coordinate. The ::
    ["cm", "deg", "deg"]
 
 term covers the units for the model information (altitude/latitude/longitude)
-that maps to the :py:var:`inst` information in the coordinate list
-:py:var:`["altitude", "latitude", "longitude"]`. Note that the `"cm"`
-covers units for :py:var:`'altitude'` in :py:attr:`model.data`, the variable
-that will replace :py:var:`'ilev'`, while the second two list elements (both
-`"deg"`) covers the units for the latitude and longitude dimensions.
-Units for the corresponding information from :py:var:`inst` are taken directly
+that maps to the ``inst`` information in the coordinate list
+``["altitude", "latitude", "longitude"]``. Note that the ``"cm"``
+covers units for ``'altitude'`` in :py:attr:`model.data`, the variable
+that will replace ``'ilev'``, while the second two list elements (both
+``"deg"``) covers the units for the latitude and longitude dimensions.
+Units for the corresponding information from ``inst`` are taken directly
 from the :py:class:`pysat.Instrument` object. The ::
 
     "ilev"
@@ -474,8 +627,8 @@ coordinate. The ::
 
     [50., 10., 10.]
 
-term is used to define a half-window for each of the :py:var:`inst` locations,
-in units from :py:var:`inst`, used to downselect data from :py:attr:`model.data`
+term is used to define a half-window for each of the ``inst`` locations,
+in units from ``inst``, used to downselect data from :py:attr:`model.data`
 to reduce computational requirements. In this case a window of +/-50 km in
 altitude, +/-10 degrees in latitude, and +/-10 degrees in longitude is used.
 The keyword argument ::
@@ -483,11 +636,16 @@ The keyword argument ::
     sel_name = ["dummy_drifts", "altitude"]
 
 identifies the :py:attr:`model.data` variables that will be interpolated onto
-:py:var:`inst`.  If you don't account for the irregularity in the desired
+``inst``.  If you don't account for the irregularity in the desired
 model coordinates, the interpolation results are affected.
 
 .. code:: python
 
+    keys = pysatModels.utils.extract.instrument_altitude_to_model_pressure(inst,
+                 model.data, ["altitude", "latitude", "longitude"],
+                 ["ilev", "latitude", "longitude"],
+                 "time", "time", ['', "deg", "deg"],
+                 'altitude', 'altitude', 'cm')
     new_data_keys = pysatModels.utils.extract.instrument_view_through_model(
         inst, model.data, ['model_pressure', 'latitude', 'longitude'],
         ['ilev', 'latitude', 'longitude'], 'time', 'time', ['', 'deg', 'deg'],

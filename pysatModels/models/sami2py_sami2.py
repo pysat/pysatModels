@@ -1,8 +1,12 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Supports loading data from files generated using the sami2py model.
+# Copyright (C) 2022, pysat development team
+# Full license can be found in License.md
+# -----------------------------------------------------------------------------
+"""Support loading data from files generated using the sami2py model.
 
 sami2py file is a netCDF file with multiple dimensions for some variables.
-The sami2py project is at https://www.github.com/sami2py/sami2py
+The sami2py project is at https://github.com/sami2py/sami2py
 
 Properties
 ----------
@@ -19,7 +23,9 @@ inst_id
 
 import datetime as dt
 import functools
+from packaging import version as pack_version
 import warnings
+import xarray as xr
 
 import pysat
 
@@ -79,13 +85,13 @@ def init(self):
 # Use local and default pysat methods
 
 # Set the list_files routine
-fname = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
-supported_tags = {'': {'': fname, 'test': fname}}
+sami_format = 'sami2py_output_{year:04d}-{month:02d}-{day:02d}.nc'
+supported_tags = {'': {'': sami_format, 'test': sami_format}}
 list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
 
-def load(fnames, tag=None, inst_id=None, **kwargs):
+def load(fnames, tag='', inst_id='', **kwargs):
     """Load sami2py data using xarray.
 
     This routine is called as needed by pysat. It is not intended
@@ -94,14 +100,14 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
     Parameters
     ----------
     fnames : array-like
-        iterable of filename strings, full path, to data files to be loaded.
+        Iterable of filename strings, full path, to data files to be loaded.
         This input is nominally provided by pysat itself.
-    tag : str or NoneType
-        tag name used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
-    inst_id : str or NoneType
+    tag : str
+        Tag name used to identify particular data set to be loaded.
+        This input is nominally provided by pysat itself. (default='')
+    inst_id : str
         Instrument ID used to identify particular data set to be loaded.
-        This input is nominally provided by pysat itself. (default=None)
+        This input is nominally provided by pysat itself. (default='')
     **kwargs : dict
         Passthrough for additional keyword arguments specified when
         instantiating an Instrument object. These additional keywords
@@ -128,15 +134,52 @@ def load(fnames, tag=None, inst_id=None, **kwargs):
 
     """
 
-    # Load data
-    data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
+    # SAMI files only contain hours relative to the day in the time information.
+    # Pull out dates from requested filenames and then use those dates
+    # to construct a proper time.
 
-    # Add time variable for pysat compatibilty
-    data['time'] = [dt.datetime(2019, 1, 1)
-                    + dt.timedelta(seconds=int(val * 3600.0))
-                    for val in data['ut'].values]
-    # Manually close link to file
-    data.close()
+    # SAMI template string defined as `sami_format` above.
+    file_info = pysat.utils.files.parse_fixed_width_filenames(fnames,
+                                                              sami_format)
+    epochs = []
+    for year, month, day in zip(file_info['year'], file_info['month'],
+                                file_info['day']):
+        epochs.append(dt.datetime(year, month, day))
+
+    vstr = '3.0.2'  # TODO(#112) Remove support for backwards compatibility
+    loaded_data = []
+    loaded_meta = []
+    for epoch, fname in zip(epochs, fnames):
+        # Load data
+        # TODO(#112) Remove backwards compatibility
+        if pack_version.Version(pysat.__version__) < pack_version.Version(vstr):
+            data, meta = pysat.utils.load_netcdf4([fname], pandas_format=False,
+                                                  epoch_name='ut')
+            data = data.rename({"ut": "time"})
+
+            # Create datetimes from 'ut' variable
+            data['time'] = [epoch
+                            + dt.timedelta(seconds=int(val * 3600.0))
+                            for val in data['time'].values]
+        else:
+            data, meta = pysat.utils.load_netcdf4([fname], pandas_format=False,
+                                                  epoch_name='ut',
+                                                  epoch_origin=epoch,
+                                                  epoch_unit='h')
+
+        # Store data/meta for each loop
+        loaded_data.append(data)
+        loaded_meta.append(meta)
+
+        # Manually close link to file for peace of mind
+        data.close()
+
+    # Combine multiple datasets
+    data = xr.combine_by_coords(loaded_data)
+
+    # Combine metadata
+    for loop_meta in loaded_meta[:-1]:
+        meta.merge(loop_meta)
 
     return data, meta
 
@@ -147,7 +190,7 @@ def download(date_array, tag, inst_id, data_path):
     Parameters
     ----------
     date_array : array-like
-        list of datetimes to download data for. The sequence of dates need not
+        List of datetimes to download data for. The sequence of dates need not
         be contiguous.
     tag : str
         Tag identifier used for particular dataset. This input is provided by

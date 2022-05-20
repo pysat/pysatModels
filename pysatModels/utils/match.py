@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019, AGB & pysat team
+# Copyright (C) 2022, pysat development team
 # Full license can be found in License.md
 # -----------------------------------------------------------------------------
 """Routines to match modelled and observational data."""
@@ -49,7 +49,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
     model_load_kwargs : dict or NoneType
         Keyword arguments for the model loading routine. (default=None)
     inst_clean_rout : func
-        Routine to clean the instrument data
+        Routine to clean the instrument data. (default=None)
     inst_lon_name : str
         variable name for instrument longitude
     mod_lon_name : str
@@ -68,7 +68,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
     mod_time_name : str
         Name of the time coordinate in the model Dataset
     mod_units : list or NoneType
-        units for each of the mod_name location attributes.  Currently
+        Units for each of the mod_name location attributes.  Currently
         supports: rad/radian(s), deg/degree(s), h/hr(s)/hour(s), m, km, and cm.
         (default=None)
     sel_name : list or NoneType
@@ -102,8 +102,8 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
     ValueError
         If input is incorrect
 
-    Notes
-    -----
+    Note
+    ----
     Perform the data cleaning after finding the times and locations where the
     observations and model align.
 
@@ -231,9 +231,16 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                     inst.clean_level = comp_clean
                     inst_clean_rout(inst)
 
+                    check_name = "_".join([model_label, mod_datetime_name])
                     im = list()
+                    imbase = None
                     for aname in added_names:
-                        # Determine the number of good points
+                        if aname == check_name:
+                            # There is a baseline for the names
+                            imbase = np.where(
+                                np.isfinite(inst[check_name].values))
+
+                        # Determine the number of good points for this data
                         imnew = np.where(np.isfinite(inst[aname].values))
 
                         # Some data types are higher dimensions than others,
@@ -241,6 +248,13 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                         # so that we don't accidently throw away paired data
                         if len(im) == 0 or len(im[0]) < len(imnew[0]):
                             im = imnew
+
+                    # Check the data against the baseline
+                    if imbase is not None:
+                        if len(im[0]) > len(imbase[0]):
+                            ikeep = [i for i, ind in enumerate(im[0])
+                                     if ind in imbase[0]]
+                            im = [imnew[ikeep] for imnew in list(im)]
 
                     # If the data is 1D, save it as a list instead of a tuple
                     if len(im) == 1:

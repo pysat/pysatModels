@@ -1,4 +1,3 @@
-# Author: Angeline Burrell, NRL, 2019
 """Unit tests for `pysatModels.models.methods.general`."""
 
 import datetime as dt
