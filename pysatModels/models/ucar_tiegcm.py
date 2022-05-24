@@ -41,7 +41,7 @@ logger = pysat.logger
 platform = 'ucar'
 name = 'tiegcm'
 tags = {'': 'UCAR TIE-GCM file', 'icon': 'UCAR TIE-GCM file produced for ICON.'}
-inst_ids = {'': ['', 'icon']}
+inst_ids = {'': list(tags.keys())}
 
 # Specify using xarray (not using pandas)
 pandas_format = False
@@ -52,7 +52,7 @@ pandas_format = False
 _test_dates = {'': {'': dt.datetime(2019, 1, 1),
                     'icon': dt.datetime(2020, 1, 10)}}
 _test_download = {'': {'': False, 'icon': True}}
-_test_download_ci = {'': {'': False, 'icon': False}}
+_test_download_ci = {'': {'': False, 'icon': True}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
@@ -122,20 +122,14 @@ def init(self):
 #
 # Use local and default pysat methods
 
-# Set the list_files routine. CDAWeb files have an intermediate day directory.
-# Accounted for with the leading '*'.
-icon_fname = ''.join(['ICON_L4-3_TIEGCM_{year:04d}-{month:02d}-{day:02d}_',
-                      'v{version:02d}r{revision:03d}.NC'])
-icon_fname = os.path.join('*', icon_fname)
-
-# Files from UCAR
-ucar_fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
-
-# Remote filenames are different than final model filenames
-remote_fname = ''.join(['icon_l4-3_tiegcm_{year:04d}-{month:02d}-{day:02d}_',
-                        'v{version:02d}r{revision:03d}.zip'])
-
-supported_tags = {'': {'': ucar_fname, 'icon': icon_fname}}
+# Set the list_files routine. TIEGCM files downloaded from CDAWeb have an
+# intermediate day directory. Accounted for with the leading '*' for icon.
+supported_tags = {
+    '': {'': 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc',
+         'icon': os.path.join('*', ''.join(['ICON_L4-3_TIEGCM_{year:04d}-',
+                                            '{month:02d}-{day:02d}_',
+                                            'v{version:02d}r{revision:03d}',
+                                            '.NC']))}}
 list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
@@ -204,9 +198,13 @@ def load(fnames, tag='', inst_id='', **kwargs):
 
 
 # Set the download routine
-basic_tag = {'remote_dir': '/pub/data/icon/l4/tiegcm/{year:04d}/',
-             'fname': remote_fname}
-download_tags = {'': {'icon': basic_tag}}
+# Remote filenames are different than final model filenames.
+# `download_tags` used by both `download` and `list_remote_files`.
+download_tags = {
+    '': {'icon': {'remote_dir': '/pub/data/icon/l4/tiegcm/{year:04d}/',
+                  'fname': ''.join(['icon_l4-3_tiegcm_{year:04d}-{month:02d}-',
+                                    '{day:02d}_v{version:02d}r{revision:03d}',
+                                    '.zip'])}}}
 
 
 def download(date_array, tag, inst_id, data_path=None, **kwargs):
@@ -248,7 +246,8 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
                      supported_tags=download_tags)
 
         # Get a list of files in `temp_dir`
-        dl_files = pysat.Files.from_os(temp_dir.name, format_str=remote_fname)
+        dl_files = pysat.Files.from_os(
+            temp_dir.name, format_str=download_tags[inst_id][tag]['fname'])
 
         # Decompress files
         for dl_fname in dl_files.values:
@@ -288,7 +287,7 @@ def list_remote_files(tag='', inst_id='', start=None, stop=None):
     """
 
     if tag == '':
-        warnings.warn('Not implemented in this version.')
+        warnings.warn('Not implemented, currently no support for Globus.')
         files = pds.Series([], dtype='a')
     elif tag == 'icon':
         files = cdw.list_remote_files(tag=tag, inst_id=inst_id, start=start,
