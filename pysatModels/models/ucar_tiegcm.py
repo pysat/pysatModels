@@ -238,7 +238,7 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
     """
 
     if tag == '':
-        warnings.warn('Not implemented in this version.')
+        warnings.warn('Not implemented, currently no support for Globus.')
     elif tag == 'icon':
         # Set up temporary directory for zip files
         temp_dir = tempfile.TemporaryDirectory()
