@@ -7,6 +7,8 @@
 [![Documentation Status](https://readthedocs.org/projects/pysatmodels/badge/?version=latest)](https://pysatmodels.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://github.com/pysat/pysatModels/actions/workflows/main.yml/badge.svg)](https://github.com/pysat/pysatModels/actions/workflows/main.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/pysat/pysatModels/badge.svg?branch=main)](https://coveralls.io/github/pysat/pysatModels?branch=main)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6567105.svg)](https://doi.org/10.5281/zenodo.6567105)
+[![PyPI version](https://badge.fury.io/py/pysatModels.svg)](https://badge.fury.io/py/pysatModels)
 
 pysatModels handles model-centric data loading through pysat and contains a
 variety of tools to perform model-data analysis, including model validation.
