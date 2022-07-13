@@ -52,7 +52,6 @@ pandas_format = False
 _test_dates = {'': {'': dt.datetime(2019, 1, 1),
                     'icon': dt.datetime(2020, 1, 10)}}
 _test_download = {'': {'': False, 'icon': True}}
-_test_download_ci = {'': {'': False, 'icon': True}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
