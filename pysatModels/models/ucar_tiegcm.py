@@ -196,7 +196,6 @@ def load(fnames, tag='', inst_id='', **kwargs):
     return data, meta
 
 
-# Set the download routine
 # Remote filenames are different than final model filenames.
 # `download_tags` used by both `download` and `list_remote_files`.
 download_tags = {
@@ -261,7 +260,6 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
     return
 
 
-# Set the list_remote_files routine
 def list_remote_files(tag='', inst_id='', start=None, stop=None):
     """Return a Pandas Series of every file for chosen remote data.
 
