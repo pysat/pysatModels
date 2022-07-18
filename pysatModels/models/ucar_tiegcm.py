@@ -181,9 +181,9 @@ def load(fnames, tag='', inst_id='', **kwargs):
     else:
         data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
 
-    # Move misc parameters from xarray to the Instrument object via Meta
-    # doing this after the meta ensures all metadata is still kept
-    # even for moved variables.
+    # Move misc parameters from xarray to the Instrument object via Meta.
+    # Doing this after `meta` created ensures all metadata is still kept
+    # even for moved variables. TODO(#117) Move to `meta.header`.
     meta.p0 = data['p0']
     meta.p0_model = data['p0_model']
     meta.grav = data['grav']
