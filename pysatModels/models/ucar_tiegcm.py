@@ -2,10 +2,12 @@
 """Support loading data from files generated using TIEGCM model.
 
 TIEGCM (Thermosphere Ionosphere Electrodynamics General Circulation Model)
-file is a netCDF file with multiple dimensions for some variables.
-
-Download support is provided for TIEGCM files generated as part of the
-NASA Ionospheric CONnections (ICON) Explorer.
+file is a netCDF file with multiple dimensions for some variables. Support
+is included for TIEGCM files from the University Corporation for Atmospheric
+Research (UCAR) as well as TIEGCM files produced as part of the
+NASA Ionospheric CONnections (ICON) Explorer Mission. TIEGCM files produced for
+ICON are generated using Hough Mode Extensions generated from ICON measurements.
+Download support is only available for ICON TIEGCM files.
 
 Properties
 ----------
@@ -65,7 +67,10 @@ def init(self):
     self.acknowledgements = "".join([
         "References and information about TIEGCM are available at ",
         "https://www.hao.ucar.edu/modeling/tgcm/index.php"])
-    refs = [" ".join(("Dickinson, R. E., E. C. Ridley and R. G. Roble, A",
+
+    if self.tag == '':
+        refs = [
+            " ".join(("Dickinson, R. E., E. C. Ridley and R. G. Roble, A",
                       "three-dimensional general circulation model of the",
                       "thermosphere, J. Geophys. Res., 86, 1499-1512, 1981.")),
             " ".join(("Dickinson, R. E., E. C. Ridley and R. G. Roble,",
@@ -110,6 +115,13 @@ def init(self):
                       "the coupled thermosphere/ionosphere system, in",
                       "Modeling the Ionosphere-Thermosphere System, AGU",
                       "Geophysical Monograph Series, 2014."))]
+
+    elif self.tag == 'icon':
+        refs = [" ".join(["Maute, A. Thermosphere-Ionosphere-Electrodynamics",
+                          "General Circulation Model for the Ionospheric",
+                          "Connection Explorer: TIEGCM-ICON. Space Sci Rev",
+                          "212, 523–551 (2017).",
+                          "https://doi.org/10.1007/s11214-017-0330-3"])]
 
     self.references = "\n".join((refs))
     logger.info(self.acknowledgements)
