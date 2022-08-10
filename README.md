@@ -13,7 +13,7 @@
 pysatModels handles model-centric data loading through pysat and contains a
 variety of tools to perform model-data analysis, including model validation.
 
-Come join us on Slack! An invitation to the pysat workspace is available 
+Come join us on Slack! An invitation to the pysat workspace is available
 in the 'About' section of the
 [pysat GitHub Repository.](https://github.com/pysat/pysat)
 
@@ -25,11 +25,11 @@ examples on how to use the routines
 ## Prerequisites
 
 pysatModels uses common Python modules, as well as modules developed by and for
-the Space Physics community.  This module officially supports Python 3.6+.
+the Space Physics community.  This module officially supports Python 3.8+.
 
 | Common modules | Community modules |
 | -------------- | ----------------- |
-| numpy          | pysat             |
+| numpy          | pysat>=3.0.2      |
 | pandas         | pyForecastTools   |
 | requests       |                   |
 | scipy          |                   |
