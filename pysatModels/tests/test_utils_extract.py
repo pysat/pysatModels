@@ -541,7 +541,6 @@ class TestUtilsAltitudePressure(object):
         assert str(verr).find(err_msg) >= 0
         return
 
-    @pytest.mark.skip("troubleshooting")
     @pytest.mark.parametrize("tol_val", [10., 1., 0.1])
     @pytest.mark.parametrize("scale_val", [1000., 100., 50.])
     def test_good_translation_over_tolerance_and_scale(self, tol_val,
@@ -569,7 +568,6 @@ class TestUtilsAltitudePressure(object):
         assert np.all(alt_diff <= tol_val)
         return
 
-    @pytest.mark.skip("troubleshooting")
     def test_updated_metadata(self):
         """Test new pressure metadata is present in Instrument."""
 
@@ -586,7 +584,6 @@ class TestUtilsAltitudePressure(object):
 
         return
 
-    @pytest.mark.skip("troubleshooting")
     def test_alternate_output_names(self):
         """Test alternate output labels work as expected."""
         self.input_kwargs = {'inst_out_alt': 'alter_altitude',
