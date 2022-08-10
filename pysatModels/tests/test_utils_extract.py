@@ -296,7 +296,6 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
         assert str(err).find(err_msg) >= 0
         return
 
-    @pytest.mark.skip("troubleshooting")
     @pytest.mark.parametrize("sel_val", [["dummy1", "dummy2"], ["dummy1"]])
     def test_good_sel_name(self, sel_val):
         """Test for success with different good selection name inputs.
@@ -313,7 +312,6 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
         self.eval_output()
         return
 
-    @pytest.mark.skip("troubleshooting")
     def test_success_w_out_of_bounds(self, caplog):
         """Test extraction success for all variables without UT dependence."""
 
@@ -324,7 +322,6 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
         self.eval_output()
         return
 
-    @pytest.mark.skip("troubleshooting")
     def test_success_for_some_already_ran_data(self, caplog):
         """Test the success for some model variables already extracted."""
 
