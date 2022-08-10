@@ -343,11 +343,10 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
         return
 
 
-# @pytest.mark.skipif(pack_version.Version(pysat.__version__)
-#                     <= pack_version.Version('3.0.1'),
-#                     reason=''.join(('Requires test model in pysat ',
-#                                     ' v3.0.2 or later.')))
-@pytest.mark.skip("troubleshooting")
+@pytest.mark.skipif(pack_version.Version(pysat.__version__)
+                    <= pack_version.Version('3.0.1'),
+                    reason=''.join(('Requires test model in pysat ',
+                                    ' v3.0.2 or later.')))
 class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
     """Xarray unit tests for `utils.extract.extract_modelled_observations`."""
 
@@ -386,11 +385,10 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
         return
 
 
-# @pytest.mark.skipif(pack_version.Version(pysat.__version__)
-#                     <= pack_version.Version('3.0.1'),
-#                     reason=''.join(('Requires test model in pysat ',
-#                                     ' v3.0.2 or later.')))
-@pytest.mark.skip("troubleshooting")
+@pytest.mark.skipif(pack_version.Version(pysat.__version__)
+                    <= pack_version.Version('3.0.1'),
+                    reason=''.join(('Requires test model in pysat ',
+                                    ' v3.0.2 or later.')))
 class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
     """Xarray unit tests for `utils.extract.extract_modelled_observations`."""
 
@@ -654,7 +652,6 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
                     <= pack_version.Version('3.0.1'),
                     reason=''.join(('Requires `max_latitude` test Instrument ',
                                     'support in pysat v3.0.2 or later.')))
-# @pytest.mark.skip("troubleshooting")
 class TestUtilsExtractInstModIrregView(object):
     """Unit tests for `utils.extract.instrument_view_irregular_model`."""
 
