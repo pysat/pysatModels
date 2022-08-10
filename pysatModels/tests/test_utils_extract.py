@@ -477,7 +477,7 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
                     reason=''.join(('Requires test model in pysat ',
                                     ' v3.0.2 or later.')))
 @pytest.mark.skipif(platform.system() == "Windows",
-                    "Broken on windows, see #118")
+                    reason="Broken on windows, see #118")
 class TestUtilsAltitudePressure(object):
     """Unit tests for `utils.extract.instrument_altitude_to_model_pressure`."""
 
