@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 --------------------
 * Documentation
    * Added badges and instructions for PyPi and Zenodo
+* Maintenance
+   * Update `load_netcdf` to use new pysat io syntax
+   * Update test_models with new pysat syntax
 
 [0.1.0] - 2022-05-20
 --------------------
