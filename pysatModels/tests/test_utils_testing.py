@@ -92,11 +92,10 @@ class TestUtilsCompareModName(object):
         return
 
 
-# @pytest.mark.skipif(pack_version.Version(pysat.__version__)
-#                     <= pack_version.Version('3.0.1'),
-#                     reason=''.join(('Requires test model in pysat ',
-#                                     ' v3.0.2 or later.')))
-@pytest.mark.skip("troubleshooting")
+@pytest.mark.skipif(pack_version.Version(pysat.__version__)
+                    <= pack_version.Version('3.0.1'),
+                    reason=''.join(('Requires test model in pysat ',
+                                    ' v3.0.2 or later.')))
 class TestUtilsCompareModNamePressure(TestUtilsCompareModName):
     """Unit tests for `compare_mod_name_coordinates`."""
 
