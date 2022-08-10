@@ -761,11 +761,10 @@ class TestUtilsExtractInstModIrregView(object):
         return
 
 
-# @pytest.mark.skipif(pack_version.Version(pysat.__version__)
-#                     <= pack_version.Version('3.0.1'),
-#                    reason=''.join(('Requires `max_latitude` test Instrument ',
-#                                     'support in pysat v3.0.2 or later.')))
-@pytest.mark.skip("troubleshooting")
+@pytest.mark.skipif(pack_version.Version(pysat.__version__)
+                    <= pack_version.Version('3.0.1'),
+                    reason=''.join(('Requires `max_latitude` test Instrument ',
+                                    'support in pysat v3.0.2 or later.')))
 class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
     """Xarray unit tests for `instrument_view_irregular_model`."""
 
