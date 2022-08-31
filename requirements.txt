@@ -2,8 +2,8 @@ numpy
 packaging
 pandas
 pyForecastTools
-pysat >= 3.0.2
+pysat >= 3.0.4
 pysatNASA
 requests
 scipy
-xarray < 2022.06.0
+xarray
