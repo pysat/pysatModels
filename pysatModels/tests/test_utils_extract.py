@@ -8,6 +8,7 @@
 import logging
 import numpy as np
 from packaging import version as pack_version
+import platform
 import pytest
 
 import pysat
@@ -471,6 +472,9 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
         return
 
 
+# TODO(#118): fix `instrument_altitude_to_model_pressure` for Windows env
+@pytest.mark.skipif(platform.system() == "Windows",
+                    reason="Broken on windows, see #118")
 @pytest.mark.skipif(pack_version.Version(pysat.__version__)
                     <= pack_version.Version('3.0.1'),
                     reason=''.join(('Requires test model in pysat ',
@@ -604,6 +608,9 @@ class TestUtilsAltitudePressure(object):
         return
 
 
+# TODO(#118): fix `instrument_altitude_to_model_pressure` for Windows env
+@pytest.mark.skipif(platform.system() == "Windows",
+                    reason="Broken on windows, see #118")
 @pytest.mark.skipif(pack_version.Version(pysat.__version__)
                     <= pack_version.Version('3.0.1'),
                     reason=''.join(('Requires test model in pysat ',

@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 [0.2.0] - 2022-XX-XX
 --------------------
+* Added support for access to TIEGCM models from the ICON mission
 * Documentation
    * Added badges and instructions for PyPi and Zenodo
 

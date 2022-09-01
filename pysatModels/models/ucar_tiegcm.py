@@ -2,7 +2,12 @@
 """Support loading data from files generated using TIEGCM model.
 
 TIEGCM (Thermosphere Ionosphere Electrodynamics General Circulation Model)
-file is a netCDF file with multiple dimensions for some variables.
+file is a netCDF file with multiple dimensions for some variables. Support
+is included for TIEGCM files from the University Corporation for Atmospheric
+Research (UCAR) as well as TIEGCM files produced as part of the
+NASA Ionospheric CONnections (ICON) Explorer Mission. TIEGCM files produced for
+ICON are generated using Hough Mode Extensions generated from ICON measurements.
+Download support is only available for ICON TIEGCM files.
 
 Properties
 ----------
@@ -19,11 +24,16 @@ inst_id
 
 import datetime as dt
 import functools
+import os
+import pandas as pds
+import tempfile
 import warnings
+import zipfile
 
 import pysat
 
 from pysatModels.models.methods import general
+from pysatNASA.instruments.methods import cdaweb as cdw
 
 logger = pysat.logger
 
@@ -32,17 +42,18 @@ logger = pysat.logger
 
 platform = 'ucar'
 name = 'tiegcm'
-tags = {'': 'UCAR TIE-GCM file'}
-inst_ids = {'': ['']}
+tags = {'': 'UCAR TIE-GCM file', 'icon': 'UCAR TIE-GCM file produced for ICON.'}
+inst_ids = {'': list(tags.keys())}
 
-# specify using xarray (not using pandas)
+# Specify using xarray (not using pandas)
 pandas_format = False
 
 # ----------------------------------------------------------------------------
 # Instrument test attributes
 
-_test_dates = {'': {'': dt.datetime(2019, 1, 1)}}
-_test_download = {'': {'': False}}
+_test_dates = {'': {'': dt.datetime(2019, 1, 1),
+                    'icon': dt.datetime(2020, 1, 10)}}
+_test_download = {'': {'': False, 'icon': True}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
@@ -56,7 +67,10 @@ def init(self):
     self.acknowledgements = "".join([
         "References and information about TIEGCM are available at ",
         "https://www.hao.ucar.edu/modeling/tgcm/index.php"])
-    refs = [" ".join(("Dickinson, R. E., E. C. Ridley and R. G. Roble, A",
+
+    if self.tag == '':
+        refs = [
+            " ".join(("Dickinson, R. E., E. C. Ridley and R. G. Roble, A",
                       "three-dimensional general circulation model of the",
                       "thermosphere, J. Geophys. Res., 86, 1499-1512, 1981.")),
             " ".join(("Dickinson, R. E., E. C. Ridley and R. G. Roble,",
@@ -102,6 +116,13 @@ def init(self):
                       "Modeling the Ionosphere-Thermosphere System, AGU",
                       "Geophysical Monograph Series, 2014."))]
 
+    elif self.tag == 'icon':
+        refs = [" ".join(["Maute, A. Thermosphere-Ionosphere-Electrodynamics",
+                          "General Circulation Model for the Ionospheric",
+                          "Connection Explorer: TIEGCM-ICON. Space Sci Rev",
+                          "212, 523–551 (2017).",
+                          "https://doi.org/10.1007/s11214-017-0330-3"])]
+
     self.references = "\n".join((refs))
     logger.info(self.acknowledgements)
     return
@@ -112,9 +133,14 @@ def init(self):
 #
 # Use local and default pysat methods
 
-# Set the list_files routine
-fname = 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc'
-supported_tags = {'': {'': fname}}
+# Set the list_files routine. TIEGCM files downloaded from CDAWeb have an
+# intermediate day directory. Accounted for with the leading '*' for icon.
+supported_tags = {
+    '': {'': 'tiegcm_icon_merg2.0_totTgcm.s_{day:03d}_{year:4d}.nc',
+         'icon': os.path.join('*', ''.join(['ICON_L4-3_TIEGCM_{year:04d}-',
+                                            '{month:02d}-{day:02d}_',
+                                            'v{version:02d}r{revision:03d}',
+                                            '.NC']))}}
 list_files = functools.partial(pysat.instruments.methods.general.list_files,
                                supported_tags=supported_tags)
 
@@ -167,9 +193,9 @@ def load(fnames, tag='', inst_id='', **kwargs):
     else:
         data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
 
-    # Move misc parameters from xarray to the Instrument object via Meta
-    # doing this after the meta ensures all metadata is still kept
-    # even for moved variables
+    # Move misc parameters from xarray to the Instrument object via Meta.
+    # Doing this after `meta` created ensures all metadata is still kept
+    # even for moved variables. TODO(#117) Move to `meta.header`.
     meta.p0 = data['p0']
     meta.p0_model = data['p0_model']
     meta.grav = data['grav']
@@ -182,8 +208,17 @@ def load(fnames, tag='', inst_id='', **kwargs):
     return data, meta
 
 
+# Remote filenames are different than final model filenames.
+# `download_tags` used by both `download` and `list_remote_files`.
+download_tags = {
+    '': {'icon': {'remote_dir': '/pub/data/icon/l4/tiegcm/{year:04d}/',
+                  'fname': ''.join(['icon_l4-3_tiegcm_{year:04d}-{month:02d}-',
+                                    '{day:02d}_v{version:02d}r{revision:03d}',
+                                    '.zip'])}}}
+
+
 def download(date_array, tag, inst_id, data_path=None, **kwargs):
-    """Download UCAR TIE-GCM (placeholder). Doesn't do anything.
+    """Download UCAR TIE-GCM from NASA CDAWeb.
 
     Parameters
     ----------
@@ -210,5 +245,61 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
 
     """
 
-    warnings.warn('Not implemented in this version.')
+    if tag == '':
+        warnings.warn('Not implemented, currently no support for Globus.')
+    elif tag == 'icon':
+        # Set up temporary directory for zip files
+        temp_dir = tempfile.TemporaryDirectory()
+
+        # Download using NASA CDAWeb methods in pysatNASA
+        cdw.download(date_array, tag, inst_id, data_path=temp_dir.name,
+                     supported_tags=download_tags)
+
+        # Get a list of files in `temp_dir`
+        dl_files = pysat.Files.from_os(
+            temp_dir.name, format_str=download_tags[inst_id][tag]['fname'])
+
+        # Decompress files
+        for dl_fname in dl_files.values:
+            dl_fname = os.path.split(dl_fname)[1]
+            with zipfile.ZipFile(os.path.join(temp_dir.name, dl_fname),
+                                 'r') as open_zip:
+                open_zip.extractall(data_path)
+
+        # Cleanup temporary directory
+        temp_dir.cleanup()
+
     return
+
+
+def list_remote_files(tag='', inst_id='', start=None, stop=None):
+    """Return a Pandas Series of every file for chosen remote data.
+
+    Parameters
+    ----------
+    tag : str
+        Denotes type of file to load. (default='')
+    inst_id : str
+        Specifies the instrument ID. (default='')
+    start : dt.datetime or NoneType
+        Starting time for file list. A None value will start with the first
+        file found. (default=None)
+    stop : dt.datetime or NoneType
+        Ending time for the file list.  A None value will stop with the last
+        file found. (default=None)
+
+    Returns
+    -------
+    files : pds.Series
+        A series containing the verified available files.
+
+    """
+
+    if tag == '':
+        warnings.warn('Not implemented, currently no support for Globus.')
+        files = pds.Series([], dtype='a')
+    elif tag == 'icon':
+        files = cdw.list_remote_files(tag=tag, inst_id=inst_id, start=start,
+                                      stop=stop, supported_tags=download_tags)
+
+    return files
