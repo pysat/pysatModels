@@ -17,7 +17,7 @@ jobs:
         numpy_ver: [latest]
         include:
           - python-version: "3.8"
-            numpy_ver: "1.20"
+            numpy_ver: "1.20.3"
             os: "ubuntu-latest"
 
     name: Python ${{ matrix.python-version }} on ${{ matrix.os }} with numpy ${{ matrix.numpy_ver }}
@@ -37,8 +37,7 @@ jobs:
     - name: Install NEP29 dependencies
       if: ${{ matrix.numpy_ver != 'latest'}}
       run: |
-        pip install --no-binary :numpy: numpy==${{ matrix.numpy_ver }}
-        pip install "xarray<2022.06"
+        pip install numpy==${{ matrix.numpy_ver }}
 
     - name: Set up pysat
       run: |
