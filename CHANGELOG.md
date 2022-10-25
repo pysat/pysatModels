@@ -8,8 +8,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Added support for access to TIEGCM models from the ICON mission
 * Maintenance
   * Switched pydineof_dineof load code to use newer `pysat.utils.io.load_netcdf`
+  * Updated NEP29 and GitHub actions versions
 * Documentation
-   * Added badges and instructions for PyPi and Zenodo
+  * Added badges and instructions for PyPi and Zenodo
 
 [0.1.0] - 2022-05-20
 --------------------
