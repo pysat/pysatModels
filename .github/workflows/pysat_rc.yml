@@ -3,24 +3,20 @@
 # https://help.github.com/actions/language-and-framework-guides/
 # using-python-with-github-actions
 
-name: Test with pysatNASA RC
+name: Test with pysat ecosystem RCs
 
-on: [workflow_dispatch]
+on: [push]
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.9", "3.10"]
-        numpy_ver: [latest]
-        include:
-          - python-version: "3.8"
-            numpy_ver: "1.20.3"
-            os: "ubuntu-latest"
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: ["3.10"]
+        rc-package: ["pysat", "pysatNASA"]
 
-    name: Python ${{ matrix.python-version }} on ${{ matrix.os }} with numpy ${{ matrix.numpy_ver }}
+    name: ${{ matrix.os }} with ${{ matrix.rc-package }} RC
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -29,29 +25,18 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install pysatNASA RC
-      run: pip install -i https://test.pypi.org/simple/ pysatNASA==0.0.4rc1
+    - name: Install RC package
+      run: pip install -i https://test.pypi.org/simple/ ${{ matrix.rc-package }}
 
     - name: Install standard dependencies
       run: |
         pip install -r test_requirements.txt
         pip install -r requirements.txt
 
-    - name: Install NEP29 dependencies
-      if: ${{ matrix.numpy_ver != 'latest'}}
-      run: |
-        pip install numpy==${{ matrix.numpy_ver }}
-
     - name: Set up pysat
       run: |
         mkdir pysatData
         python -c "import pysat; pysat.params['data_dirs'] = 'pysatData'"
-
-    - name: Test PEP8 compliance
-      run: flake8 . --count --select=D,E,F,H,W --show-source --statistics
-
-    - name: Evaluate complexity
-      run: flake8 . --count --exit-zero --max-complexity=10 --statistics
 
     - name: Run unit and integration tests
       run: pytest --cov=pysatModels/
