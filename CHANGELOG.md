@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 * Maintenance
   * Switched pydineof_dineof load code to use newer `pysat.utils.io.load_netcdf`
   * Updated NEP29 and GitHub actions versions
-  * Added manual test for pysatNASA Release Candidate
+  * Added manual test for pysat and pysatNASA Release Candidates
 * Documentation
   * Added badges and instructions for PyPi and Zenodo
 
