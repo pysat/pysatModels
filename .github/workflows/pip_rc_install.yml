@@ -29,5 +29,10 @@ jobs:
     - name: Install pysatModels RC
       run: pip install --no-deps --pre -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pysatModels
 
+    - name: Set up pysat
+      run: |
+        mkdir pysatData
+        python -c "import pysat; pysat.params['data_dirs'] = 'pysatData'"
+
     - name: Check that install imports correctly
       run: python -c "import pysatModels"
