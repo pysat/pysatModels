@@ -163,7 +163,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
     if not skip_download and (stop
                               - start).days != len(inst.files[start:stop]):
         missing_times = [tt for tt in pds.date_range(start, stop, freq='1D',
-                                                     closed='left')
+                                                     inclusive='left')
                          if tt not in inst.files[start:stop].index]
         for tt in missing_times:
             inst.download(start=tt, stop=tt + pds.DateOffset(days=1),

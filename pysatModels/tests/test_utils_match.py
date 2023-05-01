@@ -13,17 +13,18 @@ import pysatModels.utils.match as match
 class TestUtilsMatchCollectInstModPairs(object):
     """Unit tests for utils.match.collect_inst_model_pairs."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
-        self.inst = pysat.Instrument(platform='pysat', name='testing')
+        self.inst = pysat.Instrument(platform='pysat', name='testing',
+                                     use_header=True)
         self.stime = pysat.instruments.pysat_testing._test_dates['']['']
         self.inst.load(date=self.stime)
         self.input_args = [self.stime, self.stime + dt.timedelta(days=1),
                            dt.timedelta(days=1), self.inst]
         self.ref_col = 'dummy1'
         self.model = pysat.Instrument(platform='pysat', name='testmodel',
-                                      tag='', num_samples=10)
+                                      tag='', num_samples=10, use_header=True)
         self.required_kwargs = {"model_load_kwargs":
                                 {"model_inst": self.model},
                                 "inst_clean_rout": lambda x: True,
@@ -37,7 +38,7 @@ class TestUtilsMatchCollectInstModPairs(object):
         self.out = None
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.input_args, self.required_kwargs, self.inst, self.model
