@@ -35,4 +35,6 @@ jobs:
         python -c "import pysat; pysat.params['data_dirs'] = 'pysatData'"
 
     - name: Check that install imports correctly
-      run: python -c "import pysatModels"
+      run: |
+        cd ..
+        python -c "import pysatModels; print(pysatModels.__version__)"
