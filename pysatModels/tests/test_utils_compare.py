@@ -11,7 +11,7 @@ import pysatModels.utils.compare as compare
 class TestUtilsCompare(object):
     """Unit tests for utils.compare."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         coords = {"lat": np.arange(-90, 90, 10), "alt": np.arange(200, 800, 10)}
@@ -29,7 +29,7 @@ class TestUtilsCompare(object):
         self.out_units = dict()
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.dat_key, self.mod_key, self.units, self.pairs, self.input_args

@@ -235,7 +235,7 @@ class TestSAMILoadMultipleDays(object):
         assert meta_two_days == meta_one_days
 
         # Confirm time index information
-        assert data_two_days.indexes['time'].is_monotonic
+        assert data_two_days.indexes['time'].is_monotonic_increasing
         assert data_two_days.indexes['time'][0] >= test_date
         assert data_two_days.indexes['time'][0] < date
         assert data_two_days.indexes['time'][-1] > date
