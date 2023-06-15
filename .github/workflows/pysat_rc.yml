@@ -6,7 +6,7 @@
 
 name: Test with pysat ecosystem RCs
 
-on: [psuh]
+on: [push]
 
 jobs:
   build:
