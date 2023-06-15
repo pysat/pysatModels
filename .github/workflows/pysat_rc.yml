@@ -6,7 +6,7 @@
 
 name: Test with pysat ecosystem RCs
 
-on: [workflow_dispatch]
+on: [psuh]
 
 jobs:
   build:
