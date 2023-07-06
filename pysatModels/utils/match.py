@@ -167,7 +167,7 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
                                                 inclusive='left')
         except TypeError:
             missing_date_range = pds.date_range(start, stop, freq='1D')
-        
+
         missing_times = [tt for tt in missing_date_range
                          if tt not in inst.files[start:stop].index]
         for tt in missing_times:
