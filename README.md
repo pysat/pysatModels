@@ -27,13 +27,13 @@ examples on how to use the routines
 pysatModels uses common Python modules, as well as modules developed by and for
 the Space Physics community.  This module officially supports Python 3.6+.
 
-|   Common modules   | Community modules |
-| ------------------ | ----------------- |
-| numpy              | pyForecastTools   |
-| pandas >= 1.4.0    | pysat >= 3.0.4    |
-| requests           | pysatNASA         |
-| scipy              |                   |
-| xarray             |                   |
+|   Common modules   | Community modules  |
+| ------------------ | ------------------ |
+| numpy              | pyForecastTools    |
+| pandas >= 1.4.0    | pysat >= 3.0.4     |
+| requests           | pysatNASA >= 0.0.5 |
+| scipy              |                    |
+| xarray             |                    |
 
 ## Installation through PyPi
 
