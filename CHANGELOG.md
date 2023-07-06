@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   * Added manual test for pysat and pysatNASA Release Candidates
   * Added manual test for pysatModels RC pip install
   * Updated tests to new pysat and pytest standards
+  * Updated model Instruments to include the new `_clean_warn` attribute
 * Documentation
   * Added badges and instructions for PyPi and Zenodo
 
