@@ -50,6 +50,7 @@ pandas_format = False
 
 _test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
 _test_download = {'': {'': False, 'test': True}}
+_clean_warn = {'': {tag: general.clean_warn for tag in tags.keys()}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
