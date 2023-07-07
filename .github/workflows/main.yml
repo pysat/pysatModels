@@ -49,8 +49,8 @@ jobs:
       if: ${{ matrix.test_config == 'NEP29'}}
       run: |
         pip install numpy==${{ matrix.numpy_ver }}
-        pip install --upgrade-strategy only-if-needed -r requirements
-        pip install --upgrade-strategy only-if-needed -r test_requirements
+        pip install -r requirements
+        pip install -r test_requirements
         pip install .
 
     - name: Install standard dependencies
@@ -72,7 +72,7 @@ jobs:
       run: flake8 . --count --exit-zero --max-complexity=10 --statistics
 
     - name: Run unit and integration tests
-      run: pytest
+      run: pytest --cov=pysatModels
 
     - name: Publish results to coveralls
       env:
