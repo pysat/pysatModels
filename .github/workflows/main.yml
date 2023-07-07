@@ -49,13 +49,16 @@ jobs:
       if: ${{ matrix.test_config == 'NEP29'}}
       run: |
         pip install numpy==${{ matrix.numpy_ver }}
-        pip install --upgrade-strategy only-if-needed .[test]
+        pip install --upgrade-strategy only-if-needed -r requirements
+        pip install --upgrade-strategy only-if-needed -r test_requirements
+        pip install .
 
     - name: Install standard dependencies
       if: ${{ matrix.test_config == 'latest'}}
       run: |
         pip install -r test_requirements.txt
         pip install -r requirements.txt
+        pip install .
 
     - name: Set up pysat
       run: |
