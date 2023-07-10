@@ -74,7 +74,9 @@ jobs:
 
     - name: Install Operational dependencies success
       if: ${{ matrix.test_config == 'Ops'}}
-      run: python -c "import pysatNASA; print(pysatNASA.__version__)"
+      run: |
+          pip install pysatNASA==0.0.5
+          python -c "import pysatNASA; print(pysatNASA.__version__)"
 
     - name: Run unit and integration tests
       run: pytest --cov=pysatModels/
