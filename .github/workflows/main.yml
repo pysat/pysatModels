@@ -76,6 +76,8 @@ jobs:
       if: ${{ matrix.test_config == 'Ops'}}
       run: |
           pip install pysatNASA==0.0.5
+          which python
+          python --version
           python -c "import pysatNASA; print(pysatNASA.__version__)"
 
     - name: Run unit and integration tests
