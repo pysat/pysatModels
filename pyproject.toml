@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools >= 38.6", "pip >= 10"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysatModels"
+version = "0.1.0"
+description = "pysat support for NASA Instruments"
+readme = "README.md"
+requires-python = ">=3.6"
+dependencies = [
+  "numpy",
+  "packaging",
+  "pandas",
+  "pyForecastTools",
+  "pysat >= 3.0.4",
+  "pysatNASA >= 0.0.5",
+  "requests",
+  "scipy",
+  "xarray"
+]
