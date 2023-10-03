@@ -64,7 +64,7 @@ def eval_xarray_output(inst, xdata):
 class TestUtilsConvertLoadModelXarray(object):
     """Unit tests for `utils.convert.load_model_xarray`."""
 
-    def setup(self):
+    def setup_method(self):
         """Create a clean testing setup before each method."""
         self.ftime = pysat.instruments.pysat_testing_xarray._test_dates['']['']
         self.filename = "%Y-%m-%d.nofile"
@@ -76,7 +76,7 @@ class TestUtilsConvertLoadModelXarray(object):
         self.xout = None
         self.temp_file = 'None'
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up test environment after each method."""
         if os.path.isfile(self.temp_file):
             os.remove(self.temp_file)
@@ -130,11 +130,11 @@ class TestUtilsConvertLoadModelXarray(object):
 class TestUtilsConvertPysatXarray(object):
     """Unit tests for utils.convert.convert_pysat_to_xarray."""
 
-    def setup(self):
+    def setup_method(self):
         """Create a clean testing setup before each method."""
         self.ref_time = pysat.instruments.pysat_testing._test_dates['']['']
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up test environment after each method."""
         del self.ref_time
 
