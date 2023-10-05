@@ -20,7 +20,7 @@ import pysatModels.utils.extract as extract
 class TestUtilsExtractInstThroughMod(object):
     """Unit tests for `instrument_view_through_model`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing')
@@ -51,7 +51,7 @@ class TestUtilsExtractInstThroughMod(object):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
@@ -205,7 +205,7 @@ class TestUtilsExtractInstThroughMod(object):
 class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
     """Unit tests for `utils.extract.extract_modelled_observations`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing')
@@ -233,7 +233,7 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
@@ -351,7 +351,7 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
 class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
     """Xarray unit tests for `utils.extract.extract_modelled_observations`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing_xarray')
@@ -379,7 +379,7 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
@@ -393,7 +393,7 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
 class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
     """Xarray unit tests for `utils.extract.extract_modelled_observations`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
@@ -421,7 +421,7 @@ class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
@@ -431,7 +431,7 @@ class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
 class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
     """Xarray unit tests for `instrument_view_through_model`."""
 
-    def setup(self):
+    def setup_method(self):
         """Run before every method to create a clean testing setup."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
@@ -464,7 +464,7 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Run after every method to clean up previous testing."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
@@ -482,7 +482,7 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
 class TestUtilsAltitudePressure(object):
     """Unit tests for `utils.extract.instrument_altitude_to_model_pressure`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing')
@@ -509,7 +509,7 @@ class TestUtilsAltitudePressure(object):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out
@@ -618,7 +618,7 @@ class TestUtilsAltitudePressure(object):
 class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
     """Xarray unit tests for `instrument_altitude_to_model_pressure`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
@@ -645,7 +645,7 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out
@@ -660,7 +660,7 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
 class TestUtilsExtractInstModIrregView(object):
     """Unit tests for `utils.extract.instrument_view_irregular_model`."""
 
-    def setup(self):
+    def setup_method(self):
         """Run before every method to create a clean testing setup."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing',
@@ -689,7 +689,7 @@ class TestUtilsExtractInstModIrregView(object):
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Run after every method to clean up previous testing."""
 
         del self.inst, self.model, self.input_args, self.out, self.in_kwargs
@@ -773,7 +773,7 @@ class TestUtilsExtractInstModIrregView(object):
 class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
     """Xarray unit tests for `instrument_view_irregular_model`."""
 
-    def setup(self):
+    def setup_method(self):
         """Run before every method to create a clean testing setup."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray',
@@ -802,7 +802,7 @@ class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Run after every method to clean up previous testing."""
 
         del self.inst, self.model, self.input_args, self.out, self.in_kwargs
