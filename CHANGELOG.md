@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   * Added manual test for pysatModels RC pip install
   * Updated tests to new pysat and pytest standards
   * Added a cap for pysatNASA
+  * Removed backwards-support for pysat pre-3.0.4 functions
 * Documentation
   * Added badges and instructions for PyPi and Zenodo
 
