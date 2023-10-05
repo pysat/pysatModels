@@ -23,7 +23,6 @@ inst_id
 
 import datetime as dt
 import functools
-from packaging import version as pack_version
 import warnings
 import xarray as xr
 
@@ -146,26 +145,14 @@ def load(fnames, tag='', inst_id='', **kwargs):
                                 file_info['day']):
         epochs.append(dt.datetime(year, month, day))
 
-    vstr = '3.0.2'  # TODO(#112) Remove support for backwards compatibility
     loaded_data = []
     loaded_meta = []
     for epoch, fname in zip(epochs, fnames):
         # Load data
-        # TODO(#112) Remove backwards compatibility
-        if pack_version.Version(pysat.__version__) < pack_version.Version(vstr):
-            data, meta = pysat.utils.load_netcdf4([fname], pandas_format=False,
-                                                  epoch_name='ut')
-            data = data.rename({"ut": "time"})
-
-            # Create datetimes from 'ut' variable
-            data['time'] = [epoch
-                            + dt.timedelta(seconds=int(val * 3600.0))
-                            for val in data['time'].values]
-        else:
-            data, meta = pysat.utils.load_netcdf4([fname], pandas_format=False,
-                                                  epoch_name='ut',
-                                                  epoch_origin=epoch,
-                                                  epoch_unit='h')
+        data, meta = pysat.utils.io.load_netcdf([fname], pandas_format=False,
+                                                epoch_name='ut',
+                                                epoch_origin=epoch,
+                                                epoch_unit='h')
 
         # Store data/meta for each loop
         loaded_data.append(data)

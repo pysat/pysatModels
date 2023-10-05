@@ -8,8 +8,6 @@ Imports test methods from pysat.tests.instrument_test_class
 
 import datetime as dt
 import os
-from packaging import version as pack_version
-import pytest
 import shutil
 import sys
 import tempfile
@@ -34,81 +32,6 @@ class TestModels(clslib.InstLibTests):
     instrument test class.
 
     """
-
-
-class TestSAMIPysatVersion(object):
-    """Test SAMI load code for pysat version differences across v3.0.2."""
-
-    def setup_class(self):
-        """Initialize the testing setup once before all tests are run."""
-        # Make sure to use a temporary directory so that the user setup is not
-        # altered
-
-        # TODO(#100): remove if-statement when it is always triggered
-        tkwargs = {}
-        if sys.version_info.major >= 3 and sys.version_info.minor >= 10:
-            tkwargs = {"ignore_cleanup_errors": True}
-        self.tempdir = tempfile.TemporaryDirectory(**tkwargs)
-        self.saved_path = pysat.params['data_dirs']
-        self.saved_ver = pysat.__version__
-        pysat.params.data['data_dirs'] = [self.tempdir.name]
-
-        # Assign the location of the model Instrument sub-modules
-        self.inst_loc = pysatModels.models
-        return
-
-    def teardown_class(self):
-        """Clean up downloaded files and parameters from tests."""
-
-        pysat.params.data['data_dirs'] = self.saved_path
-        pysat.__version__ = self.saved_ver
-
-        # Remove the temporary directory
-        # TODO(#100): Remove try/except when Python 3.10 is the lowest version
-        try:
-            self.tempdir.cleanup()
-        except Exception:
-            pass
-
-        del self.inst_loc, self.saved_path, self.tempdir, self.saved_ver
-        return
-
-    def test_load_failure(self):
-        """Test for SAMI load failure when faking a different pysat version."""
-
-        if (pack_version.Version(pysat.__version__)
-                >= pack_version.Version('3.0.2')):
-            # Define target error variable label
-            label = 'ut'
-
-            # Replace reported version with one before 3.0.2
-            vlabel = '3.0.1'
-
-            # Expected error
-            error = ValueError
-        else:
-            # Define target error variable label
-            label = 'epoch_origin'
-
-            # Expected error
-            error = TypeError
-
-            # Replace reported version with one including 3.0.2
-            vlabel = '3.0.2'
-
-        # Update reported pysat version
-        pysat.__version__ = vlabel
-
-        with pytest.raises(error) as verr:
-            inst = pysat.Instrument(inst_module=self.inst_loc.sami2py_sami2,
-                                    tag='test')
-            inst.download(self.inst_loc.sami2py_sami2._test_dates['']['test'],
-                          self.inst_loc.sami2py_sami2._test_dates['']['test'])
-            inst.load(date=self.inst_loc.sami2py_sami2._test_dates['']['test'])
-
-        assert str(verr).find(label) >= 0
-
-        return
 
 
 class TestSAMILoadMultipleDays(object):
