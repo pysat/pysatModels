@@ -149,10 +149,10 @@ def load(fnames, tag='', inst_id='', **kwargs):
     loaded_meta = []
     for epoch, fname in zip(epochs, fnames):
         # Load data
-        data, meta = pysat.utils.load_netcdf4([fname], pandas_format=False,
-                                              epoch_name='ut',
-                                              epoch_origin=epoch,
-                                              epoch_unit='h')
+        data, meta = pysat.utils.io.load_netcdf([fname], pandas_format=False,
+                                                epoch_name='ut',
+                                                epoch_origin=epoch,
+                                                epoch_unit='h')
 
         # Store data/meta for each loop
         loaded_data.append(data)
