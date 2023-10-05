@@ -7,7 +7,6 @@
 
 import logging
 import numpy as np
-from packaging import version as pack_version
 import platform
 import pytest
 
@@ -28,9 +27,7 @@ class TestUtilsExtractInstThroughMod(object):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -198,10 +195,6 @@ class TestUtilsExtractInstThroughMod(object):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
     """Unit tests for `utils.extract.extract_modelled_observations`."""
 
@@ -213,9 +206,7 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -344,10 +335,6 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
     """Xarray unit tests for `utils.extract.extract_modelled_observations`."""
 
@@ -359,9 +346,7 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -386,10 +371,6 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
     """Xarray unit tests for `utils.extract.extract_modelled_observations`."""
 
@@ -401,9 +382,7 @@ class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -439,9 +418,7 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -475,10 +452,6 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
 # TODO(#118): fix `instrument_altitude_to_model_pressure` for Windows env
 @pytest.mark.skipif(platform.system() == "Windows",
                     reason="Broken on windows, see #118")
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsAltitudePressure(object):
     """Unit tests for `utils.extract.instrument_altitude_to_model_pressure`."""
 
@@ -491,9 +464,7 @@ class TestUtilsAltitudePressure(object):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -611,10 +582,6 @@ class TestUtilsAltitudePressure(object):
 # TODO(#118): fix `instrument_altitude_to_model_pressure` for Windows env
 @pytest.mark.skipif(platform.system() == "Windows",
                     reason="Broken on windows, see #118")
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
     """Xarray unit tests for `instrument_altitude_to_model_pressure`."""
 
@@ -627,9 +594,7 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -653,10 +618,6 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires `max_latitude` test Instrument ',
-                                    'support in pysat v3.0.2 or later.')))
 class TestUtilsExtractInstModIrregView(object):
     """Unit tests for `utils.extract.instrument_view_irregular_model`."""
 
@@ -671,9 +632,7 @@ class TestUtilsExtractInstModIrregView(object):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -766,10 +725,6 @@ class TestUtilsExtractInstModIrregView(object):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires `max_latitude` test Instrument ',
-                                    'support in pysat v3.0.2 or later.')))
 class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
     """Xarray unit tests for `instrument_view_irregular_model`."""
 
@@ -784,9 +739,7 @@ class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
