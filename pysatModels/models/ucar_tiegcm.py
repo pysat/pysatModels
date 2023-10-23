@@ -26,9 +26,7 @@ import datetime as dt
 import functools
 import os
 import pandas as pds
-import tempfile
 import warnings
-import zipfile
 
 import pysat
 
@@ -210,10 +208,11 @@ download_tags = {
     '': {'icon': {'remote_dir': '/pub/data/icon/l4/tiegcm/{year:04d}/',
                   'fname': ''.join(['icon_l4-3_tiegcm_{year:04d}-{month:02d}-',
                                     '{day:02d}_v{version:02d}r{revision:03d}',
-                                    '.zip'])}}}
+                                    '.zip']),
+                  'zip_method': 'zip'}}}
 
 
-def download(date_array, tag, inst_id, data_path=None, **kwargs):
+def download(date_array, tag, inst_id, data_path, **kwargs):
     """Download UCAR TIE-GCM from NASA CDAWeb.
 
     Parameters
@@ -228,7 +227,7 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
         Instrument ID string identifier used for particular dataset. This input
         is provided by pysat.
     data_path : str or NoneType
-        Path to directory to download data to. (default=None)
+        Path to directory to download data to.
     **kwargs : dict
         Additional keywords supplied by user when invoking the download
         routine attached to a pysat.Instrument object are passed to this
@@ -244,26 +243,9 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
     if tag == '':
         warnings.warn('Not implemented, currently no support for Globus.')
     elif tag == 'icon':
-        # Set up temporary directory for zip files
-        temp_dir = tempfile.TemporaryDirectory()
 
-        # Download using NASA CDAWeb methods in pysatNASA
-        cdw.download(date_array, tag, inst_id, data_path=temp_dir.name,
+        cdw.download(date_array, tag=tag, inst_id=inst_id, data_path=data_path,
                      supported_tags=download_tags)
-
-        # Get a list of files in `temp_dir`
-        dl_files = pysat.Files.from_os(
-            temp_dir.name, format_str=download_tags[inst_id][tag]['fname'])
-
-        # Decompress files
-        for dl_fname in dl_files.values:
-            dl_fname = os.path.split(dl_fname)[1]
-            with zipfile.ZipFile(os.path.join(temp_dir.name, dl_fname),
-                                 'r') as open_zip:
-                open_zip.extractall(data_path)
-
-        # Cleanup temporary directory
-        temp_dir.cleanup()
 
     return
 
