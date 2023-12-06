@@ -14,7 +14,7 @@ from pysatModels.models.methods import general
 class TestMethodsGeneralLogging(object):
     """Unit tests for log messages raised by general methods."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment."""
         self.ch = logging.StreamHandler()
         self.ch.setLevel(logging.INFO)
@@ -22,7 +22,7 @@ class TestMethodsGeneralLogging(object):
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment."""
 
         del self.ch, self.model
@@ -50,7 +50,7 @@ class TestMethodsGeneralLogging(object):
 class TestMethodsGeneralDownload(object):
     """Unit tests for general methods handling downloads."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment."""
         # TODO(#100): remove if-statement when it is always triggered
         tkwargs = {}
@@ -65,7 +65,7 @@ class TestMethodsGeneralDownload(object):
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment."""
 
         if os.path.isfile(self.out_file):

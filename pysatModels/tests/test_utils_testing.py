@@ -18,7 +18,7 @@ from pysatModels.utils.testing import compare_mod_name_coordinates
 class TestUtilsCompareModName(object):
     """Unit tests for `compare_mod_name_coordinates`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
@@ -33,7 +33,7 @@ class TestUtilsCompareModName(object):
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.model
@@ -99,7 +99,7 @@ class TestUtilsCompareModName(object):
 class TestUtilsCompareModNamePressure(TestUtilsCompareModName):
     """Unit tests for `compare_mod_name_coordinates`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.model = pysat.Instrument(inst_module=pysat_testmodel,

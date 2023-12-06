@@ -24,8 +24,8 @@ the Space Physics community.  This module officially supports Python 3.6+.
  Common modules Community modules
  ============== =================
   numpy         pysat
-  pandas        pyForecastTools
-  requests
+  pandas        pysatNASA
+  requests      pyForecastTools
   scipy
   xarray
  ============== =================
@@ -85,7 +85,7 @@ is set up, you may choose to register the the :py:mod:`pysatModel` model
 
 .. code:: python
 
-	  
+
    import pysat
    import pysatModels as pymod
 
