@@ -5,9 +5,28 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pysatModels"
 version = "0.1.0"
-description = "pysat support for NASA Instruments"
+description = "Supports model analysis and model-data comparisons"
 readme = "README.md"
 requires-python = ">=3.6"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Pysat Development Team", email = "pysat.developers@gmail.com"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Intended Audience :: Science/Research",
+    "License :: Freely Distributable",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows"
+]
 dependencies = [
   "numpy",
   "packaging",
@@ -18,4 +37,38 @@ dependencies = [
   "requests",
   "scipy",
   "xarray"
+]
+
+[project.optional-dependencies]
+test = [
+  "coveralls < 3.3",
+  "flake8",
+  "flake8-docstrings",
+  "hacking >= 1.0",
+  "pytest-cov",
+  "pytest-ordering"
+]
+doc = [
+  "extras_require",
+  "m2r2",
+  "numpydoc",
+  "sphinx",
+  "sphinx_rtd_theme >= 1.2.2, < 2.0.0"
+]
+
+[project.urls]
+Documentation = "https://pysatmodels.readthedocs.io/en/latest/"
+Source = "https://github.com/pysat/pysatModels"
+
+[tool.coverage.report]
+
+[tool.pytest.ini_options]
+addopts = "--cov=pysatModels"
+markers = [
+  "all_inst",
+  "download",
+  "no_download",
+  "load_options",
+  "first",
+  "second"
 ]
