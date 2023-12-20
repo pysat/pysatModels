@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        python-version: ["3.10"]
+        python-version: ["3.11"]  # Keep this version at the highest supported Python version
         rc-package: ["pysat", "pysatNASA"]
 
     name: ${{ matrix.os }} with ${{ matrix.rc-package }} RC
