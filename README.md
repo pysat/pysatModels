@@ -31,7 +31,7 @@ the Space Physics community.  This module officially supports Python 3.6+.
 | ------------------ | ------------------ |
 | numpy              | pyForecastTools    |
 | pandas >= 1.4.0    | pysat >= 3.0.4     |
-| requests           | pysatNASA <= 0.0.4 |
+| requests           | pysatNASA          |
 | scipy              |                    |
 | xarray             |                    |
 
