@@ -3,7 +3,7 @@ packaging
 pandas
 pyForecastTools
 pysat >= 3.0.4
-pysatNASA <= 0.0.4
+pysatNASA
 requests
 scipy
 xarray
