@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   * Updated tests to new pysat and pytest standards
   * Removed backwards-support for pysat pre-3.0.4 functions
   * Updated to use pyproject
+  * Added yaml for readthedocs
 * Documentation
   * Added badges and instructions for PyPi and Zenodo
 
