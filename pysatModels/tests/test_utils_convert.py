@@ -66,10 +66,10 @@ class TestUtilsConvertLoadModelXarray(object):
 
     def setup_method(self):
         """Create a clean testing setup before each method."""
-        self.ftime = pysat.instruments.pysat_testing_xarray._test_dates['']['']
+        self.ftime = pysat.instruments.pysat_ndtesting._test_dates['']['']
         self.filename = "%Y-%m-%d.nofile"
         self.model_kwargs = {'platform': str('pysat'),
-                             'name': str('testing_xarray'),
+                             'name': str('ndtesting'),
                              'num_samples': 12,
                              'clean_level': 'clean'}
         self.model_inst = None
