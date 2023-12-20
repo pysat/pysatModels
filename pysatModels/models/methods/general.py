@@ -7,6 +7,10 @@ import warnings
 
 import pysatModels
 
+clean_warn = {clean_level: [('logger', 'INFO', 'Cleaning not supported',
+                             clean_level)]
+              for clean_level in ['clean', 'dusty', 'dirty']}
+
 
 def clean(inst):
     """Raise a low-level log message about lack of cleaning."""

@@ -54,6 +54,7 @@ pandas_format = False
 _test_dates = {'': {'': dt.datetime(2019, 1, 1),
                     'icon': dt.datetime(2020, 1, 10)}}
 _test_download = {'': {'': False, 'icon': True}}
+_clean_warn = {'': {tag: general.clean_warn for tag in tags.keys()}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
@@ -248,7 +249,7 @@ def download(date_array, tag, inst_id, data_path=None, **kwargs):
         temp_dir = tempfile.TemporaryDirectory()
 
         # Download using NASA CDAWeb methods in pysatNASA
-        cdw.download(date_array, tag, inst_id, data_path=temp_dir.name,
+        cdw.download(date_array, temp_dir.name, tag=tag, inst_id=inst_id,
                      supported_tags=download_tags)
 
         # Get a list of files in `temp_dir`
