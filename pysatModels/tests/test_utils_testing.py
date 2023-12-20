@@ -6,7 +6,6 @@
 """Unit tests for `pysatModels.utils.testing`."""
 
 import numpy as np
-from packaging import version as pack_version
 import pytest
 
 import pysat
@@ -25,9 +24,7 @@ class TestUtilsCompareModName(object):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.model.load(**load_kwargs)
 
@@ -92,10 +89,6 @@ class TestUtilsCompareModName(object):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsCompareModNamePressure(TestUtilsCompareModName):
     """Unit tests for `compare_mod_name_coordinates`."""
 
@@ -107,9 +100,7 @@ class TestUtilsCompareModNamePressure(TestUtilsCompareModName):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.model.load(**load_kwargs)
 
