@@ -1,5 +1,4 @@
 numpy
-packaging
 pandas >= 1.4.0
 pyForecastTools
 pysat >= 3.0.4
