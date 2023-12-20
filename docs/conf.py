@@ -16,6 +16,7 @@ https://www.sphinx-doc.org/en/master/config
 import datetime as dt
 import json
 import os
+import pkg_resources
 import sys
 
 sys.path.insert(0, os.path.abspath('..'))
@@ -72,9 +73,7 @@ category = 'Space Physics'
 #
 # The short X.Y version.
 module_dir = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
-version_file = os.path.join(module_dir, project, 'version.txt')
-with open(version_file, 'r') as fin:
-    version = fin.read().strip()
+version = pkg_resources.get_distribution('pysatModels').version
 
 # The full version, including alpha/beta/rc tags.
 release = '{:s}-alpha'.format(version)
@@ -84,7 +83,7 @@ release = '{:s}-alpha'.format(version)
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
