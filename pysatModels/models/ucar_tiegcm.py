@@ -53,7 +53,8 @@ pandas_format = False
 
 _test_dates = {'': {'': dt.datetime(2019, 1, 1),
                     'icon': dt.datetime(2020, 1, 10)}}
-_test_download = {'': {'': False, 'icon': True}}
+# TODO (#132): Turn on ICON download tests once pysatNASA 0.0.6 is released.
+_test_download = {'': {'': False, 'icon': False}}
 _clean_warn = {'': {tag: general.clean_warn for tag in tags.keys()}}
 
 # ----------------------------------------------------------------------------
