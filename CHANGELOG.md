@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   * Added manual test for pysatModels RC pip install
   * Updated tests to new pysat and pytest standards
   * Updated model Instruments to include the new `_clean_warn` attribute
+  * Removed backwards-support for pysat pre-3.0.4 functions
 * Documentation
   * Added badges and instructions for PyPi and Zenodo
 

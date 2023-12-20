@@ -7,7 +7,6 @@
 
 import logging
 import numpy as np
-from packaging import version as pack_version
 import platform
 import pytest
 
@@ -20,7 +19,7 @@ import pysatModels.utils.extract as extract
 class TestUtilsExtractInstThroughMod(object):
     """Unit tests for `instrument_view_through_model`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing')
@@ -28,9 +27,7 @@ class TestUtilsExtractInstThroughMod(object):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -51,7 +48,7 @@ class TestUtilsExtractInstThroughMod(object):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
@@ -198,14 +195,10 @@ class TestUtilsExtractInstThroughMod(object):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
     """Unit tests for `utils.extract.extract_modelled_observations`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing')
@@ -213,9 +206,7 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -233,7 +224,7 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
@@ -344,14 +335,10 @@ class TestUtilsExtractModObs(TestUtilsExtractInstThroughMod):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
     """Xarray unit tests for `utils.extract.extract_modelled_observations`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing_xarray')
@@ -359,9 +346,7 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -379,21 +364,17 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
     """Xarray unit tests for `utils.extract.extract_modelled_observations`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
@@ -401,9 +382,7 @@ class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -421,7 +400,7 @@ class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
@@ -431,7 +410,7 @@ class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
 class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
     """Xarray unit tests for `instrument_view_through_model`."""
 
-    def setup(self):
+    def setup_method(self):
         """Run before every method to create a clean testing setup."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
@@ -439,9 +418,7 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -464,7 +441,7 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Run after every method to clean up previous testing."""
 
         del self.inst, self.model, self.input_args, self.out, self.input_kwargs
@@ -475,14 +452,10 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
 # TODO(#118): fix `instrument_altitude_to_model_pressure` for Windows env
 @pytest.mark.skipif(platform.system() == "Windows",
                     reason="Broken on windows, see #118")
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsAltitudePressure(object):
     """Unit tests for `utils.extract.instrument_altitude_to_model_pressure`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing')
@@ -491,9 +464,7 @@ class TestUtilsAltitudePressure(object):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -509,7 +480,7 @@ class TestUtilsAltitudePressure(object):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out
@@ -611,14 +582,10 @@ class TestUtilsAltitudePressure(object):
 # TODO(#118): fix `instrument_altitude_to_model_pressure` for Windows env
 @pytest.mark.skipif(platform.system() == "Windows",
                     reason="Broken on windows, see #118")
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
     """Xarray unit tests for `instrument_altitude_to_model_pressure`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
@@ -627,9 +594,7 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -645,7 +610,7 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
         self.out = []
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.inst, self.model, self.input_args, self.out
@@ -653,14 +618,10 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires `max_latitude` test Instrument ',
-                                    'support in pysat v3.0.2 or later.')))
 class TestUtilsExtractInstModIrregView(object):
     """Unit tests for `utils.extract.instrument_view_irregular_model`."""
 
-    def setup(self):
+    def setup_method(self):
         """Run before every method to create a clean testing setup."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing',
@@ -671,9 +632,7 @@ class TestUtilsExtractInstModIrregView(object):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -689,7 +648,7 @@ class TestUtilsExtractInstModIrregView(object):
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Run after every method to clean up previous testing."""
 
         del self.inst, self.model, self.input_args, self.out, self.in_kwargs
@@ -766,14 +725,10 @@ class TestUtilsExtractInstModIrregView(object):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires `max_latitude` test Instrument ',
-                                    'support in pysat v3.0.2 or later.')))
 class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
     """Xarray unit tests for `instrument_view_irregular_model`."""
 
-    def setup(self):
+    def setup_method(self):
         """Run before every method to create a clean testing setup."""
 
         self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray',
@@ -784,9 +739,7 @@ class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.inst.load(**load_kwargs)
         self.model.load(**load_kwargs)
@@ -802,7 +755,7 @@ class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Run after every method to clean up previous testing."""
 
         del self.inst, self.model, self.input_args, self.out, self.in_kwargs
