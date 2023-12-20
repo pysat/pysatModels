@@ -29,7 +29,8 @@ classifiers = [
 ]
 dependencies = [
   "numpy",
-  "pandas >= 1.4.0",
+  "packaging",
+  "pandas",
   "pyForecastTools",
   "pysat >= 3.0.4",
   "pysatNASA",
