@@ -859,8 +859,8 @@ def extract_modelled_observations(inst, model, inst_name, mod_name,
             if mod_ind in mind and pair_method == 'closest':
                 # Test to see if this model observation has multiple pairings
                 old_ind = mind.index(mod_ind)
-                if(del_sec[inst_ind, mod_ind]
-                   < del_sec[iind[old_ind], mind[old_ind]]):
+                if (del_sec[inst_ind, mod_ind] < del_sec[iind[old_ind],
+                                                         mind[old_ind]]):
                     # If this one is closer, keep it
                     iind[old_ind] = inst_ind
                     mind[old_ind] = mod_ind
