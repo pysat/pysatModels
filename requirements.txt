@@ -1,6 +1,6 @@
 numpy
 packaging
-pandas >= 1.4.0
+pandas
 pyForecastTools
 pysat >= 3.0.4
 pysatNASA <= 0.0.4

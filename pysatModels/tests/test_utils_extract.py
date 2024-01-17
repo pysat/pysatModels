@@ -341,7 +341,7 @@ class TestUtilsExtractModObsXarray(TestUtilsExtractModObs):
     def setup_method(self):
         """Set up the unit test environment for each method."""
 
-        self.inst = pysat.Instrument(platform='pysat', name='testing_xarray')
+        self.inst = pysat.Instrument(platform='pysat', name='ndtesting')
         self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
 
         # Load the data in the instruments
@@ -377,7 +377,7 @@ class TestUtilsExtractModObsXarray2D(TestUtilsExtractModObs):
     def setup_method(self):
         """Set up the unit test environment for each method."""
 
-        self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
+        self.inst = pysat.Instrument(platform='pysat', name='ndtesting')
         self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
 
         # Load the data in the instruments
@@ -413,7 +413,7 @@ class TestUtilsExtractInstModViewXarray(TestUtilsExtractInstThroughMod):
     def setup_method(self):
         """Run before every method to create a clean testing setup."""
 
-        self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
+        self.inst = pysat.Instrument(platform='pysat', name='ndtesting')
         self.model = pysat.Instrument(inst_module=pysat_testmodel)
 
         # Load the data in the instruments
@@ -588,7 +588,7 @@ class TestUtilsAltitudePressureXarray(TestUtilsAltitudePressure):
     def setup_method(self):
         """Set up the unit test environment for each method."""
 
-        self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray')
+        self.inst = pysat.Instrument(platform='pysat', name='ndtesting')
         self.model = pysat.Instrument(inst_module=pysat_testmodel,
                                       tag='pressure_levels')
 
@@ -731,7 +731,7 @@ class TestUtilsExtractInstModIrregViewXarray(TestUtilsExtractInstModIrregView):
     def setup_method(self):
         """Run before every method to create a clean testing setup."""
 
-        self.inst = pysat.Instrument(platform='pysat', name='testing2d_xarray',
+        self.inst = pysat.Instrument(platform='pysat', name='ndtesting',
                                      num_samples=3, max_latitude=45.)
         self.model = pysat.Instrument(inst_module=pysat_testmodel,
                                       tag='pressure_levels',

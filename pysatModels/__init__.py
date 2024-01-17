@@ -11,16 +11,18 @@ and modelled data sets.
 """
 
 import logging
-import os
+
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata
 
 # Import key modules and skip F401 testing in flake8
 from pysatModels import models  # noqa: F401
 from pysatModels import utils  # noqa: F401
 
 # Set the version
-local_dir = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(local_dir, 'version.txt')) as version_file:
-    __version__ = version_file.read().strip()
+__version__ = metadata.version('pysatModels')
 
 # Define a logger object to allow easier log handling
 logging.raiseExceptions = False
@@ -30,4 +32,4 @@ handler.setFormatter(logging.Formatter('%(name)s %(levelname)s: %(message)s'))
 logger.addHandler(handler)
 
 # Clean up variables
-del handler, local_dir, version_file
+del handler
