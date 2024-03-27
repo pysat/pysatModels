@@ -50,7 +50,7 @@ pandas_format = False
 _test_dates = {'': {tag: dt.datetime(2019, 1, 1) for tag in tags.keys()}}
 _test_download = {'': {'': False, 'test': True}}
 # TODO(#136): Remove when compliant with multi-day load tests
-_test_new_tests = {'': {'test': False}}
+_new_tests = {'': {'test': False}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
