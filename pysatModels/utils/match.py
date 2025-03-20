@@ -7,6 +7,7 @@
 
 import datetime as dt
 import numpy as np
+from packaging import version as pack_ver
 import pandas as pds
 
 import pysat
@@ -162,8 +163,12 @@ def collect_inst_model_pairs(start, stop, tinc, inst, inst_download_kwargs=None,
     # Download the instrument data, if needed and wanted
     if not skip_download and (stop
                               - start).days != len(inst.files[start:stop]):
+        if (pack_ver.Version(pds.__version__) > pack_ver.Version('1.4.0')):
+            bound_kwargs = {'inclusive': 'left'}
+        else:
+            bound_kwargs = {'closed': 'left'}
         missing_times = [tt for tt in pds.date_range(start, stop, freq='1D',
-                                                     inclusive='left')
+                                                     **bound_kwargs)
                          if tt not in inst.files[start:stop].index]
         for tt in missing_times:
             inst.download(start=tt, stop=tt + pds.DateOffset(days=1),

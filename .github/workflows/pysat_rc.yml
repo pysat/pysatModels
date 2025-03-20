@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        python-version: ["3.10"]
+        python-version: ["3.11"]  # Keep this version at the highest supported Python version
         rc-package: ["pysat", "pysatNASA"]
 
     name: ${{ matrix.os }} with ${{ matrix.rc-package }} RC
@@ -30,9 +30,7 @@ jobs:
       run: pip install --no-deps --pre -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ ${{ matrix.rc-package }}
 
     - name: Install standard dependencies
-      run: |
-        pip install -r test_requirements.txt
-        pip install -r requirements.txt
+      run: pip install .[test]
 
     - name: Set up pysat
       run: |
@@ -40,9 +38,22 @@ jobs:
         python -c "import pysat; pysat.params['data_dirs'] = 'pysatData'"
 
     - name: Run unit and integration tests
-      run: pytest --cov=pysatModels/
+      run: pytest
 
     - name: Publish results to coveralls
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: coveralls --rcfile=setup.cfg --service=github
+        COVERALLS_PARALLEL: true
+      run: coveralls --rcfile=pyproject.toml --service=github
+
+  finish:
+    name: Finish Coverage Analysis
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        pip install --upgrade coveralls
+        coveralls --service=github --finish

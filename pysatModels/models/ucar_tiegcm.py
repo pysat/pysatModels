@@ -51,7 +51,8 @@ pandas_format = False
 
 _test_dates = {'': {'': dt.datetime(2019, 1, 1),
                     'icon': dt.datetime(2020, 1, 10)}}
-_test_download = {'': {'': False, 'icon': True}}
+# TODO(#132): Turn on ICON download tests once pysatNASA 0.0.6 is released.
+_test_download = {'': {'': False, 'icon': False}}
 
 # ----------------------------------------------------------------------------
 # Instrument methods
@@ -183,13 +184,9 @@ def load(fnames, tag='', inst_id='', **kwargs):
 
     """
 
-    # TODO(#114): eventually remove support for multiple pysat versions
-    if hasattr(pysat.utils, 'io'):
-        data, meta = pysat.utils.io.load_netcdf(fnames, pandas_format=False,
-                                                epoch_name='time',
-                                                decode_times=True)
-    else:
-        data, meta = pysat.utils.load_netcdf4(fnames, pandas_format=False)
+    data, meta = pysat.utils.io.load_netcdf(fnames, pandas_format=False,
+                                            epoch_name='time',
+                                            decode_times=True)
 
     # Move misc parameters from xarray to the Instrument object via Meta.
     # Doing this after `meta` created ensures all metadata is still kept
@@ -246,8 +243,8 @@ def download(date_array, tag, inst_id, data_path, **kwargs):
 
     if tag == '':
         warnings.warn('Not implemented, currently no support for Globus.')
+    # TODO(#132): Ensure new download routine is used after pysatNASA release.
     elif tag == 'icon':
-
         cdw.download(date_array, tag=tag, inst_id=inst_id, data_path=data_path,
                      supported_tags=download_tags)
 

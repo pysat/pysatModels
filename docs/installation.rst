@@ -20,15 +20,15 @@ Prerequisites
 pysatModels uses common Python modules, as well as modules developed by and for
 the Space Physics community.  This module officially supports Python 3.6+.
 
- ============== =================
+ ============== ==================
  Common modules Community modules
- ============== =================
-  numpy         pysat
-  pandas        pyForecastTools
-  requests
+ ============== ==================
+  numpy         pysat >= 3.0.4
+  pandas        pysatNASA <= 0.0.4
+  requests      pyForecastTools
   scipy
   xarray
- ============== =================
+ ============== ==================
 
 
 .. _install-opt:
@@ -85,7 +85,7 @@ is set up, you may choose to register the the :py:mod:`pysatModel` model
 
 .. code:: python
 
-	  
+
    import pysat
    import pysatModels as pymod
 

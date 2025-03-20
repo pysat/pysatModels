@@ -6,7 +6,6 @@
 """Unit tests for `pysatModels.utils.testing`."""
 
 import numpy as np
-from packaging import version as pack_version
 import pytest
 
 import pysat
@@ -18,22 +17,20 @@ from pysatModels.utils.testing import compare_mod_name_coordinates
 class TestUtilsCompareModName(object):
     """Unit tests for `compare_mod_name_coordinates`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.model = pysat.Instrument(inst_module=pysat_testmodel, tag='')
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.model.load(**load_kwargs)
 
         return
 
-    def teardown(self):
+    def teardown_method(self):
         """Clean up the unit test environment after each method."""
 
         del self.model
@@ -92,14 +89,10 @@ class TestUtilsCompareModName(object):
         return
 
 
-@pytest.mark.skipif(pack_version.Version(pysat.__version__)
-                    <= pack_version.Version('3.0.1'),
-                    reason=''.join(('Requires test model in pysat ',
-                                    ' v3.0.2 or later.')))
 class TestUtilsCompareModNamePressure(TestUtilsCompareModName):
     """Unit tests for `compare_mod_name_coordinates`."""
 
-    def setup(self):
+    def setup_method(self):
         """Set up the unit test environment for each method."""
 
         self.model = pysat.Instrument(inst_module=pysat_testmodel,
@@ -107,9 +100,7 @@ class TestUtilsCompareModNamePressure(TestUtilsCompareModName):
 
         # Load the data in the instruments
         load_kwargs = {'date': pysat_testmodel._test_dates['']['']}
-        if(pack_version.Version(pysat.__version__)
-           > pack_version.Version('3.0.1')):
-            load_kwargs['use_header'] = True
+        load_kwargs['use_header'] = True
 
         self.model.load(**load_kwargs)
 
