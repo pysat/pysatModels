@@ -16,7 +16,6 @@ https://www.sphinx-doc.org/en/master/config
 import datetime as dt
 import json
 import os
-import pkg_resources
 import sys
 
 sys.path.insert(0, os.path.abspath('..'))
@@ -41,7 +40,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.githubpages',
               'sphinx.ext.autosectionlabel',
               'numpydoc',
-              'm2r2']
+              'myst_parser']
 
 autosectionlabel_prefix_document = True
 autosectionlabel_maxdepth = 3
@@ -73,7 +72,7 @@ category = 'Space Physics'
 #
 # The short X.Y version.
 module_dir = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
-version = pkg_resources.get_distribution('pysatModels').version
+version = '0.1.1'
 
 # The full version, including alpha/beta/rc tags.
 release = '{:s}-alpha'.format(version)
