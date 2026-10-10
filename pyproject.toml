@@ -32,7 +32,7 @@ dependencies = [
   "packaging",
   "pandas",
   "pyForecastTools",
-  "pysat >= 3.2.0",
+  "pysat >= 3.2.2",
   "pysatNASA <= 0.0.4",
   "requests",
   "scipy",
