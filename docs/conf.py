@@ -73,7 +73,7 @@ category = 'Space Physics'
 #
 # The short X.Y version.
 module_dir = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
-version = pkg_resources.get_distribution('pysatModels').version
+version = '0.1.1'
 
 # The full version, including alpha/beta/rc tags.
 release = '{:s}-alpha'.format(version)
