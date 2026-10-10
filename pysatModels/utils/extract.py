@@ -187,7 +187,7 @@ def instrument_altitude_to_model_pressure(inst, model, inst_name, mod_name,
                 coords.append(inst[coord] * iscale)
 
         coords.insert(0, inst.index.values.astype(int))
-        # To peform the interpolation we need points
+        # To perform the interpolation we need points
         # like (x1, y1, z1), (x2, y2, z2)
         # but we currently have a list like
         # [(x1, x2, x3), (y1, y2, y3), ...].
