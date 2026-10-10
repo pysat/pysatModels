@@ -16,7 +16,6 @@ https://www.sphinx-doc.org/en/master/config
 import datetime as dt
 import json
 import os
-import pkg_resources
 import sys
 
 sys.path.insert(0, os.path.abspath('..'))
